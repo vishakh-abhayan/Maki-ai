@@ -21,13 +21,13 @@ const Header = ({ userName = "Aditya" }: HeaderProps) => {
         {/* Action Buttons */}
         <div className="flex items-center gap-3">
           <button 
-            className="w-10 h-10 rounded-xl bg-white/5 hover:bg-white/10 flex items-center justify-center transition-all duration-300"
+            className="w-10 h-10 glass-button glass-hover flex items-center justify-center"
             aria-label="Download"
           >
             <Download className="w-5 h-5" />
           </button>
           <button 
-            className="w-10 h-10 rounded-xl bg-white/5 hover:bg-white/10 flex items-center justify-center transition-all duration-300"
+            className="w-10 h-10 glass-button glass-hover flex items-center justify-center"
             aria-label="Settings"
           >
             <Settings className="w-5 h-5" />

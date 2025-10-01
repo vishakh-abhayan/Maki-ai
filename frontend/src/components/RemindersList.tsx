@@ -10,7 +10,7 @@ const RemindersList = ({ reminders }: RemindersListProps) => {
     <div className="space-y-6">
       {/* Listening Status */}
       <div className="flex flex-col items-center">
-        <div className="w-32 h-32 rounded-full bg-gradient-to-br from-primary/30 to-primary/10 flex items-center justify-center mb-4 relative">
+        <div className="w-32 h-32 glass-circle flex items-center justify-center mb-4 relative">
           <div className="absolute inset-0 rounded-full bg-primary/20 animate-pulse" />
           <Mic className="w-12 h-12 text-primary relative z-10" />
         </div>

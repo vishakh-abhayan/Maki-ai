@@ -2,10 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
-All colors MUST be HSL.
-*/
-
 @layer base {
   :root {
     /* Maki.ai Dark Ocean Theme */
@@ -62,26 +58,291 @@ All colors MUST be HSL.
   }
 }
 
+
 @layer base {
   * {
     @apply border-border;
   }
 
+  /* ANIMATED MORPHING GRADIENT WITH VISIBLE EFFECT */
   body {
-    @apply bg-background text-foreground;
-    background: linear-gradient(135deg, hsl(200 60% 8%) 0%, hsl(200 50% 12%) 100%);
+    @apply text-foreground;
+    min-height: 100vh;
+    background: hsl(200 60% 8%);
+    position: relative;
+    overflow-x: hidden;
+  }
+
+  /* First layer - larger, more visible morphing blobs */
+  body::before {
+    content: '';
+    position: fixed;
+    top: -100px;
+    left: -100px;
+    right: -100px;
+    bottom: -100px;
+    background: 
+      radial-gradient(
+        circle 600px at 25% 25%,
+        hsl(188 70% 40% / 0.15) 0%,
+        transparent 50%
+      ),
+      radial-gradient(
+        circle 800px at 75% 80%,
+        hsl(200 60% 35% / 0.12) 0%,
+        transparent 50%
+      ),
+      radial-gradient(
+        circle 700px at 50% 50%,
+        hsl(188 80% 45% / 0.1) 0%,
+        transparent 50%
+      ),
+      radial-gradient(
+        circle 900px at 80% 20%,
+        hsl(200 70% 30% / 0.15) 0%,
+        transparent 45%
+      );
+    filter: blur(40px);
+    animation: morphGradient 25s ease-in-out infinite;
+    z-index: 0;
+  }
+
+  /* Second layer - complementary morphing */
+  body::after {
+    content: '';
+    position: fixed;
+    top: -100px;
+    left: -100px;
+    right: -100px;
+    bottom: -100px;
+    background: 
+      radial-gradient(
+        circle 750px at 80% 50%,
+        hsl(188 60% 35% / 0.12) 0%,
+        transparent 50%
+      ),
+      radial-gradient(
+        circle 650px at 20% 80%,
+        hsl(200 65% 40% / 0.1) 0%,
+        transparent 50%
+      ),
+      radial-gradient(
+        circle 850px at 40% 30%,
+        hsl(188 75% 38% / 0.08) 0%,
+        transparent 50%
+      );
+    filter: blur(60px);
+    animation: morphGradientReverse 30s ease-in-out infinite;
+    z-index: 0;
+  }
+
+  /* Ensure content stays above */
+  body > * {
+    position: relative;
+    z-index: 1;
+  }
+}
+
+/* Smooth morphing animations */
+@keyframes morphGradient {
+  0%, 100% {
+    transform: rotate(0deg) scale(1) translate(0, 0);
+  }
+  20% {
+    transform: rotate(45deg) scale(1.1) translate(-20px, 10px);
+  }
+  40% {
+    transform: rotate(90deg) scale(0.95) translate(10px, -20px);
+  }
+  60% {
+    transform: rotate(180deg) scale(1.05) translate(-10px, -10px);
+  }
+  80% {
+    transform: rotate(270deg) scale(0.98) translate(20px, 20px);
+  }
+}
+
+@keyframes morphGradientReverse {
+  0%, 100% {
+    transform: rotate(360deg) scale(1) translate(0, 0);
+  }
+  20% {
+    transform: rotate(270deg) scale(0.95) translate(10px, -10px);
+  }
+  40% {
+    transform: rotate(180deg) scale(1.08) translate(-20px, 20px);
+  }
+  60% {
+    transform: rotate(90deg) scale(0.97) translate(15px, 15px);
+  }
+  80% {
+    transform: rotate(45deg) scale(1.02) translate(-15px, -15px);
   }
 }
 
 @layer utilities {
-  .glass-card {
-    @apply bg-card/60 backdrop-blur-xl border border-white/10;
-  }
-  
-  .glass-hover {
-    @apply transition-all duration-300 hover:bg-card/70 hover:shadow-[0_8px_32px_hsl(200_60%_5%/0.4)];
+  /* UNIVERSAL GLASSMORPHISM FROM CSS.GLASS GENERATOR */
+  .glass {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 16px;
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(4.3px);
+    -webkit-backdrop-filter: blur(4.3px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
   }
 
+  /* Component-specific glass variations */
+  .glass-card {
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 16px;
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(4.3px);
+    -webkit-backdrop-filter: blur(4.3px);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+  }
+
+  .glass-sidebar {
+    background: rgba(255, 255, 255, 0.02);
+    border-radius: 0;
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(4.3px);
+    -webkit-backdrop-filter: blur(4.3px);
+    border-right: 1px solid rgba(255, 255, 255, 0.05);
+  }
+
+  .glass-panel {
+    background: rgba(255, 255, 255, 0.04);
+    border-radius: 20px;
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(4.3px);
+    -webkit-backdrop-filter: blur(4.3px);
+    border: 1px solid rgba(255, 255, 255, 0.07);
+  }
+
+  .glass-button {
+    background: rgba(255, 255, 255, 0.06);
+    border-radius: 12px;
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(4.3px);
+    -webkit-backdrop-filter: blur(4.3px);
+    border: 1px solid rgba(255, 255, 255, 0.09);
+  }
+
+  .glass-circle {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 50%;
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(4.3px);
+    -webkit-backdrop-filter: blur(4.3px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  .glass-input {
+    background: rgba(255, 255, 255, 0.02);
+    border-radius: 8px;
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.05);
+    backdrop-filter: blur(4.3px);
+    -webkit-backdrop-filter: blur(4.3px);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+  }
+
+  .glass-badge {
+    background: rgba(255, 255, 255, 0.07);
+    border-radius: 6px;
+    box-shadow: 0 2px 15px rgba(0, 0, 0, 0.08);
+    backdrop-filter: blur(4.3px);
+    -webkit-backdrop-filter: blur(4.3px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  /* Hover states */
+  .glass-hover {
+    @apply transition-all duration-300;
+  }
+
+  .glass:hover,
+  .glass-card:hover,
+  .glass-panel:hover,
+  .glass-button:hover {
+    background: rgba(255, 255, 255, 0.08);
+    box-shadow: 0 6px 35px rgba(0, 0, 0, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    transform: translateY(-2px);
+  }
+
+  .glass-input:focus {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    box-shadow: 
+      0 4px 30px rgba(0, 0, 0, 0.1),
+      0 0 0 2px rgba(30, 188, 184, 0.1);
+    outline: none;
+  }
+
+  /* Active/Selected state with teal accent */
+  .glass-active {
+    background: rgba(30, 188, 184, 0.08);
+    border: 1px solid rgba(30, 188, 184, 0.2);
+    box-shadow: 
+      0 4px 30px rgba(0, 0, 0, 0.1),
+      0 0 20px rgba(30, 188, 184, 0.05);
+  }
+
+  /* Disabled state */
+  .glass-disabled {
+    background: rgba(255, 255, 255, 0.01);
+    border: 1px solid rgba(255, 255, 255, 0.03);
+    box-shadow: 0 2px 15px rgba(0, 0, 0, 0.05);
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  /* High priority/alert glass */
+  .glass-alert {
+    background: rgba(255, 59, 48, 0.08);
+    border-radius: 12px;
+    box-shadow: 0 4px 30px rgba(255, 59, 48, 0.1);
+    backdrop-filter: blur(4.3px);
+    -webkit-backdrop-filter: blur(4.3px);
+    border: 1px solid rgba(255, 59, 48, 0.2);
+  }
+
+  /* Success glass */
+  .glass-success {
+    background: rgba(52, 199, 89, 0.08);
+    border-radius: 12px;
+    box-shadow: 0 4px 30px rgba(52, 199, 89, 0.1);
+    backdrop-filter: blur(4.3px);
+    -webkit-backdrop-filter: blur(4.3px);
+    border: 1px solid rgba(52, 199, 89, 0.2);
+  }
+
+  /* Different radius options */
+  .glass-sm {
+    border-radius: 8px;
+  }
+
+  .glass-md {
+    border-radius: 12px;
+  }
+
+  .glass-lg {
+    border-radius: 16px;
+  }
+
+  .glass-xl {
+    border-radius: 20px;
+  }
+
+  .glass-2xl {
+    border-radius: 24px;
+  }
+
+  .glass-full {
+    border-radius: 9999px;
+  }
+
+  /* Rest of your existing utilities... */
   .text-subtle {
     @apply text-foreground/70;
   }
@@ -107,15 +368,5 @@ All colors MUST be HSL.
       opacity: 1;
       transform: translateY(0);
     }
-  }
-}
-
-@layer base {
-  * {
-    @apply border-border;
-  }
-
-  body {
-    @apply bg-background text-foreground;
   }
 }

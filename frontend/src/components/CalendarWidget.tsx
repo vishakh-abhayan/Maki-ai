@@ -15,7 +15,7 @@ const CalendarWidget = () => {
   ];
 
   return (
-    <div className="glass-card rounded-3xl p-8 animate-fade-in">
+    <div className="glass-panel glass-hover rounded-3xl p-8 animate-fade-in">
       <h2 className="text-2xl font-semibold mb-6">September, 2025</h2>
       
       <div className="space-y-2">

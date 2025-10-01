@@ -18,7 +18,7 @@ const ReminderCard = ({ reminder }: ReminderCardProps) => {
   const iconColor = reminder.type === 'call' ? 'bg-success' : 'bg-info';
 
   return (
-    <div className="glass-card rounded-2xl p-4 hover:bg-card/70 transition-all duration-300">
+    <div className="glass glass-hover p-4 rounded-2xl">
       <div className="flex items-start gap-3">
         <div className={cn(
           "w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0",

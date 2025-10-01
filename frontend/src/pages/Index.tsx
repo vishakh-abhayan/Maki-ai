@@ -65,12 +65,12 @@ const placeholderReminders: Reminder[] = [
 
 const Index = () => {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background to-background-secondary">
+    <div className="min-h-screen relative">
       <Sidebar activeItem="home" />
       
       <div className="ml-20 flex min-h-screen">
         {/* Main Content */}
-        <main className="flex-1 p-8 max-w-4xl">
+        <main className="flex-1 p-8 max-w-4xl relative z-10">
           <Header userName="Aditya" />
           
           <div className="space-y-6">
@@ -80,7 +80,7 @@ const Index = () => {
         </main>
 
         {/* Right Sidebar */}
-        <aside className="w-96 p-8 border-l border-white/5 hidden xl:block">
+        <aside className="w-96 p-8 border-l border-white/5 hidden xl:block relative z-10">
           <RemindersList reminders={placeholderReminders} />
         </aside>
       </div>

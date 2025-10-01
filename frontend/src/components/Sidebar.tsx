@@ -14,7 +14,7 @@ const Sidebar = ({ activeItem = "home" }: SidebarProps) => {
   ];
 
   return (
-    <aside className="fixed left-0 top-0 h-screen w-20 bg-gradient-to-b from-[hsl(200,55%,10%)] to-[hsl(200,60%,8%)] border-r border-white/5 flex flex-col items-center py-8 z-50">
+    <aside className="glass-sidebar fixed left-0 top-0 h-screen w-20  flex flex-col items-center py-8 z-50">
       {/* Logo */}
       <div className="mb-12">
         <div className="w-12 h-12 rounded-full bg-primary/20 flex items-center justify-center">
