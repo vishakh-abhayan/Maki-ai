@@ -8,6 +8,10 @@ from fastapi import FastAPI, UploadFile, File, Form, HTTPException
 from pymongo import MongoClient
 from groq import Groq
 import uvicorn
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 # Import the processing functions from our other file
 from processing import (
@@ -15,7 +19,7 @@ from processing import (
     transcribe_with_groq,
     perform_diarization,
     format_transcript,
-    extract_insights_with_groq # Import the new function
+    extract_insights_with_groq
 )
 
 # Initialize the FastAPI app
@@ -26,21 +30,22 @@ app = FastAPI(
 
 # --- MongoDB Connection ---
 try:
-    mongo_client = MongoClient("mongodb://localhost:27017/")
+    mongodb_url = os.getenv("MONGODB_URL", "mongodb://localhost:27017/")
+    mongo_client = MongoClient(mongodb_url)
     db = mongo_client["transcription_db"]
     transcripts_collection = db["transcripts"]
-    print("Successfully connected to MongoDB.")
+    print(f"Successfully connected to MongoDB at {mongodb_url}")
 except Exception as e:
     print(f"Failed to connect to MongoDB: {e}")
     mongo_client = None
 
 # --- Groq Client Initialization ---
 try:
-    # Directly paste your API key here
-    groq_api_key = "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" 
-    if not groq_api_key or groq_api_key == "your-groq-api-key-here":
-        raise ValueError("Please replace 'your-groq-api-key-here' with your actual Groq API key.")
+    groq_api_key = os.getenv("GROQ_API_KEY")
+    if not groq_api_key:
+        raise ValueError("GROQ_API_KEY not found in environment variables. Please add it to .env file.")
     client = Groq(api_key=groq_api_key)
+    print("Successfully initialized Groq client.")
 except Exception as e:
     print(f"Failed to initialize Groq client: {e}")
     client = None
@@ -94,7 +99,6 @@ async def transcribe_audio(
         except Exception as e:
             raise HTTPException(status_code=500, detail=f"An error occurred during insight extraction: {e}")
 
-
         # 6. Store the result in MongoDB
         if mongo_client:
             try:
@@ -103,7 +107,7 @@ async def transcribe_audio(
                     "filename": file.filename,
                     "num_speakers": num_speakers,
                     "transcript": final_transcript,
-                    "insights": insights, # Add insights to the record
+                    "insights": insights,
                     "timestamp": datetime.utcnow()
                 }
                 transcripts_collection.insert_one(transcript_record)
@@ -132,7 +136,6 @@ async def get_all_transcripts():
         return all_transcripts
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to retrieve transcripts: {e}")
-
 
 @app.get("/")
 def read_root():
