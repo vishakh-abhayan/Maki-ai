@@ -2,371 +2,82 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
+All colors MUST be HSL.
+*/
+
 @layer base {
   :root {
-    /* Maki.ai Dark Ocean Theme */
-    --background: 200 60% 8%;
-    --background-secondary: 200 50% 12%;
-    --foreground: 0 0% 100%;
+    /* Dark teal AI assistant theme */
+    --background: 195 45% 12%;
+    --background-gradient-start: 195 50% 10%;
+    --background-gradient-end: 195 40% 15%;
+    --foreground: 180 10% 90%;
 
-    --card: 200 40% 15%;
-    --card-foreground: 0 0% 100%;
-    --card-glass: 200 40% 20%;
+    --card: 195 35% 18%;
+    --card-foreground: 180 10% 95%;
+    --card-border: 195 40% 30%;
 
-    --popover: 200 40% 15%;
-    --popover-foreground: 0 0% 100%;
+    --popover: 195 40% 15%;
+    --popover-foreground: 180 10% 95%;
 
-    --primary: 188 95% 50%;
-    --primary-foreground: 200 60% 8%;
-    --primary-glow: 188 95% 65%;
+    --primary: 220 80% 60%;
+    --primary-foreground: 0 0% 100%;
 
-    --secondary: 200 30% 25%;
-    --secondary-foreground: 0 0% 100%;
+    --secondary: 195 35% 22%;
+    --secondary-foreground: 180 10% 90%;
 
-    --muted: 200 30% 20%;
-    --muted-foreground: 0 0% 70%;
+    --muted: 195 30% 25%;
+    --muted-foreground: 195 15% 60%;
 
-    --accent: 188 95% 50%;
-    --accent-foreground: 200 60% 8%;
+    --accent: 220 75% 55%;
+    --accent-foreground: 0 0% 100%;
 
-    --destructive: 0 84% 60%;
-    --destructive-foreground: 0 0% 100%;
-
-    --success: 160 84% 45%;
+    --success: 160 70% 45%;
     --success-foreground: 0 0% 100%;
 
-    --warning: 38 92% 50%;
+    --warning: 35 90% 55%;
     --warning-foreground: 0 0% 100%;
 
-    --info: 240 84% 65%;
-    --info-foreground: 0 0% 100%;
+    --destructive: 5 80% 55%;
+    --destructive-foreground: 0 0% 100%;
 
-    --border: 200 30% 25%;
-    --input: 200 30% 20%;
-    --ring: 188 95% 50%;
+    --purple: 260 70% 60%;
+    --purple-foreground: 0 0% 100%;
+
+    --border: 195 35% 25%;
+    --input: 195 35% 20%;
+    --ring: 220 80% 60%;
 
     --radius: 1rem;
 
-    /* Custom gradients */
-    --gradient-ocean: linear-gradient(135deg, hsl(200 60% 8%) 0%, hsl(200 50% 12%) 100%);
-    --gradient-sidebar: linear-gradient(180deg, hsl(200 55% 10%) 0%, hsl(200 60% 8%) 100%);
-    --gradient-card: linear-gradient(135deg, hsl(200 40% 15% / 0.6) 0%, hsl(200 40% 20% / 0.4) 100%);
-    
-    /* Shadows */
-    --shadow-glow: 0 0 20px hsl(188 95% 50% / 0.15);
-    --shadow-card: 0 8px 32px hsl(200 60% 5% / 0.4);
+    /* Glass effect for cards */
+    --glass-bg: 195 35% 18% / 0.6;
+    --glass-border: 195 40% 35% / 0.4;
   }
 }
-
 
 @layer base {
   * {
     @apply border-border;
   }
 
-  /* ANIMATED MORPHING GRADIENT WITH VISIBLE EFFECT */
   body {
     @apply text-foreground;
+    background: linear-gradient(135deg, hsl(var(--background-gradient-start)), hsl(var(--background-gradient-end)));
     min-height: 100vh;
-    background: hsl(200 60% 8%);
-    position: relative;
-    overflow-x: hidden;
   }
 
-  /* First layer - larger, more visible morphing blobs */
-  body::before {
-    content: '';
-    position: fixed;
-    top: -100px;
-    left: -100px;
-    right: -100px;
-    bottom: -100px;
-    background: 
-      radial-gradient(
-        circle 600px at 25% 25%,
-        hsl(188 70% 40% / 0.15) 0%,
-        transparent 50%
-      ),
-      radial-gradient(
-        circle 800px at 75% 80%,
-        hsl(200 60% 35% / 0.12) 0%,
-        transparent 50%
-      ),
-      radial-gradient(
-        circle 700px at 50% 50%,
-        hsl(188 80% 45% / 0.1) 0%,
-        transparent 50%
-      ),
-      radial-gradient(
-        circle 900px at 80% 20%,
-        hsl(200 70% 30% / 0.15) 0%,
-        transparent 45%
-      );
-    filter: blur(40px);
-    animation: morphGradient 25s ease-in-out infinite;
-    z-index: 0;
-  }
-
-  /* Second layer - complementary morphing */
-  body::after {
-    content: '';
-    position: fixed;
-    top: -100px;
-    left: -100px;
-    right: -100px;
-    bottom: -100px;
-    background: 
-      radial-gradient(
-        circle 750px at 80% 50%,
-        hsl(188 60% 35% / 0.12) 0%,
-        transparent 50%
-      ),
-      radial-gradient(
-        circle 650px at 20% 80%,
-        hsl(200 65% 40% / 0.1) 0%,
-        transparent 50%
-      ),
-      radial-gradient(
-        circle 850px at 40% 30%,
-        hsl(188 75% 38% / 0.08) 0%,
-        transparent 50%
-      );
-    filter: blur(60px);
-    animation: morphGradientReverse 30s ease-in-out infinite;
-    z-index: 0;
-  }
-
-  /* Ensure content stays above */
-  body > * {
-    position: relative;
-    z-index: 1;
-  }
-}
-
-/* Smooth morphing animations */
-@keyframes morphGradient {
-  0%, 100% {
-    transform: rotate(0deg) scale(1) translate(0, 0);
-  }
-  20% {
-    transform: rotate(45deg) scale(1.1) translate(-20px, 10px);
-  }
-  40% {
-    transform: rotate(90deg) scale(0.95) translate(10px, -20px);
-  }
-  60% {
-    transform: rotate(180deg) scale(1.05) translate(-10px, -10px);
-  }
-  80% {
-    transform: rotate(270deg) scale(0.98) translate(20px, 20px);
-  }
-}
-
-@keyframes morphGradientReverse {
-  0%, 100% {
-    transform: rotate(360deg) scale(1) translate(0, 0);
-  }
-  20% {
-    transform: rotate(270deg) scale(0.95) translate(10px, -10px);
-  }
-  40% {
-    transform: rotate(180deg) scale(1.08) translate(-20px, 20px);
-  }
-  60% {
-    transform: rotate(90deg) scale(0.97) translate(15px, 15px);
-  }
-  80% {
-    transform: rotate(45deg) scale(1.02) translate(-15px, -15px);
-  }
-}
-
-@layer utilities {
-  /* UNIVERSAL GLASSMORPHISM FROM CSS.GLASS GENERATOR */
-  .glass {
-    background: rgba(255, 255, 255, 0.05);
-    border-radius: 16px;
-    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
-    backdrop-filter: blur(4.3px);
-    -webkit-backdrop-filter: blur(4.3px);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-  }
-
-  /* Component-specific glass variations */
+  /* Glass card effect */
   .glass-card {
-    background: rgba(255, 255, 255, 0.03);
-    border-radius: 16px;
-    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
-    backdrop-filter: blur(4.3px);
-    -webkit-backdrop-filter: blur(4.3px);
-    border: 1px solid rgba(255, 255, 255, 0.06);
+    background: hsl(var(--glass-bg));
+    border: 1px solid hsl(var(--glass-border));
+    backdrop-filter: blur(20px);
+    border-radius: var(--radius);
   }
 
-  .glass-sidebar {
-    background: rgba(255, 255, 255, 0.02);
-    border-radius: 0;
-    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
-    backdrop-filter: blur(4.3px);
-    -webkit-backdrop-filter: blur(4.3px);
-    border-right: 1px solid rgba(255, 255, 255, 0.05);
-  }
-
-  .glass-panel {
-    background: rgba(255, 255, 255, 0.04);
-    border-radius: 20px;
-    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
-    backdrop-filter: blur(4.3px);
-    -webkit-backdrop-filter: blur(4.3px);
-    border: 1px solid rgba(255, 255, 255, 0.07);
-  }
-
-  .glass-button {
-    background: rgba(255, 255, 255, 0.06);
-    border-radius: 12px;
-    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
-    backdrop-filter: blur(4.3px);
-    -webkit-backdrop-filter: blur(4.3px);
-    border: 1px solid rgba(255, 255, 255, 0.09);
-  }
-
-  .glass-circle {
-    background: rgba(255, 255, 255, 0.05);
-    border-radius: 50%;
-    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
-    backdrop-filter: blur(4.3px);
-    -webkit-backdrop-filter: blur(4.3px);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-  }
-
-  .glass-input {
-    background: rgba(255, 255, 255, 0.02);
-    border-radius: 8px;
-    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.05);
-    backdrop-filter: blur(4.3px);
-    -webkit-backdrop-filter: blur(4.3px);
-    border: 1px solid rgba(255, 255, 255, 0.06);
-  }
-
-  .glass-badge {
-    background: rgba(255, 255, 255, 0.07);
-    border-radius: 6px;
-    box-shadow: 0 2px 15px rgba(0, 0, 0, 0.08);
-    backdrop-filter: blur(4.3px);
-    -webkit-backdrop-filter: blur(4.3px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-  }
-
-  /* Hover states */
-  .glass-hover {
-    @apply transition-all duration-300;
-  }
-
-  .glass:hover,
-  .glass-card:hover,
-  .glass-panel:hover,
-  .glass-button:hover {
-    background: rgba(255, 255, 255, 0.08);
-    box-shadow: 0 6px 35px rgba(0, 0, 0, 0.15);
-    border: 1px solid rgba(255, 255, 255, 0.12);
-    transform: translateY(-2px);
-  }
-
-  .glass-input:focus {
-    background: rgba(255, 255, 255, 0.04);
-    border: 1px solid rgba(255, 255, 255, 0.12);
-    box-shadow: 
-      0 4px 30px rgba(0, 0, 0, 0.1),
-      0 0 0 2px rgba(30, 188, 184, 0.1);
-    outline: none;
-  }
-
-  /* Active/Selected state with teal accent */
-  .glass-active {
-    background: rgba(30, 188, 184, 0.08);
-    border: 1px solid rgba(30, 188, 184, 0.2);
-    box-shadow: 
-      0 4px 30px rgba(0, 0, 0, 0.1),
-      0 0 20px rgba(30, 188, 184, 0.05);
-  }
-
-  /* Disabled state */
-  .glass-disabled {
-    background: rgba(255, 255, 255, 0.01);
-    border: 1px solid rgba(255, 255, 255, 0.03);
-    box-shadow: 0 2px 15px rgba(0, 0, 0, 0.05);
-    opacity: 0.6;
-    cursor: not-allowed;
-  }
-
-  /* High priority/alert glass */
-  .glass-alert {
-    background: rgba(255, 59, 48, 0.08);
-    border-radius: 12px;
-    box-shadow: 0 4px 30px rgba(255, 59, 48, 0.1);
-    backdrop-filter: blur(4.3px);
-    -webkit-backdrop-filter: blur(4.3px);
-    border: 1px solid rgba(255, 59, 48, 0.2);
-  }
-
-  /* Success glass */
-  .glass-success {
-    background: rgba(52, 199, 89, 0.08);
-    border-radius: 12px;
-    box-shadow: 0 4px 30px rgba(52, 199, 89, 0.1);
-    backdrop-filter: blur(4.3px);
-    -webkit-backdrop-filter: blur(4.3px);
-    border: 1px solid rgba(52, 199, 89, 0.2);
-  }
-
-  /* Different radius options */
-  .glass-sm {
-    border-radius: 8px;
-  }
-
-  .glass-md {
-    border-radius: 12px;
-  }
-
-  .glass-lg {
-    border-radius: 16px;
-  }
-
-  .glass-xl {
-    border-radius: 20px;
-  }
-
-  .glass-2xl {
-    border-radius: 24px;
-  }
-
-  .glass-full {
-    border-radius: 9999px;
-  }
-
-  /* Rest of your existing utilities... */
-  .text-subtle {
-    @apply text-foreground/70;
-  }
-
-  .text-muted-subtle {
-    @apply text-muted-foreground/50;
-  }
-
-  .glow-text {
-    text-shadow: 0 0 20px hsl(188 95% 50% / 0.3);
-  }
-
-  .animate-fade-in {
-    animation: fadeIn 0.4s ease-out;
-  }
-
-  @keyframes fadeIn {
-    from {
-      opacity: 0;
-      transform: translateY(10px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
+  /* Smooth transitions */
+  * {
+    transition: background-color 0.2s ease, border-color 0.2s ease;
   }
 }

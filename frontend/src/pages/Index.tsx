@@ -1,89 +1,57 @@
+import { Download, Settings, User } from "lucide-react";
 import Sidebar from "@/components/Sidebar";
-import Header from "@/components/Header";
-import CalendarWidget from "@/components/CalendarWidget";
-import TaskList from "@/components/TaskList";
+import VoiceAssistant from "@/components/VoiceAssistant";
+import Calendar from "@/components/Calendar";
+import TasksList from "@/components/TasksList";
 import RemindersList from "@/components/RemindersList";
-import { Task } from "@/components/TaskItem";
-import { Reminder } from "@/components/ReminderCard";
-
-
-const placeholderTasks: Task[] = [
-  {
-    id: "1",
-    title: "Buy new outfit for Hinge date",
-    source: "Date with Sarah",
-    dueDate: "Today, 7:00 PM",
-    completed: false,
-  },
-  {
-    id: "2",
-    title: "Prepare presentation for marketing meeting",
-    source: "Team Standup",
-    dueDate: "Tomorrow, 2:00 PM",
-    priority: "high",
-    completed: false,
-  },
-  {
-    id: "3",
-    title: "Call dentist for appointment",
-    source: "Conversation with mom",
-    dueDate: "Today, 10:30 AM",
-    completed: true,
-  },
-];
-
-const placeholderReminders: Reminder[] = [
-  {
-    id: "1",
-    title: "Call Grandma",
-    source: "Call with Mom",
-    time: "Today at 7:00 PM",
-    type: "call",
-  },
-  {
-    id: "2",
-    title: "Call Grandma",
-    source: "Call with Mom",
-    time: "Today at 7:00 PM",
-    type: "call",
-  },
-  {
-    id: "3",
-    title: "Marketing Team Meeting",
-    source: "Meeting with Head of Marketing",
-    time: "Tomorrow at 2:00 PM",
-    type: "meeting",
-  },
-  {
-    id: "4",
-    title: "Marketing Team Meeting",
-    source: "Meeting with Dept of Marketing",
-    time: "Tomorrow at 2:00 PM",
-    type: "meeting",
-  },
-];
 
 const Index = () => {
   return (
-    <div className="min-h-screen relative">
-      <Sidebar activeItem="home" />
+    <div className="min-h-screen flex lg:pl-[170px] pb-16 lg:pb-0">
+      <Sidebar />
       
-      <div className="ml-20 flex min-h-screen">
-        {/* Main Content */}
-        <main className="flex-1 p-8 max-w-4xl relative z-10">
-          <Header userName="Aditya" />
-          
-          <div className="space-y-6">
-            <CalendarWidget />
-            <TaskList tasks={placeholderTasks} />
+      <main className="flex-1 p-4 md:p-6 lg:p-8 w-full">
+        {/* Mobile Header */}
+        <div className="lg:hidden flex items-center justify-between mb-6">
+          <div>
+            <h1 className="text-xl font-semibold text-foreground">maki.ai</h1>
+            <p className="text-xs text-muted-foreground mt-1">Hey, Aditya!</p>
           </div>
-        </main>
+          <div className="flex gap-2">
+            <button className="w-9 h-9 rounded-lg bg-card/40 backdrop-blur-xl border border-card-border flex items-center justify-center">
+              <Download className="w-4 h-4 text-foreground" />
+            </button>
+            <button className="w-9 h-9 rounded-lg bg-card/40 backdrop-blur-xl border border-card-border flex items-center justify-center">
+              <Settings className="w-4 h-4 text-foreground" />
+            </button>
+          </div>
+        </div>
 
-        {/* Right Sidebar */}
-        <aside className="w-96 p-8 border-l border-white/5 hidden xl:block relative z-10">
-          <RemindersList reminders={placeholderReminders} />
-        </aside>
-      </div>
+        {/* Desktop Header Actions */}
+        <div className="hidden lg:flex justify-end gap-3 mb-8">
+          <button className="w-10 h-10 rounded-lg bg-card/40 backdrop-blur-xl border border-card-border flex items-center justify-center hover:bg-card/60 transition-all">
+            <Download className="w-5 h-5 text-foreground" />
+          </button>
+          <button className="w-10 h-10 rounded-lg bg-card/40 backdrop-blur-xl border border-card-border flex items-center justify-center hover:bg-card/60 transition-all">
+            <Settings className="w-5 h-5 text-foreground" />
+          </button>
+        </div>
+
+        {/* Main Content Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6 lg:gap-8">
+          {/* Left Column */}
+          <div className="space-y-4 md:space-y-6 lg:space-y-8">
+            <VoiceAssistant />
+            <TasksList />
+          </div>
+
+          {/* Right Column */}
+          <div className="space-y-4 md:space-y-6 lg:space-y-8">
+            <Calendar />
+            <RemindersList />
+          </div>
+        </div>
+      </main>
     </div>
   );
 };
