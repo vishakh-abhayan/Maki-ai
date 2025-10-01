@@ -1,4 +1,4 @@
-import { Home, Image, Users, Network, Clock } from "lucide-react";
+import { Home, Image, Users, Network, Clock, User } from "lucide-react";
 
 const Sidebar = () => {
   const navItems = [
@@ -21,7 +21,7 @@ const Sidebar = () => {
         {/* User Avatar & Greeting */}
         <div className="w-full mb-8">
           <div className="w-14 h-14 rounded-full border-2 border-border bg-card/50 flex items-center justify-center mb-3 mx-auto">
-            <Users className="w-6 h-6 text-muted-foreground" />
+            <User className="w-6 h-6 text-muted-foreground" />
           </div>
           
         </div>
