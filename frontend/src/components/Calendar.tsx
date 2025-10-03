@@ -19,7 +19,7 @@ const Calendar = () => {
       <div className="grid grid-cols-7 gap-2 md:gap-4">
         {/* Day headers */}
         {daysOfWeek.map((day, index) => (
-          <div key={index} className="text-center text-xs md:text-sm text-muted-foreground font-medium">
+          <div key={index} className="text-center text-xs md:text-sm  font-medium">
             {day}
           </div>
         ))}

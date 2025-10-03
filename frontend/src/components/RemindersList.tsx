@@ -50,15 +50,15 @@ const RemindersList = () => {
       case 'destructive':
         return 'bg-destructive';
     }
-  };
+  };2112
 
   return (
-    <div className="glass-container p-2">
+    <div className="glass-container p-2 md:mb-14">
 
-    <div className="glass-card p-4 md:p-6">
+    <div className="glass-card md:p-6">
       <div className="flex items-center justify-between mb-4 md:mb-6">
-        <h3 className="text-lg md:text-xl font-medium text-foreground">Upcoming Reminders</h3>
-        <button className="text-xs md:text-sm text-muted-foreground hover:text-foreground transition-colors">
+        <h3 className="text-lg md:text-xl font-medium text-foreground text-center md:text-left">Upcoming Reminders</h3>
+        <button className="text-xs md:text-sm  hover:text-foreground transition-colors">
           View all
         </button>
       </div>
@@ -88,11 +88,11 @@ const RemindersList = () => {
                     {reminder.title}
                   </p>
                   {reminder.from && (
-                    <p className="text-[10px] md:text-xs text-muted-foreground mb-0.5 md:mb-1">
+                    <p className="text-[10px] md:text-xs  mb-0.5 md:mb-1">
                       From: {reminder.from}
                     </p>
                   )}
-                  <p className="text-[10px] md:text-xs text-muted-foreground">{reminder.time}</p>
+                  <p className="text-[10px] md:text-xs ">{reminder.time}</p>
                 </div>
               </div>
             </div>

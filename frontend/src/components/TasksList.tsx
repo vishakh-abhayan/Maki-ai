@@ -42,7 +42,7 @@ const TasksList = () => {
     <div className="glass-card p-4 md:p-6">
       <div className="flex items-center justify-between mb-4 md:mb-6">
         <h3 className="text-lg md:text-xl font-medium text-foreground">Today's Tasks</h3>
-        <button className="text-xs md:text-sm text-muted-foreground hover:text-foreground transition-colors">
+        <button className="text-xs md:text-sm  hover:text-foreground transition-colors">
           View all
         </button>
       </div>
@@ -66,16 +66,16 @@ const TasksList = () => {
                 <p
                   className={`text-xs md:text-sm font-medium mb-1 ${
                     task.completed
-                      ? 'line-through text-muted-foreground'
+                      ? 'line-through '
                       : 'text-foreground'
                   }`}
                 >
                   {task.title}
                 </p>
-                <p className="text-[10px] md:text-xs text-muted-foreground mb-0.5 md:mb-1">
+                <p className="text-[10px] md:text-xs  mb-0.5 md:mb-1">
                   {task.completed ? 'Completed:' : 'Due:'} {task.dueTime}
                 </p>
-                <p className="text-[10px] md:text-xs text-muted-foreground">From: {task.from}</p>
+                <p className="text-[10px] md:text-xs ">From: {task.from}</p>
               </div>
               {task.priority === 'high' && !task.completed && (
                 <span className="px-1.5 md:px-2 py-0.5 md:py-1 text-[10px] md:text-xs font-medium bg-destructive text-destructive-foreground rounded flex-shrink-0">

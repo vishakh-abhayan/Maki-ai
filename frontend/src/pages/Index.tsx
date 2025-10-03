@@ -7,7 +7,7 @@ import RemindersList from "@/components/RemindersList";
 
 const Index = () => {
   return (
-    <div className="h-screen flex lg:pl-[170px] pb-16 lg:pb-0">
+    <div className="min-h-screen flex lg:pl-[170px] pb-16 lg:pb-0">
       <Sidebar />
       
       <main className="flex-1 p-4 md:p-6 lg:p-8 w-full">
@@ -65,6 +65,7 @@ const Index = () => {
             <RemindersList />
           </div>
         </div>
+      <div className="h-10 lg:hidden"></div>
       </main>
     </div>
   );
