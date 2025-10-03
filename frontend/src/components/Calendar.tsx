@@ -9,7 +9,9 @@ const Calendar = () => {
   ];
 
   return (
-    <div className="glass-card p-4 md:p-6">
+    <div className="glass-container p-2">
+
+    <div className="glass-card pb-2 pr-2 md:p-6">
       <h3 className="text-lg md:text-xl font-medium text-foreground mb-4 md:mb-6 text-center">
         September, 2025
       </h3>
@@ -25,8 +27,8 @@ const Calendar = () => {
         {/* Date cells */}
         {dates.flat().map((date, index) => (
           <div
-            key={index}
-            className={`text-center py-1.5 md:py-2 text-xs md:text-sm ${
+          key={index}
+          className={`text-center py-1.5 md:py-2 text-xs md:text-sm ${
               date
                 ? 'text-foreground hover:bg-card/50 rounded-lg transition-colors cursor-pointer'
                 : ''
@@ -37,6 +39,7 @@ const Calendar = () => {
         ))}
       </div>
     </div>
+              </div>
   );
 };
 

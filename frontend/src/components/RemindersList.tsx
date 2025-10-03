@@ -53,6 +53,8 @@ const RemindersList = () => {
   };
 
   return (
+    <div className="glass-container p-2">
+
     <div className="glass-card p-4 md:p-6">
       <div className="flex items-center justify-between mb-4 md:mb-6">
         <h3 className="text-lg md:text-xl font-medium text-foreground">Upcoming Reminders</h3>
@@ -66,11 +68,11 @@ const RemindersList = () => {
           const Icon = getIcon(reminder.icon);
           return (
             <div
-              key={reminder.id}
-              className={`p-3 md:p-4 rounded-xl border transition-all ${
-                reminder.iconColor === 'destructive'
-                  ? 'border-destructive/50 bg-destructive/5'
-                  : 'border-card-border bg-transparent'
+            key={reminder.id}
+            className={`p-3 md:p-4 rounded-xl border transition-all ${
+              reminder.iconColor === 'destructive'
+              ? 'border-destructive/50 bg-destructive/5'
+              : 'border-card-border bg-transparent'
               }`}
             >
               <div className="flex items-start gap-2 md:gap-3">
@@ -97,6 +99,7 @@ const RemindersList = () => {
           );
         })}
       </div>
+    </div>
     </div>
   );
 };

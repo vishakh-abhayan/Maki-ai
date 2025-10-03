@@ -38,6 +38,7 @@ const TasksList = () => {
   ];
 
   return (
+    <div className="glass-container p-2">
     <div className="glass-card p-4 md:p-6">
       <div className="flex items-center justify-between mb-4 md:mb-6">
         <h3 className="text-lg md:text-xl font-medium text-foreground">Today's Tasks</h3>
@@ -85,6 +86,7 @@ const TasksList = () => {
           </div>
         ))}
       </div>
+    </div>
     </div>
   );
 };

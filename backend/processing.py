@@ -116,34 +116,52 @@ def format_transcript(segments):
 
 def extract_insights_with_groq(client: Groq, transcript: str):
     """
-    Uses a Groq chat model to extract action items and key information 
-    for each speaker from a transcript. It also attempts to identify speaker names.
+    Enhanced version that extracts action items, key information, and reminders
     """
-    print("Extracting insights with Groq LLM...")
+    print("Extracting insights and reminders with Groq LLM...")
     
     system_prompt = """
-    You are an expert meeting summarization assistant. Your task is to analyze a meeting transcript and extract a) specific action items and b) key information for each speaker. The speakers are labeled as '**SPEAKER 1**', '**SPEAKER 2**', etc.
-
-    Your primary goal is to identify the actual names of the speakers from the conversation. If speakers address each other by name, use their name as the key in the output JSON. If a speaker's name cannot be determined, use their original label (e.g., 'SPEAKER 1') as the key.
-
-    Your output MUST be a single, valid JSON object. Do not add any text, notes, or explanations outside of this JSON object.
-
-    The JSON object should have a key for each speaker.
-    - For each speaker, the value should be another JSON object with two keys: "action_items" and "key_information".
-    - "action_items" must be an array of strings. Each string is a clear, concise task assigned to or mentioned by that speaker. If a speaker has no action items, provide an empty array [].
-    - "key_information" must be an array of strings. Each string is a significant point, decision, or piece of information contributed by that speaker. If a speaker has no key information, provide an empty array [].
+    You are an expert meeting summarization assistant. Analyze the transcript and extract:
+    1. Action items for each speaker
+    2. Key information shared
+    3. Reminders with specific dates/times
     
-    Example for a transcript where one speaker's name (Jane) is identified:
+    Identify speakers' actual names when mentioned. Extract any time-sensitive reminders with:
+    - Title/description of the reminder
+    - Who it's from (speaker name or context)
+    - When it needs to happen (specific date/time if mentioned)
+    - Priority level (high/normal/low based on urgency or importance mentioned)
+    - Category (meeting, call, task, deadline, personal)
+
+    Return a single valid JSON object with this structure:
     {
-      "Jane": {
-        "action_items": ["Follow up with the design team on the new mockups."],
-        "key_information": ["Reported that Q3 sales are up by 15%.", "Confirmed the budget for the new project is approved."]
+      "speakers": {
+        "Speaker_Name_or_Number": {
+          "action_items": ["list of action items"],
+          "key_information": ["list of key points"]
+        }
       },
-      "SPEAKER 2": {
-        "action_items": [],
-        "key_information": ["Raised a concern about the project timeline."]
-      }
+      "reminders": [
+        {
+          "title": "Reminder description",
+          "from": "Source/speaker",
+          "datetime": "ISO format datetime or descriptive time",
+          "time_text": "Human readable time (e.g., 'Tomorrow at 2 PM')",
+          "priority": "high/normal/low",
+          "category": "meeting/call/task/deadline/personal",
+          "extracted_from": "Original text that mentioned this reminder"
+        }
+      ]
     }
+    
+    Parse any time references like:
+    - "tomorrow at 2 PM" 
+    - "next Monday"
+    - "by end of week"
+    - "Friday at 3:30"
+    - "in two hours"
+    
+    Always return valid JSON only, no additional text.
     """
     
     chat_completion = client.chat.completions.create(
@@ -157,6 +175,64 @@ def extract_insights_with_groq(client: Groq, transcript: str):
     )
     
     response_text = chat_completion.choices[0].message.content
-    print("Insights received from Groq.")
-    return json.loads(response_text)
+    print("Insights and reminders received from Groq.")
+    
+    insights = json.loads(response_text)
+    
+    # Post-process reminders to add parsed datetime if possible
+    if "reminders" in insights:
+        from dateutil import parser
+        from datetime import datetime, timedelta
+        import re
+        
+        for reminder in insights["reminders"]:
+            try:
+                # Try to parse datetime from the time_text
+                parsed_datetime = parse_relative_time(reminder.get("time_text", ""))
+                if parsed_datetime:
+                    reminder["datetime"] = parsed_datetime.isoformat()
+                    reminder["timestamp"] = parsed_datetime.timestamp()
+            except:
+                # If parsing fails, keep the original text
+                reminder["timestamp"] = None
+    
+    return insights
 
+def parse_relative_time(time_text):
+    """
+    Helper function to parse relative time expressions
+    """
+    from datetime import datetime, timedelta
+    import re
+    
+    now = datetime.now()
+    time_text_lower = time_text.lower()
+    
+    # Handle common patterns
+    if "tomorrow" in time_text_lower:
+        base = now + timedelta(days=1)
+        # Extract time if mentioned
+        time_match = re.search(r'(\d{1,2}):?(\d{2})?\s*(am|pm|p\.m\.|a\.m\.)?', time_text_lower)
+        if time_match:
+            hour = int(time_match.group(1))
+            minute = int(time_match.group(2)) if time_match.group(2) else 0
+            meridiem = time_match.group(3)
+            if meridiem and 'p' in meridiem and hour < 12:
+                hour += 12
+            return base.replace(hour=hour, minute=minute, second=0, microsecond=0)
+        return base
+    
+    elif "today" in time_text_lower:
+    
+        time_match = re.search(r'(\d{1,2}):?(\d{2})?\s*(am|pm|p\.m\.|a\.m\.)?', time_text_lower)
+        if time_match:
+            hour = int(time_match.group(1))
+            minute = int(time_match.group(2)) if time_match.group(2) else 0
+            meridiem = time_match.group(3)
+            if meridiem and 'p' in meridiem and hour < 12:
+                hour += 12
+            return now.replace(hour=hour, minute=minute, second=0, microsecond=0)
+        return now
+    
+    
+    return None

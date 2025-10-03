@@ -6,6 +6,7 @@ import json
 from datetime import datetime
 from fastapi import FastAPI, UploadFile, File, Form, HTTPException
 from pymongo import MongoClient
+from fastapi.middleware.cors import CORSMiddleware  
 from groq import Groq
 import uvicorn
 from dotenv import load_dotenv
@@ -28,12 +29,26 @@ app = FastAPI(
     description="Upload an audio file, get a transcript with speaker labels, action items, and key information."
 )
 
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "http://localhost:8080",
+        "http://localhost:5173",
+        "http://127.0.0.1:8080",
+        "http://127.0.0.1:5173"
+    ],  # Your frontend URLs
+    allow_credentials=True,
+    allow_methods=["*"],  # Allows all methods
+    allow_headers=["*"],  # Allows all headers
+)
+
 # --- MongoDB Connection ---
 try:
     mongodb_url = os.getenv("MONGODB_URL", "mongodb://localhost:27017/")
     mongo_client = MongoClient(mongodb_url)
     db = mongo_client["transcription_db"]
     transcripts_collection = db["transcripts"]
+    reminders_collection = db["reminders"]
     print(f"Successfully connected to MongoDB at {mongodb_url}")
 except Exception as e:
     print(f"Failed to connect to MongoDB: {e}")
@@ -90,35 +105,130 @@ async def transcribe_audio(
         # 4. Format the final transcript
         final_transcript = format_transcript(diarized_segments)
         
-        # 5. Extract Action Items and Key Information
+    
+        # 5. Extract Action Items, Key Information, and Reminders
         try:
             insights = extract_insights_with_groq(client, final_transcript)
         except json.JSONDecodeError:
-            print("Warning: Failed to parse JSON from insights model. Storing raw text.")
+            print("Warning: Failed to parse JSON from insights model.")
             insights = {"error": "Failed to parse insights from the model."}
         except Exception as e:
-            raise HTTPException(status_code=500, detail=f"An error occurred during insight extraction: {e}")
+            raise HTTPException(status_code=500, detail=f"Error during insight extraction: {e}")
 
-        # 6. Store the result in MongoDB
+        # 6. Store transcript in MongoDB
         if mongo_client:
             try:
+                transcript_id = str(uuid.uuid4())
                 transcript_record = {
-                    "_id": str(uuid.uuid4()),
+                    "_id": transcript_id,
                     "filename": file.filename,
                     "num_speakers": num_speakers,
                     "transcript": final_transcript,
-                    "insights": insights,
+                    "insights": insights.get("speakers", {}),
                     "timestamp": datetime.utcnow()
                 }
                 transcripts_collection.insert_one(transcript_record)
-                print(f"Transcript and insights for {file.filename} saved to MongoDB.")
+                
+                # 7. Extract and store reminders separately
+                if "reminders" in insights and insights["reminders"]:
+                    for reminder in insights["reminders"]:
+                        reminder_record = {
+                            "_id": str(uuid.uuid4()),
+                            "transcript_id": transcript_id,
+                            "filename": file.filename,
+                            "title": reminder.get("title"),
+                            "from": reminder.get("from"),
+                            "datetime": reminder.get("datetime"),
+                            "time_text": reminder.get("time_text"),
+                            "priority": reminder.get("priority", "normal"),
+                            "category": reminder.get("category", "task"),
+                            "extracted_from": reminder.get("extracted_from"),
+                            "completed": False,
+                            "created_at": datetime.utcnow(),
+                            "updated_at": datetime.utcnow()
+                        }
+                        reminders_collection.insert_one(reminder_record)
+                    
+                    print(f"Saved {len(insights['reminders'])} reminders to database")
+                
+                print(f"Transcript for {file.filename} saved to MongoDB.")
             except Exception as e:
-                # Log the error, but don't fail the request if DB fails
-                print(f"Error saving transcript to MongoDB: {e}")
-        else:
-            print("MongoDB client not available. Skipping database save.")
+                print(f"Error saving to MongoDB: {e}")
 
-        return {"transcript": final_transcript, "insights": insights}
+        return {
+            "transcript": final_transcript, 
+            "insights": insights.get("speakers", {}),
+            "reminders": insights.get("reminders", [])
+        }
+
+# New endpoint to fetch reminders
+@app.get("/reminders/")
+async def get_reminders(
+    upcoming_only: bool = True,
+    limit: int = 10
+):
+    """
+    Fetch reminders from the database
+    """
+    if not mongo_client:
+        raise HTTPException(status_code=500, detail="MongoDB client not initialized.")
+    
+    try:
+        query = {}
+        if upcoming_only:
+            # Only get uncompleted reminders
+            query["completed"] = False
+        
+        # Sort by datetime (if available) or created_at
+        reminders = list(reminders_collection.find(
+            query,
+            limit=limit
+        ).sort([
+            ("datetime", 1),
+            ("created_at", -1)
+        ]))
+        
+        # Convert ObjectId to string
+        for reminder in reminders:
+            reminder['_id'] = str(reminder['_id'])
+            
+        return reminders
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to retrieve reminders: {e}")
+
+# Update reminder status
+@app.patch("/reminders/{reminder_id}")
+async def update_reminder(
+    reminder_id: str,
+    completed: bool = None,
+    snooze_until: str = None
+):
+    """
+    Update a reminder's status
+    """
+    if not mongo_client:
+        raise HTTPException(status_code=500, detail="MongoDB client not initialized.")
+    
+    try:
+        update_doc = {"updated_at": datetime.utcnow()}
+        
+        if completed is not None:
+            update_doc["completed"] = completed
+        
+        if snooze_until:
+            update_doc["datetime"] = snooze_until
+            
+        result = reminders_collection.update_one(
+            {"_id": reminder_id},
+            {"$set": update_doc}
+        )
+        
+        if result.matched_count == 0:
+            raise HTTPException(status_code=404, detail="Reminder not found")
+            
+        return {"message": "Reminder updated successfully"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to update reminder: {e}")
 
 @app.get("/transcripts/")
 async def get_all_transcripts():
