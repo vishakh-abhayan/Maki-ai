@@ -2,95 +2,229 @@
 @tailwind components;
 @tailwind utilities;
 
-
-
 @layer base {
   :root {
+    /* Your existing variables */
     --background: 195 45% 12%;
     --background-gradient-start: 195 50% 10%;
     --background-gradient-end: 195 40% 15%;
     --foreground: 180 10% 90%;
-
     --card: 195 35% 18%;
     --card-foreground: 180 10% 95%;
     --card-border: 195 40% 30%;
-
     --popover: 195 40% 15%;
     --popover-foreground: 180 10% 95%;
-
     --primary: 220 80% 60%;
     --primary-foreground: 0 0% 100%;
-
     --secondary: 195 35% 22%;
     --secondary-foreground: 180 10% 90%;
-
     --muted: 195 30% 25%;
     --muted-foreground: 195 15% 60%;
-
     --accent: 220 75% 55%;
     --accent-foreground: 0 0% 100%;
-
     --success: 160 70% 45%;
     --success-foreground: 0 0% 100%;
-
     --warning: 35 90% 55%;
     --warning-foreground: 0 0% 100%;
-
     --destructive: 5 80% 55%;
     --destructive-foreground: 0 0% 100%;
-
     --purple: 260 70% 60%;
     --purple-foreground: 0 0% 100%;
-
     --border: 195 35% 25%;
     --input: 195 35% 20%;
     --ring: 220 80% 60%;
-
     --radius: 1rem;
-
     --glass-bg: 195 35% 18% / 0.6;
     --glass-border: 195 40% 35% / 0.4;
-  }
-}
 
-@layer base {
+    /* Gradient colors adapted to your theme */
+    --color-bg1: rgb(10, 25, 41); /* Dark blue base */
+    --color-bg2: rgb(13, 44, 74); /* Slightly lighter blue */
+    --color1: 29, 78, 137; /* Deep blue */
+    --color2: 45, 90, 136; /* Medium blue */
+    --color3: 26, 58, 82; /* Dark teal */
+    --color4: 30, 82, 128; /* Ocean blue */
+    --color5: 19, 50, 77; /* Navy */
+    --color-interactive: 59, 130, 246; /* Interactive blue */
+    --circle-size: 80%;
+    --blending: hard-light;
+  }
+
   * {
     @apply border-border;
   }
 
   body {
     @apply text-foreground;
-    background: linear-gradient(135deg, hsl(var(--background-gradient-start)), hsl(var(--background-gradient-end)));
+    margin: 0;
+    padding: 0;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Animated gradient background styles */
+  .gradient-bg {
+    width: 100vw;
+    height: 100vh;
+    position: fixed;
+    top: 0;
+    left: 0;
+    overflow: hidden;
+    background: linear-gradient(40deg, var(--color-bg1), var(--color-bg2));
+    z-index: -1;
+  }
+
+  .gradient-bg svg {
+    display: none;
+  }
+
+  .gradients-container {
+    filter: url(#goo) blur(40px);
+    width: 100%;
+    height: 100%;
+  }
+
+  .g1 {
+    position: absolute;
+    background: radial-gradient(circle at center, rgba(var(--color1), 0.8) 0, rgba(var(--color1), 0) 50%) no-repeat;
+    mix-blend-mode: var(--blending);
+    width: var(--circle-size);
+    height: var(--circle-size);
+    top: calc(50% - var(--circle-size) / 2);
+    left: calc(50% - var(--circle-size) / 2);
+    transform-origin: center center;
+    animation: moveVertical 30s ease infinite;
+    opacity: 1;
+  }
+
+  .g2 {
+    position: absolute;
+    background: radial-gradient(circle at center, rgba(var(--color2), 0.8) 0, rgba(var(--color2), 0) 50%) no-repeat;
+    mix-blend-mode: var(--blending);
+    width: var(--circle-size);
+    height: var(--circle-size);
+    top: calc(50% - var(--circle-size) / 2);
+    left: calc(50% - var(--circle-size) / 2);
+    transform-origin: calc(50% - 400px);
+    animation: moveInCircle 20s reverse infinite;
+    opacity: 1;
+  }
+
+  .g3 {
+    position: absolute;
+    background: radial-gradient(circle at center, rgba(var(--color3), 0.8) 0, rgba(var(--color3), 0) 50%) no-repeat;
+    mix-blend-mode: var(--blending);
+    width: var(--circle-size);
+    height: var(--circle-size);
+    top: calc(50% - var(--circle-size) / 2 + 200px);
+    left: calc(50% - var(--circle-size) / 2 - 500px);
+    transform-origin: calc(50% + 400px);
+    animation: moveInCircle 40s linear infinite;
+    opacity: 1;
+  }
+
+  .g4 {
+    position: absolute;
+    background: radial-gradient(circle at center, rgba(var(--color4), 0.8) 0, rgba(var(--color4), 0) 50%) no-repeat;
+    mix-blend-mode: var(--blending);
+    width: var(--circle-size);
+    height: var(--circle-size);
+    top: calc(50% - var(--circle-size) / 2);
+    left: calc(50% - var(--circle-size) / 2);
+    transform-origin: calc(50% - 200px);
+    animation: moveHorizontal 40s ease infinite;
+    opacity: 0.7;
+  }
+
+  .g5 {
+    position: absolute;
+    background: radial-gradient(circle at center, rgba(var(--color5), 0.8) 0, rgba(var(--color5), 0) 50%) no-repeat;
+    mix-blend-mode: var(--blending);
+    width: calc(var(--circle-size) * 2);
+    height: calc(var(--circle-size) * 2);
+    top: calc(50% - var(--circle-size));
+    left: calc(50% - var(--circle-size));
+    transform-origin: calc(50% - 800px) calc(50% + 200px);
+    animation: moveInCircle 20s ease infinite;
+    opacity: 1;
+  }
+
+  .interactive {
+    position: absolute;
+    background: radial-gradient(circle at center, rgba(var(--color-interactive), 0.8) 0, rgba(var(--color-interactive), 0) 50%) no-repeat;
+    mix-blend-mode: var(--blending);
+    width: 100%;
+    height: 100%;
+    top: -50%;
+    left: -50%;
+    opacity: 0.7;
+  }
+
+  /* Animations */
+  @keyframes moveInCircle {
+    0% {
+      transform: rotate(0deg);
+    }
+    50% {
+      transform: rotate(180deg);
+    }
+    100% {
+      transform: rotate(360deg);
+    }
+  }
+
+  @keyframes moveVertical {
+    0% {
+      transform: translateY(-50%);
+    }
+    50% {
+      transform: translateY(50%);
+    }
+    100% {
+      transform: translateY(-50%);
+    }
+  }
+
+  @keyframes moveHorizontal {
+    0% {
+      transform: translateX(-50%) translateY(-10%);
+    }
+    50% {
+      transform: translateX(50%) translateY(10%);
+    }
+    100% {
+      transform: translateX(-50%) translateY(-10%);
+    }
+  }
+
+  /* App content should be above background */
+  .app-content {
+    position: relative;
+    z-index: 1;
+    width: 100%;
     min-height: 100vh;
   }
 
- 
+  /* Your existing glass styles */
   .glass-card {
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  background: rgba(255, 255, 255, 0.074);
-  border-radius: 30px;
-  box-shadow: 10px 8px 32px 10px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    background: rgba(255, 255, 255, 0.074);
+    border-radius: 30px;
+    box-shadow: 10px 8px 32px 10px rgba(0, 0, 0, 0.1);
   }
 
   .glass-container {
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  background: rgba(255, 255, 255, 0);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 32px;
-  box-shadow: 10px 8px 32px 10px rgba(0, 0, 0, 0.1);
-
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    background: rgba(255, 255, 255, 0);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 32px;
+    box-shadow: 10px 8px 32px 10px rgba(0, 0, 0, 0.1);
   }
-  
-  
-
 
   * {
     transition: background-color 0.2s ease, border-color 0.2s ease;
   }
 }
-
-
-
-

@@ -12,7 +12,7 @@ const Sidebar = () => {
   return (
     <div>
       {/* Desktop Sidebar */}
-      <aside className="hidden glass-container rounded-bl-none rounded-tl-none p-1 lg:h-600px lg:absolute lg:top-60 lg:left-10 lg:flex w-[100px]  flex-col items-center fixed">
+      <aside className="hidden glass-container rounded-bl-none rounded-tl-none py-1 lg:h-600px lg:absolute lg:top-60 lg:left-10 lg:flex w-[100px]  flex-col items-center fixed">
   
 
         {/* Navigation Icons */}
