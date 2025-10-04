@@ -2,9 +2,5 @@ fastapi
 uvicorn[standard]
 python-multipart
 groq
-torch
-pyannote.audio
-scikit-learn
-numpy
-speechbrain
-ffmpeg-python
+pymongo
+python-dotenv

@@ -18,7 +18,6 @@ load_dotenv()
 from processing import (
     convert_audio_to_wav,
     transcribe_with_groq,
-    perform_diarization,
     format_transcript,
     extract_insights_with_groq
 )
@@ -35,7 +34,8 @@ app.add_middleware(
         "http://localhost:8080",
         "http://localhost:5173",
         "http://127.0.0.1:8080",
-        "http://127.0.0.1:5173"
+        "http://127.0.0.1:5173",
+        "https://maki-ai.vercel.app",
     ],  # Your frontend URLs
     allow_credentials=True,
     allow_methods=["*"],  # Allows all methods
@@ -93,17 +93,16 @@ async def transcribe_audio(
 
         # 2. Transcribe using Groq
         try:
-            segments = transcribe_with_groq(client, converted_audio_path)
+            segments = transcribe_with_groq(client, converted_audio_path, num_speakers)
             if not segments:
                 raise HTTPException(status_code=500, detail="Transcription failed to return segments.")
         except Exception as e:
             raise HTTPException(status_code=500, detail=f"An error occurred during transcription: {e}")
 
-        # 3. Perform Speaker Diarization
-        diarized_segments = perform_diarization(segments, converted_audio_path, num_speakers)
+       
 
         # 4. Format the final transcript
-        final_transcript = format_transcript(diarized_segments)
+        final_transcript = format_transcript(segments)
         
     
         # 5. Extract Action Items, Key Information, and Reminders
@@ -138,8 +137,8 @@ async def transcribe_audio(
                             "filename": file.filename,
                             "title": reminder.get("title"),
                             "from": reminder.get("from"),
-                            "datetime": reminder.get("datetime"),
-                            "time_text": reminder.get("time_text"),
+                            "due_date": reminder.get("due_date"),  # ISO format or None
+                            "due_date_text": reminder.get("due_date_text"),  # Original text or None
                             "priority": reminder.get("priority", "normal"),
                             "category": reminder.get("category", "task"),
                             "extracted_from": reminder.get("extracted_from"),
@@ -148,7 +147,7 @@ async def transcribe_audio(
                             "updated_at": datetime.utcnow()
                         }
                         reminders_collection.insert_one(reminder_record)
-                    
+    
                     print(f"Saved {len(insights['reminders'])} reminders to database")
                 
                 print(f"Transcript for {file.filename} saved to MongoDB.")
