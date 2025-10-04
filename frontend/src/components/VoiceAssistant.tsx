@@ -1,6 +1,7 @@
 import { useState, useRef } from "react";
 import { Mic, MicOff, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useDataRefresh } from "@/contexts/DataRefreshContext";
 
 interface TranscriptResponse {
   transcript: string;
@@ -10,6 +11,7 @@ interface TranscriptResponse {
       key_information: string[];
     };
   };
+  reminders?: any[];
 }
 
 const VoiceAssistant = () => {
@@ -20,6 +22,7 @@ const VoiceAssistant = () => {
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
   const { toast } = useToast();
+  const { triggerRefresh } = useDataRefresh(); // Get refresh function
 
   // Hardcoded number of speakers
   const NUM_SPEAKERS = 2;
@@ -134,6 +137,13 @@ const VoiceAssistant = () => {
         title: "Transcription complete!",
         description: "Your audio has been processed successfully.",
       });
+
+      // 🔥 TRIGGER REFRESH OF TASKS AND REMINDERS
+      // Add a small delay to ensure backend has finished processing
+      setTimeout(() => {
+        triggerRefresh();
+      }, 500);
+
     } catch (error) {
       console.error("Error sending audio to backend:", error);
       toast({
