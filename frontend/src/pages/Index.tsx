@@ -17,7 +17,7 @@ const Index = () => {
           <div className="lg:hidden flex items-center justify-between mb-6">
             <div>
               <h1 className="text-xl font-semibold text-foreground">maki.ai</h1>
-              <p className="text-xs text-muted-foreground mt-1">Hey, Aditya!</p>
+              <p className="text-2xl text-muted-foreground mt-1">Hey, Aditya!</p>
             </div>
             <div className="flex gap-2">
               <button className="w-9 h-9 rounded-lg bg-card/40 backdrop-blur-xl border border-card-border flex items-center justify-center">
@@ -30,13 +30,20 @@ const Index = () => {
           </div>
 
           {/* Desktop Header Actions */}
-          <div className="hidden lg:flex justify-end gap-3 mb-8">
-            <button className="w-10 h-10 rounded-lg bg-card/40 backdrop-blur-xl border border-card-border flex items-center justify-center hover:bg-card/60 transition-all">
-              <Download className="w-5 h-5 text-foreground" />
-            </button>
-            <button className="w-10 h-10 rounded-lg bg-card/40 backdrop-blur-xl border border-card-border flex items-center justify-center hover:bg-card/60 transition-all">
-              <Settings className="w-5 h-5 text-foreground" />
-            </button>
+          <div className="hidden lg:flex items-center justify-between mb-8">
+            <div>
+              <h1 className="text-xl font-semibold text-foreground">maki.ai</h1>
+              <p className="text-4xl text-muted-foreground mt-1">Hey, Aditya!</p>
+            </div>
+
+            <div className="flex gap-3">
+              <button className="w-10 h-10 rounded-lg bg-card/40 backdrop-blur-xl border border-card-border flex items-center justify-center hover:bg-card/60 transition-all">
+                <Download className="w-5 h-5 text-foreground" />
+              </button>
+              <button className="w-10 h-10 rounded-lg bg-card/40 backdrop-blur-xl border border-card-border flex items-center justify-center hover:bg-card/60 transition-all">
+                <Settings className="w-5 h-5 text-foreground" />
+              </button>
+            </div>
           </div>
 
           {/* Main Content Grid */}
