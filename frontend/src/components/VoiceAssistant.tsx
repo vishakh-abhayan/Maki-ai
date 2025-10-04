@@ -23,7 +23,7 @@ const VoiceAssistant = () => {
 
   // Hardcoded number of speakers
   const NUM_SPEAKERS = 2;
-  const BACKEND_URL = "http://localhost:8000";
+  const BACKEND_URL = import.meta.env.BACKEND_URL || 'http://localhost:8000';
 
   const startRecording = async () => {
     try {
