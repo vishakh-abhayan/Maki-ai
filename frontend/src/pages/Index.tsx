@@ -27,11 +27,7 @@ const Index = () => {
             {/* User Info and Actions */}
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-4">
-                <Avatar className="h-12 w-12">
-                  <AvatarFallback className="bg-card/60 border border-card-border">
-                    <CircleUserRound strokeWidth={1.5}  className="h-6 w-6 text-foreground" />
-                  </AvatarFallback>
-                </Avatar>
+                    <CircleUserRound strokeWidth={1.5}  className="h-12 w-12 text-foreground" />
                 <div>
                   <p className="text-2xl font-medium text-foreground">Hey, Dev!</p>
                   <p className="text-sm text-muted-foreground mt-0.5">Here's what's important today</p>
@@ -61,11 +57,7 @@ const Index = () => {
             {/* User Info and Actions */}
             <div className="flex items-start justify-between">
               <div className="flex items-center gap-6">
-               
-                  
                     <CircleUserRound strokeWidth={1.2}  className="h-16 w-16 text-foreground" />
-                  
-                
                 <div>
                   <p className="text-4xl font-medium text-foreground">Hey, Dev!</p>
                   <p className="text-base text-muted-foreground mt-1">Here's what's important today</p>
