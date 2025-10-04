@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Phone, Calendar as CalendarIcon, MessageSquare, User } from "lucide-react";
 import { apiService, Reminder } from "@/services/api";
-import { format, isToday, isTomorrow, parseISO } from "date-fns";
+import { format, parseISO } from "date-fns";
 import { useDataRefresh } from "@/contexts/DataRefreshContext";
 
 const RemindersList = () => {
@@ -18,6 +18,7 @@ const RemindersList = () => {
     try {
       setLoading(true);
       const data = await apiService.getReminders();
+      
       const reminderItems = data.filter(
         (item) => 
           !item.completed && 
@@ -25,6 +26,7 @@ const RemindersList = () => {
            item.category === 'call' || 
            item.category === 'personal')
       );
+      
       setReminders(reminderItems);
       setError(null);
     } catch (err) {
@@ -48,32 +50,35 @@ const RemindersList = () => {
     }
   };
 
-  const getIconColor = (priority: string) => {
-    switch (priority) {
-      case 'high':
-        return 'bg-destructive';
-      case 'low':
-        return 'bg-purple';
-      default:
-        return 'bg-success';
+  const getIconColor = (category: string) => {
+    if (category === 'call') {
+      return 'bg-green-500';
+    }
+    return 'bg-destructive';
+  };
+
+  const getCardStyle = (category: string) => {
+    if (category === 'call') {
+      return 'border-green-500/50 bg-green-500/5';
+    }
+    return 'border-destructive/50 bg-destructive/5';
+  };
+
+  const formatDueDate = (dateString: string | null): string => {
+    if (!dateString) return 'No due date';
+    
+    try {
+      const date = parseISO(dateString);
+      return format(date, 'MMM d \'at\' h:mm a');
+    } catch (e) {
+      console.error('Error parsing date:', e);
+      return 'Invalid date';
     }
   };
 
-  const formatReminderTime = (reminder: Reminder): string => {
-    if (reminder.due_date_text) {
-      return reminder.due_date_text;
-    }
-    if (reminder.due_date) {
-      const date = parseISO(reminder.due_date);
-      if (isToday(date)) {
-        return `Today at ${format(date, 'h:mm a')}`;
-      }
-      if (isTomorrow(date)) {
-        return `Tomorrow at ${format(date, 'h:mm a')}`;
-      }
-      return format(date, 'MMM d \'at\' h:mm a');
-    }
-    return 'No time set';
+  const formatFromText = (text: string | null): string => {
+    if (!text) return 'No time specified';
+    return text.charAt(0).toUpperCase() + text.slice(1);
   };
 
   if (loading) {
@@ -120,16 +125,13 @@ const RemindersList = () => {
           <div className="space-y-3 md:space-y-4">
             {reminders.map((reminder) => {
               const Icon = getIcon(reminder.category);
-              const iconBgColor = getIconColor(reminder.priority);
+              const iconBgColor = getIconColor(reminder.category);
+              const cardStyle = getCardStyle(reminder.category);
               
               return (
                 <div
                   key={reminder._id}
-                  className={`p-3 md:p-4 rounded-xl border transition-all ${
-                    reminder.priority === 'high'
-                      ? 'border-destructive/50 bg-destructive/5'
-                      : 'border-card-border bg-transparent'
-                  }`}
+                  className={`p-3 md:p-4 rounded-xl border transition-all ${cardStyle}`}
                 >
                   <div className="flex items-start gap-2 md:gap-3">
                     <div
@@ -141,12 +143,12 @@ const RemindersList = () => {
                       <p className="text-xs md:text-sm font-medium text-foreground mb-0.5 md:mb-1">
                         {reminder.title}
                       </p>
-                      {reminder.from && (
-                        <p className="text-[10px] md:text-xs mb-0.5 md:mb-1">
-                          From: {reminder.from}
-                        </p>
-                      )}
-                      <p className="text-[10px] md:text-xs">{formatReminderTime(reminder)}</p>
+                      <p className="text-[10px] md:text-xs text-muted-foreground mb-0.5 md:mb-1">
+                        From: {formatFromText(reminder.due_date_text)}
+                      </p>
+                      <p className="text-[10px] md:text-xs text-muted-foreground">
+                        Due: {formatDueDate(reminder.due_date)}
+                      </p>
                     </div>
                   </div>
                 </div>

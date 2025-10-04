@@ -1,28 +1,27 @@
 import { useEffect, useState } from "react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { apiService, Task } from "@/services/api";
-import { format, isToday, parseISO } from "date-fns";
+import { format, parseISO } from "date-fns";
 import { useDataRefresh } from "@/contexts/DataRefreshContext";
 
 const TasksList = () => {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const { refreshTrigger } = useDataRefresh(); // Listen for refresh events
+  const { refreshTrigger } = useDataRefresh();
 
   useEffect(() => {
     fetchTasks();
-  }, [refreshTrigger]); // Re-fetch when refreshTrigger changes
+  }, [refreshTrigger]);
 
   const fetchTasks = async () => {
     try {
       setLoading(true);
       const data = await apiService.getTasks();
-      // Filter for task categories only
       const taskItems = data.filter(
         (item) => item.category === 'task' || item.category === 'deadline'
       );
-      setTasks(taskItems);
+      setTasks(taskItems.slice(0, 3));
       setError(null);
     } catch (err) {
       setError('Failed to load tasks');
@@ -35,7 +34,6 @@ const TasksList = () => {
   const handleToggleTask = async (taskId: string, currentStatus: boolean) => {
     try {
       await apiService.updateTaskStatus(taskId, !currentStatus);
-      // Update local state
       setTasks(tasks.map(task => 
         task._id === taskId ? { ...task, completed: !currentStatus } : task
       ));
@@ -44,18 +42,21 @@ const TasksList = () => {
     }
   };
 
-  const formatDueDate = (task: Task): string => {
-    if (task.due_date_text) {
-      return task.due_date_text;
+  const formatDueDate = (dateString: string | null): string => {
+    if (!dateString) return 'No due date';
+    
+    try {
+      const date = parseISO(dateString);
+      return format(date, 'MMM d \'at\' h:mm a');
+    } catch (e) {
+      console.error('Error parsing date:', e);
+      return 'Invalid date';
     }
-    if (task.due_date) {
-      const date = parseISO(task.due_date);
-      if (isToday(date)) {
-        return `Today, ${format(date, 'h:mm a')}`;
-      }
-      return format(date, 'MMM d, h:mm a');
-    }
-    return 'No due date';
+  };
+
+  const formatFromText = (text: string | null): string => {
+    if (!text) return 'No time specified';
+    return text.charAt(0).toUpperCase() + text.slice(1);
   };
 
   if (loading) {
@@ -117,16 +118,18 @@ const TasksList = () => {
                     <p
                       className={`text-xs md:text-sm font-medium mb-1 ${
                         task.completed
-                          ? 'line-through'
+                          ? 'line-through text-muted-foreground'
                           : 'text-foreground'
                       }`}
                     >
                       {task.title}
                     </p>
-                    <p className="text-[10px] md:text-xs mb-0.5 md:mb-1">
-                      {task.completed ? 'Completed:' : 'Due:'} {formatDueDate(task)}
+                    <p className="text-[10px] md:text-xs text-muted-foreground mb-0.5 md:mb-1">
+                      From: {formatFromText(task.due_date_text)}
                     </p>
-                    <p className="text-[10px] md:text-xs">From: {task.from}</p>
+                    <p className="text-[10px] md:text-xs text-muted-foreground">
+                      Due: {formatDueDate(task.due_date)}
+                    </p>
                   </div>
                   {task.priority === 'high' && !task.completed && (
                     <span className="px-1.5 md:px-2 py-0.5 md:py-1 text-[10px] md:text-xs font-medium bg-destructive text-destructive-foreground rounded flex-shrink-0">

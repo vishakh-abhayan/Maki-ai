@@ -165,7 +165,7 @@ const VoiceAssistant = () => {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center py-6 md:py-12 w-full max-w-4xl mx-auto px-4">
+    <div className="flex flex-col items-center  justify-center py-6 md:py-12 w-full max-w-4xl mx-auto px-4">
       <div className="relative mb-8">
         {isRecording && (
           <>
@@ -175,13 +175,14 @@ const VoiceAssistant = () => {
         )}
         
         {/* Main button */}
+        <div className="glass-container p-1  rounded-full">
         <button 
           onClick={handleMicClick}
           disabled={isProcessing}
-          className={`relative w-32 h-32 md:w-40 md:h-40 rounded-full backdrop-blur-xl border-2 flex items-center justify-center transition-all shadow-xl ${
+          className={`relative w-32 h-32 md:w-56 md:h-56 rounded-full  flex items-center justify-center transition-all shadow-xl ${
             isRecording 
               ? 'bg-red-500/20 hover:bg-red-500/30 border-red-500' 
-              : 'bg-card/60 hover:bg-card/80 border-card-border'
+              : 'glass-card hover:bg-card/80 '
           } ${isProcessing ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
         >
           {isProcessing ? (
@@ -192,6 +193,7 @@ const VoiceAssistant = () => {
             <Mic className="w-12 h-12 md:w-16 md:h-16 text-foreground" />
           )}
         </button>
+        </div>
       </div>
       
       <p className="mt-4 md:mt-6 text-base md:text-lg text-foreground font-medium">
