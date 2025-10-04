@@ -1,4 +1,4 @@
-import { Home, Image, Users, Network,  History , User } from "lucide-react";
+import { Home, Image, Users, Network, History } from "lucide-react";
 
 const Sidebar = () => {
   const navItems = [
@@ -10,8 +10,8 @@ const Sidebar = () => {
 
   return (
     <div>
-      {/* Desktop Sidebar */}
-      <aside className="hidden glass-container rounded-bl-none rounded-tl-none py-1 lg:h-[calc(100vh-8rem)] lg:absolute lg:top-1/2 lg:-translate-y-1/2 lg:left-10 lg:flex w-[85px] flex-col items-center">
+      {/* Desktop Sidebar - Fixed Position */}
+      <aside className="hidden lg:flex lg:fixed lg:left-10 lg:top-1/2 lg:-translate-y-1/2 lg:z-40 glass-container rounded-bl-none rounded-tl-none py-1 lg:h-[calc(100vh-8rem)] w-[85px] flex-col items-center">
         
         {/* Navigation Icons */}
         <nav className="flex glass-card flex-col gap-4 w-full flex-1 p-4 rounded-bl-none rounded-tl-none">
@@ -21,7 +21,7 @@ const Sidebar = () => {
               className={`w-12 h-12 rounded-full flex items-center justify-center transition-all mx-auto ${
                 item.active
                   ? "bg-primary text-primary-foreground shadow-lg shadow-primary/30"
-                  : " hover:bg-card/60 hover:text-foreground"
+                  : "hover:bg-card/60 hover:text-foreground"
               }`}
             >
               <item.icon className="w-5 h-5" />
@@ -31,9 +31,9 @@ const Sidebar = () => {
           {/* Spacer to push last button to bottom */}
           <div className="flex-1" />
           
-          {/* Bottom Button - User Profile */}
+          {/* Bottom Button - History */}
           <button
-            className="w-12 h-12 rounded-full flex items-center justify-center transition-all mx-auto  hover:bg-card/60 hover:text-foreground"
+            className="w-12 h-12 rounded-full flex items-center justify-center transition-all mx-auto hover:bg-card/60 hover:text-foreground"
           >
             <History className="w-5 h-5" />
           </button>
@@ -56,9 +56,9 @@ const Sidebar = () => {
             </button>
           ))}
           
-          {/* Add User button to mobile nav */}
+          {/* Add History button to mobile nav */}
           <button
-            className="w-12 h-12 rounded-2xl flex items-center justify-center transition-all "
+            className="w-12 h-12 rounded-2xl flex items-center justify-center transition-all"
           >
             <History className="w-4 h-4" />
           </button>
