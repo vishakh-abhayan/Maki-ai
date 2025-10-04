@@ -55,7 +55,7 @@ const TasksList = () => {
   };
 
   const formatFromText = (text: string | null): string => {
-    if (!text) return 'No time specified';
+    if (!text) return 'Not specified';
     return text.charAt(0).toUpperCase() + text.slice(1);
   };
 

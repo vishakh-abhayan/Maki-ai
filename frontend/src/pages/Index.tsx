@@ -27,7 +27,7 @@ const Index = () => {
             {/* User Info and Actions */}
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-4">
-                    <CircleUserRound strokeWidth={1.5}  className="h-12 w-12 text-foreground" />
+                    <CircleUserRound strokeWidth={1.1}  className="h-12 w-12 text-foreground" />
                 <div>
                   <p className="text-2xl font-medium text-foreground">Hey, Dev!</p>
                   <p className="text-sm text-muted-foreground mt-0.5">Here's what's important today</p>
@@ -48,7 +48,7 @@ const Index = () => {
           <div className="hidden lg:block mb-8">
             {/* Logo */}
             <div className="mb-6">
-              <h1 className="text-xl font-semibold text-foreground tracking-wide" 
+              <h1 className="text-2xl font-semibold text-foreground tracking-wide" 
                   style={{ fontFamily: "'Courier New', 'Courier', monospace" }}>
                 Maki.ai
               </h1>

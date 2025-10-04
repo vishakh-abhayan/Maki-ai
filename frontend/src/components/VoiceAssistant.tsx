@@ -198,10 +198,10 @@ const VoiceAssistant = () => {
       
       <p className="mt-4 md:mt-6 text-base md:text-lg text-foreground font-medium">
         {isProcessing 
-          ? "Processing your audio..." 
+          ? "Maki isn't listening anymore" 
           : isRecording 
-            ? "Click to stop recording" 
-            : "Click to start recording"
+            ? "Stop recording" 
+            : "Let Maki listen"
         }
       </p>
     </div>
