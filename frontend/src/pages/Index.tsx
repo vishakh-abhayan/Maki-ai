@@ -20,7 +20,7 @@ const Index = () => {
             <div className="mb-4">
               <h1 className="text-xl font-semibold text-foreground tracking-wide" 
                   style={{ fontFamily: "'Courier New', 'Courier', monospace" }}>
-                Maki.ai
+                maki.ai
               </h1>
             </div>
             
@@ -28,16 +28,16 @@ const Index = () => {
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-4">
                     {/* <CircleUserRound strokeWidth={1.1}  className="h-12 w-12 text-foreground" /> */}
-                <div>
+                <div className="ml-5">
                   <p className="text-2xl font-medium text-foreground">Hey, Dev!</p>
                   <p className="text-sm text-muted-foreground mt-0.5">Here's what's important today</p>
                 </div>
               </div>
-              <div className="flex gap-2">
-                <button className="w-9 h-9 rounded-lg bg-card/40 backdrop-blur-xl border border-card-border flex items-center justify-center">
+              <div className="flex gap-2 absolute right-4 top-4">
+                <button className="w-7 h-7 rounded-lg bg-card/40 backdrop-blur-xl border border-card-border flex items-center justify-center">
                   <Download className="w-4 h-4 text-foreground" />
                 </button>
-                <button className="w-9 h-9 rounded-lg bg-card/40 backdrop-blur-xl border border-card-border flex items-center justify-center">
+                <button className="w-7 h-7 rounded-lg bg-card/40 backdrop-blur-xl border border-card-border flex items-center justify-center">
                   <Settings className="w-4 h-4 text-foreground" />
                 </button>
               </div>
@@ -47,10 +47,10 @@ const Index = () => {
           {/* Desktop Header */}
           <div className="hidden lg:block mb-8">
             {/* Logo */}
-            <div className="mb-6">
-              <h1 className="text-2xl font-semibold text-foreground tracking-wide" 
+            <div className="mb-6 absolute top-6 left-8">
+              <h1 className="text-2xl font-semibold text-foreground fixed tracking-wide" 
                   style={{ fontFamily: "'Courier New', 'Courier', monospace" }}>
-                Maki.ai
+                maki.ai
               </h1>
             </div>
             
@@ -58,19 +58,21 @@ const Index = () => {
             <div className="flex items-start justify-between">
               <div className="flex items-center gap-6">
                     {/* <CircleUserRound strokeWidth={1.2}  className="h-16 w-16 text-foreground" /> */}
-                <div>
+                <div className="mt-10">
                   <p className="text-4xl font-medium text-foreground">Hey, Dev!</p>
                   <p className="text-base text-muted-foreground mt-1">Here's what's important today</p>
                 </div>
               </div>
 
-              <div className="flex gap-3">
-                <button className="w-10 h-10 rounded-lg bg-card/40 backdrop-blur-xl border border-card-border flex items-center justify-center hover:bg-card/60 transition-all">
+              <div className=" absolute right-24 top-6 z-10">
+                <div className="fixed flex gap-3">
+                <button className="w-8 h-8 rounded-lg bg-card/40 backdrop-blur-xl border border-card-border flex items-center justify-center hover:bg-card/60 transition-all">
                   <Download className="w-5 h-5 text-foreground" />
                 </button>
-                <button className="w-10 h-10 rounded-lg bg-card/40 backdrop-blur-xl border border-card-border flex items-center justify-center hover:bg-card/60 transition-all">
+                <button className="w-8 h-8 rounded-lg bg-card/40 backdrop-blur-xl border border-card-border flex items-center justify-center hover:bg-card/60 transition-all">
                   <Settings className="w-5 h-5 text-foreground" />
                 </button>
+                </div>
               </div>
             </div>
           </div>
@@ -84,7 +86,7 @@ const Index = () => {
           </div>
 
           {/* Desktop Content Grid - Mic LEFT, Calendar RIGHT */}
-          <div className="hidden lg:grid lg:grid-cols-2 gap-4 md:gap-6 lg:gap-8">
+          <div className="hidden lg:grid lg:grid-cols-[1.2fr_1.8fr] gap-4 md:gap-6 lg:gap-8">
             {/* Left Column - Voice Assistant and Tasks */}
             <div className="space-y-4 md:space-y-6 lg:space-y-8">
               <VoiceAssistant />

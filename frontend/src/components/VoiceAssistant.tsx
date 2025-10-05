@@ -179,7 +179,7 @@ const VoiceAssistant = () => {
         <button 
           onClick={handleMicClick}
           disabled={isProcessing}
-          className={`relative w-32 h-32 md:w-56 md:h-56 rounded-full  flex items-center justify-center transition-all shadow-xl ${
+          className={`relative w-32 h-32 md:w-44 md:h-44 rounded-full  flex items-center justify-center transition-all shadow-xl ${
             isRecording 
               ? 'bg-red-500/20 hover:bg-red-500/30 border-red-500' 
               : 'glass-card hover:bg-card/80 '
