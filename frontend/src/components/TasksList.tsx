@@ -96,7 +96,7 @@ const TasksList = () => {
     <div className="glass-container p-2">
       <div className="glass-card p-4 md:p-6">
         <div className="flex items-center justify-between mb-4 md:mb-6">
-          <h3 className="text-lg md:text-xl font-medium text-foreground">Today's Tasks</h3>
+          <h3 className="text-lg md:text-xl font-medium text-foreground border-b-2 border-gray-100/10 pb-1">Today's Tasks</h3>
           <button className="text-xs md:text-sm hover:text-foreground transition-colors">
             View all
           </button>

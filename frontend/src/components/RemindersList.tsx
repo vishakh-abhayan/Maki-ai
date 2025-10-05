@@ -118,7 +118,7 @@ const RemindersList = () => {
     <div className="glass-container p-2 md:mb-14">
       <div className="glass-card p-4 md:p-6">
         <div className="flex items-center justify-between mb-4 md:mb-6">
-          <h3 className="text-lg md:text-xl font-medium text-foreground">
+          <h3 className="text-lg md:text-xl font-medium text-foreground border-b-2 border-gray-100/10 pb-1">
             Upcoming Reminders
           </h3>
           <button className="text-xs md:text-sm hover:text-foreground transition-colors">
@@ -136,7 +136,6 @@ const RemindersList = () => {
               const Icon = getIcon(reminder.category);
               const iconBgColor = getIconColor(reminder.category);
               const cardStyle = getCardStyle(reminder.category);
-              
               return (
                 <div
                   key={reminder._id}

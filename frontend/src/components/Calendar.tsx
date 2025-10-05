@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, getDay, isSameDay } from 'date-fns';
 
 const Calendar = () => {
@@ -18,15 +18,15 @@ const Calendar = () => {
 
   return (
     <div className="glass-container p-2">
-      <div className="glass-card p-4 md:p-6 lg:px-12 lg:py-6">
-        <h3 className="text-lg md:text-xl font-medium text-foreground mb-4 md:mb-6 text-center">
+      <div className="glass-card p-5 lg:p-10">
+        <h3 className="text-base lg:text-xl font-medium text-foreground mb-5 lg:mb-6 text-left border-t-2 border-gray-100/10 pb-1">
           {format(currentDate, 'MMMM, yyyy')}
         </h3>
         
-        <div className="grid grid-cols-7 gap-2 md:gap-4 lg:gap-10">
+        <div className="grid grid-cols-7 gap-3 lg:gap-5">
           {/* Day headers */}
           {daysOfWeek.map((day, index) => (
-            <div key={index} className="text-center text-xs md:text-sm font-medium text-muted-foreground">
+            <div key={index} className="text-center text-xs lg:text-sm font-medium text-muted-foreground pb-2">
               {day}
             </div>
           ))}
@@ -38,7 +38,7 @@ const Calendar = () => {
             return (
               <div
                 key={index}
-                className={`text-center py-1.5 md:py-2 text-xs md:text-sm rounded-lg transition-colors ${
+                className={`text-center py-3 lg:py-3.5 text-xs lg:text-sm rounded-lg transition-colors ${
                   date
                     ? isToday
                       ? 'bg-card/50 text-primary-foreground font-semibold'

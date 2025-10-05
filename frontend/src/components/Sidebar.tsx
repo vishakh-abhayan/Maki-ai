@@ -11,7 +11,7 @@ const Sidebar = () => {
   return (
     <div>
       {/* Desktop Sidebar - Fixed Position */}
-      <aside className="hidden lg:flex lg:fixed lg:left-10 lg:top-1/2 lg:-translate-y-1/2 lg:z-40 glass-container rounded-bl-none rounded-tl-none py-1 lg:h-[calc(100vh-8rem)] w-[85px] flex-col items-center">
+      <aside className="hidden lg:flex lg:fixed lg:left-8 lg:top-1/2 lg:-translate-y-1/2 lg:z-40 glass-container rounded-bl-none rounded-tl-none py-1 lg:h-[calc(100vh-14rem)] w-[90px] flex-col items-center">
         
         {/* Navigation Icons */}
         <nav className="flex glass-card flex-col gap-8 pt-8 w-full flex-1 p-4 rounded-bl-none rounded-tl-none">
