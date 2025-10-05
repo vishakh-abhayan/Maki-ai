@@ -54,14 +54,14 @@ const RemindersList = () => {
     if (category === 'call') {
       return 'bg-green-500';
     }
-    return 'bg-destructive';
+    return 'bg-violet-500';
   };
 
   const getCardStyle = (category: string) => {
     if (category === 'call') {
-      return 'border-green-500/50 bg-green-500/5';
+      return 'border-green-500/50 ';
     }
-    return 'border-destructive/50 bg-destructive/5';
+    return 'border-violet-500/50 ';
   };
 
   const formatDueDate = (dateString: string | null): string => {
