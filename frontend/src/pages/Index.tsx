@@ -80,9 +80,9 @@ const Index = () => {
           {/* Mobile Content - Mic First */}
           <div className="lg:hidden space-y-4 md:space-y-6">
             <VoiceAssistant />
-            <Calendar />
-            <TasksList />
             <RemindersList />
+            <TasksList />
+            <Calendar />
           </div>
 
           {/* Desktop Content Grid - Mic LEFT, Calendar RIGHT */}
