@@ -76,9 +76,18 @@ const RemindersList = () => {
     }
   };
 
-  const formatFromText = (text: string | null): string => {
-    if (!text) return 'Not specified';
-    return text.charAt(0).toUpperCase() + text.slice(1);
+  // UPDATED: Format speaker source
+  const formatReminderSource = (from: string | null): string => {
+    if (!from) return 'Unknown';
+    
+    // Check if it's a speaker format (SPEAKER 1, SPEAKER 2, etc.)
+    if (from.toUpperCase().startsWith('SPEAKER')) {
+      const speakerNumber = from.split(' ')[1];
+      return `Conversation with Speaker ${speakerNumber}`;
+    }
+    
+    // Otherwise, it's a custom name
+    return `Conversation with ${from}`;
   };
 
   if (loading) {
@@ -143,11 +152,12 @@ const RemindersList = () => {
                       <p className="text-xs md:text-sm font-medium text-foreground mb-0.5 md:mb-1">
                         {reminder.title}
                       </p>
+                      {/* UPDATED: Show conversation source */}
                       <p className="text-[10px] md:text-xs text-muted-foreground mb-0.5 md:mb-1">
-                        From: {formatFromText(reminder.due_date_text)}
+                        From: {formatReminderSource(reminder.from)}
                       </p>
                       <p className="text-[10px] md:text-xs text-muted-foreground">
-                        Due: {formatDueDate(reminder.due_date)}
+                        Due: {reminder.due_date_text || 'No due date'}
                       </p>
                     </div>
                   </div>

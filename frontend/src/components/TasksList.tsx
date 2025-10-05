@@ -54,9 +54,18 @@ const TasksList = () => {
     }
   };
 
-  const formatFromText = (text: string | null): string => {
-    if (!text) return 'Not specified';
-    return text.charAt(0).toUpperCase() + text.slice(1);
+  // UPDATED: Format speaker source
+  const formatTaskSource = (from: string | null): string => {
+    if (!from) return 'Unknown';
+    
+    // Check if it's a speaker format (SPEAKER 1, SPEAKER 2, etc.)
+    if (from.toUpperCase().startsWith('SPEAKER')) {
+      const speakerNumber = from.split(' ')[1];
+      return `Conversation with Speaker ${speakerNumber}`;
+    }
+    
+    // Otherwise, it's a custom name
+    return `Conversation with ${from}`;
   };
 
   if (loading) {
@@ -102,41 +111,36 @@ const TasksList = () => {
             {tasks.map((task) => (
               <div
                 key={task._id}
-                className={`p-3 md:p-4 rounded-xl border transition-all ${
-                  task.completed
-                    ? 'border-card-border bg-card/30'
-                    : 'border-card-border bg-transparent'
-                }`}
+                className="flex items-start gap-3 p-3 md:p-4 rounded-xl border border-border/50 bg-card/50 transition-all hover:border-border"
               >
-                <div className="flex items-start gap-2 md:gap-3">
-                  <Checkbox
-                    checked={task.completed}
-                    onCheckedChange={() => handleToggleTask(task._id, task.completed)}
-                    className="mt-0.5 md:mt-1 border-muted-foreground data-[state=checked]:bg-primary data-[state=checked]:border-primary"
-                  />
-                  <div className="flex-1 min-w-0">
-                    <p
-                      className={`text-xs md:text-sm font-medium mb-1 ${
-                        task.completed
-                          ? 'line-through text-muted-foreground'
-                          : 'text-foreground'
-                      }`}
-                    >
-                      {task.title}
-                    </p>
-                    <p className="text-[10px] md:text-xs text-muted-foreground mb-0.5 md:mb-1">
-                      From: {formatFromText(task.due_date_text)}
-                    </p>
-                    <p className="text-[10px] md:text-xs text-muted-foreground">
-                      Due: {formatDueDate(task.due_date)}
-                    </p>
-                  </div>
-                  {task.priority === 'high' && !task.completed && (
-                    <span className="px-1.5 md:px-2 py-0.5 md:py-1 text-[10px] md:text-xs font-medium bg-destructive text-destructive-foreground rounded flex-shrink-0">
-                      High Priority
-                    </span>
-                  )}
+                <Checkbox
+                  id={task._id}
+                  checked={task.completed}
+                  onCheckedChange={() => handleToggleTask(task._id, task.completed)}
+                  className="mt-1"
+                />
+                <div className="flex-1 min-w-0">
+                  <label
+                    htmlFor={task._id}
+                    className={`text-xs md:text-sm font-medium cursor-pointer ${
+                      task.completed ? 'line-through text-muted-foreground' : 'text-foreground'
+                    }`}
+                  >
+                    {task.title}
+                  </label>
+                  {/* UPDATED: Show conversation source */}
+                  <p className="text-[10px] md:text-xs text-muted-foreground mt-0.5">
+                     From: {formatTaskSource(task.from)}
+                  </p>
+                  <p className="text-[10px] md:text-xs text-muted-foreground mt-0.5">
+                     Due: {task.due_date_text || 'No due date'}
+                  </p>
                 </div>
+                {task.priority === 'high' && (
+                  <span className="px-2 py-1 text-[10px] font-medium bg-destructive/10 text-destructive rounded-md">
+                    High
+                  </span>
+                )}
               </div>
             ))}
           </div>

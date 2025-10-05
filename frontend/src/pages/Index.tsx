@@ -27,7 +27,7 @@ const Index = () => {
             {/* User Info and Actions */}
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-4">
-                    <CircleUserRound strokeWidth={1.1}  className="h-12 w-12 text-foreground" />
+                    {/* <CircleUserRound strokeWidth={1.1}  className="h-12 w-12 text-foreground" /> */}
                 <div>
                   <p className="text-2xl font-medium text-foreground">Hey, Dev!</p>
                   <p className="text-sm text-muted-foreground mt-0.5">Here's what's important today</p>
@@ -57,7 +57,7 @@ const Index = () => {
             {/* User Info and Actions */}
             <div className="flex items-start justify-between">
               <div className="flex items-center gap-6">
-                    <CircleUserRound strokeWidth={1.2}  className="h-16 w-16 text-foreground" />
+                    {/* <CircleUserRound strokeWidth={1.2}  className="h-16 w-16 text-foreground" /> */}
                 <div>
                   <p className="text-4xl font-medium text-foreground">Hey, Dev!</p>
                   <p className="text-base text-muted-foreground mt-1">Here's what's important today</p>
