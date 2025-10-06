@@ -69,7 +69,7 @@ const Index = () => {
             <div className="flex items-start justify-between">
               <div className="flex items-center gap-6">
                     {/* <CircleUserRound strokeWidth={1.2}  className="h-16 w-16 text-foreground" /> */}
-                <div className="top-10 right-14 relative">
+                <div className="top-20 right-14 relative">
                   <p className="text-4xl font-medium text-foreground">Hey, Dev!</p>
                   <p className="text-base text-muted-foreground mt-1">Here's what's important today</p>
                 </div>
