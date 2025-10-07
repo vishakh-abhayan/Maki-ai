@@ -7,7 +7,15 @@ import RemindersList from "@/components/RemindersList";
 import { DataRefreshProvider } from "@/contexts/DataRefreshContext";
 
 
+import { SignedIn, SignedOut, SignInButton, UserButton,useUser } from '@clerk/clerk-react';
+
+
+
+
 const Index = () => {
+  const { user } = useUser();
+
+
   return (
     <DataRefreshProvider>
       <div className="min-h-screen flex lg:pl-[170px] pb-16 lg:pb-0">
@@ -40,6 +48,12 @@ const Index = () => {
                 <button className="w-7 h-7 rounded-lg bg-card/40 backdrop-blur-xl border border-card-border flex items-center justify-center">
                   <Settings className="w-4 h-4 text-foreground" />
                 </button>
+                <SignedOut>
+                <SignInButton />
+                </SignedOut>
+                <SignedIn>
+                <UserButton   />
+                </SignedIn>
               </div>
             </div>
           </div>
@@ -54,7 +68,7 @@ const Index = () => {
               </h1>
               
             </div>
-             <div className=" absolute right-24 top-6 z-10">
+             <div className=" absolute right-36 top-6 z-10">
                 <div className="fixed flex gap-3">
                 <button className="w-8 h-8 rounded-lg bg-card/40 backdrop-blur-xl border border-card-border flex items-center justify-center hover:bg-card/60 transition-all">
                   <Download className="w-5 h-5 text-foreground" />
@@ -62,6 +76,12 @@ const Index = () => {
                 <button className="w-8 h-8 rounded-lg bg-card/40 backdrop-blur-xl border border-card-border flex items-center justify-center hover:bg-card/60 transition-all">
                   <Settings className="w-5 h-5 text-foreground" />
                 </button>
+                <SignedOut>
+                <SignInButton />
+                </SignedOut>
+                <SignedIn>
+                <UserButton />
+                </SignedIn>
                 </div>
               </div>
             
@@ -70,7 +90,7 @@ const Index = () => {
               <div className="flex items-center gap-6">
                     {/* <CircleUserRound strokeWidth={1.2}  className="h-16 w-16 text-foreground" /> */}
                 <div className="top-20 right-14 relative">
-                  <p className="text-4xl font-medium text-foreground">Hey, Dev!</p>
+                  <p className="text-4xl font-medium text-foreground">Hey, {user?.firstName || " "}!</p>
                   <p className="text-base text-muted-foreground mt-1">Here's what's important today</p>
                 </div>
               </div>
