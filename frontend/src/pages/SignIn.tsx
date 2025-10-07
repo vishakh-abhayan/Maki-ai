@@ -25,7 +25,7 @@ const SignInPage = () => {
           </h1>
         </div>
         
-        {/* Clerk's Sign In Component with custom styling */}
+        
         <SignIn 
           appearance={{
             elements: {

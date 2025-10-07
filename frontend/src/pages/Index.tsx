@@ -97,7 +97,7 @@ const Index = () => {
             </div>
           </div>
 
-          {/* Mobile Content - Mic First */}
+          {/* Mobile Content  */}
           <div className="lg:hidden space-y-4 md:space-y-6">
             <VoiceAssistant />
             <RemindersList />
