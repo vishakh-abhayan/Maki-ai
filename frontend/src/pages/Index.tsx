@@ -41,11 +41,11 @@ const Index = () => {
                   <p className="text-sm text-muted-foreground mt-0.5">Here's what's important today</p>
                 </div>
               </div>
-              <div className="flex gap-2 absolute right-4 top-4">
-                <button className="w-7 h-7 rounded-lg bg-card/40 backdrop-blur-xl border border-card-border flex items-center justify-center">
+              <div className="flex gap-2  absolute right-4 top-4">
+                <button className="w-7 h-7 p-2 rounded-lg bg-card/40 backdrop-blur-xl border border-card-border flex items-center justify-center">
                   <Download className="w-4 h-4 text-foreground" />
                 </button>
-                <button className="w-7 h-7 rounded-lg bg-card/40 backdrop-blur-xl border border-card-border flex items-center justify-center">
+                <button className="w-7 h-7  p-2 rounded-lg bg-card/40 backdrop-blur-xl border border-card-border flex items-center justify-center">
                   <Settings className="w-4 h-4 text-foreground" />
                 </button>
                 <SignedOut>
@@ -70,10 +70,10 @@ const Index = () => {
             </div>
              <div className=" absolute right-36 top-6 z-10">
                 <div className="fixed flex gap-3">
-                <button className="w-8 h-8 rounded-lg bg-card/40 backdrop-blur-xl border border-card-border flex items-center justify-center hover:bg-card/60 transition-all">
+                <button className="w-8 h-8 p-2 rounded-full bg-card/40 backdrop-blur-xl border border-card-border flex items-center justify-center hover:bg-card/60 transition-all">
                   <Download className="w-5 h-5 text-foreground" />
                 </button>
-                <button className="w-8 h-8 rounded-lg bg-card/40 backdrop-blur-xl border border-card-border flex items-center justify-center hover:bg-card/60 transition-all">
+                <button className="w-8 h-8 p-2 rounded-full bg-card/40 backdrop-blur-xl border border-card-border flex items-center justify-center hover:bg-card/60 transition-all">
                   <Settings className="w-5 h-5 text-foreground" />
                 </button>
                 <SignedOut>

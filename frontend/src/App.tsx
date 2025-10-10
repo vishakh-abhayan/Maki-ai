@@ -2,11 +2,10 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { Routes, Route, Navigate } from "react-router-dom";  // REMOVE BrowserRouter
+import { Routes, Route, Navigate } from "react-router-dom";
 import { SignedIn, SignedOut } from "@clerk/clerk-react";
 import Index from "./pages/Index";
-import SignInPage from "./pages/SignIn";
-import SignUpPage from "./pages/SignUp";
+import AuthPage from "./pages/Auth"; 
 import NotFound from "./pages/NotFound";
 import AnimatedBackground from "./components/AnimatedBackground";
 
@@ -17,7 +16,7 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
     <>
       <SignedIn>{children}</SignedIn>
       <SignedOut>
-        <Navigate to="/sign-in" replace />
+        <Navigate to="/auth" replace />
       </SignedOut>
     </>
   );
@@ -30,8 +29,9 @@ const App = () => (
       <Toaster />
       <Sonner />
       <Routes>
-        <Route path="/sign-in" element={<SignInPage />} />
-        <Route path="/sign-up" element={<SignUpPage />} />
+        <Route path="/auth" element={<AuthPage />} />
+        <Route path="/sign-in" element={<Navigate to="/auth" replace />} />
+        <Route path="/sign-up" element={<Navigate to="/auth" replace />} />
         
         <Route 
           path="/" 
