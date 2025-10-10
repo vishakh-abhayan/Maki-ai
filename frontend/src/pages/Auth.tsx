@@ -124,11 +124,11 @@ const AuthPage = () => {
   return (
     <div className="min-h-screen flex items-center justify-center relative overflow-hidden p-4">
       {/* Header */}
-      <div className="absolute top-24 left-0 right-0 flex flex-col items-center gap-2.5 z-20">
+      <div className="absolute top-24 left-0 right-0 flex flex-col items-center gap-2.5 z-20 px-4">
         <h1 className="font-semibold text-white text-[40px] tracking-[2px]">
           MAKI
         </h1>
-        <p className="font-light text-white text-xl tracking-[1.2px]">
+        <p className="font-light text-white text-center text-base sm:text-lg md:text-xl tracking-[1.2px] max-w-md">
           Convergence of Mind and Machine
         </p>
       </div>
