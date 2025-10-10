@@ -1,0 +1,252 @@
+
+.cl-card,
+.cl-rootBox,
+.cl-main {
+  background-color: transparent !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  border: none !important;
+  backdrop-filter: none !important;
+  max-width: 100% !important;
+  width: 100% !important;
+}
+
+/* Remove all internal backgrounds */
+[class*='cl-internal'] {
+  background: transparent !important;
+  box-shadow: none !important;
+  max-width: 100% !important;
+}
+
+/* Compact form layout */
+.cl-form {
+  gap: 0.75rem !important;
+  width: 100% !important;
+  max-width: 100% !important;
+}
+
+/* Form field rows - CONSTRAIN WIDTH */
+.cl-formFieldRow {
+  margin-bottom: 0.75rem !important;
+  width: 100% !important;
+  max-width: 100% !important;
+}
+
+/* Input fields with glow effect - CONSTRAIN WIDTH */
+.cl-formFieldInput {
+  background-color: rgba(255, 255, 255, 0.06) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  color: white !important;
+  border-radius: 0.75rem !important;
+  padding: 0.75rem 1rem !important;
+  font-size: 0.875rem !important;
+  transition: all 0.3s ease !important;
+  height: 44px !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+.cl-formFieldInput:focus {
+  border-color: rgba(96, 165, 250, 0.5) !important;
+  outline: none !important;
+  box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.1), 0 0 20px rgba(96, 165, 250, 0.2) !important;
+  background-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+.cl-formFieldInput::placeholder {
+  color: rgba(156, 163, 175, 0.6) !important;
+  font-size: 0.8125rem !important;
+}
+
+/* Input wrapper */
+.cl-formFieldInputGroup {
+  width: 100% !important;
+  max-width: 100% !important;
+}
+
+/* Labels - smaller and subtle */
+.cl-formFieldLabel {
+  color: rgba(209, 213, 219, 0.8) !important;
+  font-size: 0.8125rem !important;
+  font-weight: 400 !important;
+  margin-bottom: 0.375rem !important;
+}
+
+/* Primary button - "Join" button style */
+.cl-formButtonPrimary {
+  background: rgb(37, 99, 235) !important;
+  color: white !important;
+  padding: 0.75rem 1rem !important;
+  border-radius: 0.75rem !important;
+  font-weight: 600 !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  margin-top: 1rem !important;
+  box-shadow: 0 4px 20px rgba(37, 99, 235, 0.4) !important;
+  border: none !important;
+  transition: all 0.3s ease !important;
+  height: 44px !important;
+  font-size: 0.875rem !important;
+}
+
+.cl-formButtonPrimary:hover {
+  background: rgb(29, 78, 216) !important;
+  box-shadow: 0 6px 30px rgba(37, 99, 235, 0.5) !important;
+  transform: translateY(-1px) !important;
+}
+
+/* Social buttons - ICON ONLY in single row */
+.cl-socialButtons {
+  display: flex !important;
+  justify-content: center !important;
+  gap: 1rem !important;
+  width: 100% !important;
+}
+
+.cl-socialButtonsIconButton {
+  background-color: rgba(255, 255, 255, 0.06) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  color: white !important;
+  border-radius: 0.75rem !important;
+  width: 48px !important;
+  height: 48px !important;
+  min-width: 48px !important;
+  min-height: 48px !important;
+  max-width: 48px !important;
+  max-height: 48px !important;
+  padding: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  transition: all 0.2s ease !important;
+  flex-shrink: 0 !important;
+}
+
+.cl-socialButtonsIconButton:hover {
+  background-color: rgba(255, 255, 255, 0.1) !important;
+  border-color: rgba(255, 255, 255, 0.2) !important;
+  transform: translateY(-2px) !important;
+}
+
+.cl-socialButtonsProviderIcon {
+  filter: brightness(0) invert(1) !important;
+  opacity: 0.85 !important;
+  width: 20px !important;
+  height: 20px !important;
+}
+
+/* Hide text in social buttons */
+.cl-socialButtonsBlockButtonText {
+  display: none !important;
+}
+
+/* Divider */
+.cl-dividerLine {
+  background-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+.cl-dividerText {
+  color: rgba(156, 163, 175, 0.8) !important;
+  font-size: 0.75rem !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.1em !important;
+  font-weight: 300 !important;
+}
+
+/* Divider row spacing */
+.cl-dividerRow {
+  margin: 1rem 0 !important;
+}
+
+/* Password show/hide button */
+.cl-formFieldInputShowPasswordButton {
+  color: rgba(156, 163, 175, 0.8) !important;
+}
+
+.cl-formFieldInputShowPasswordButton:hover {
+  color: white !important;
+}
+
+/* Footer links */
+.cl-footerActionLink {
+  color: rgba(96, 165, 250, 1) !important;
+  font-size: 0.8125rem !important;
+}
+
+.cl-footerActionLink:hover {
+  color: rgba(147, 197, 253, 1) !important;
+}
+
+/* Error messages */
+.cl-formFieldErrorText {
+  color: rgba(248, 113, 113, 1) !important;
+  font-size: 0.75rem !important;
+  margin-top: 0.25rem !important;
+}
+
+/* Success messages */
+.cl-formFieldSuccessText {
+  color: rgba(74, 222, 128, 1) !important;
+  font-size: 0.75rem !important;
+  margin-top: 0.25rem !important;
+}
+
+/* Hide Clerk footer */
+.cl-footer,
+.cl-footerPages {
+  display: none !important;
+}
+
+/* OTP code fields */
+.cl-otpCodeFieldInput {
+  background-color: rgba(255, 255, 255, 0.06) !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+  color: white !important;
+  border-radius: 0.5rem !important;
+}
+
+/* Phone input specific styling */
+.cl-phoneInputBox {
+  background-color: rgba(255, 255, 255, 0.06) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  border-radius: 0.75rem !important;
+  width: 100% !important;
+  max-width: 100% !important;
+}
+
+.cl-selectButton {
+  background-color: transparent !important;
+  border: none !important;
+  color: white !important;
+}
+
+/* Compact header spacing */
+.cl-headerTitle,
+.cl-headerSubtitle {
+  display: none !important;
+}
+
+/* Social buttons container */
+.cl-socialButtonsBlockButton,
+.cl-socialButtonsBlockButtonArrow {
+  display: none !important;
+}
+
+/* Ensure icon buttons show */
+.cl-socialButtonsIconButton {
+  display: flex !important;
+}
+
+/* Constrain all clerk components */
+.cl-component,
+.cl-signIn-root,
+.cl-signUp-root {
+  width: 100% !important;
+  max-width: 100% !important;
+  overflow: hidden !important;
+}
+
+
+
+
