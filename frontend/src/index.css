@@ -228,3 +228,50 @@
   
 }
 
+
+
+
+
+/* Ensure backdrop-filter works in all browsers */
+@supports ((-webkit-backdrop-filter: none) or (backdrop-filter: none)) {
+  .backdrop-blur-\[75px\] {
+    -webkit-backdrop-filter: blur(75px);
+    backdrop-filter: blur(75px);
+  }
+  
+  .backdrop-blur-\[100px\] {
+    -webkit-backdrop-filter: blur(100px);
+    backdrop-filter: blur(100px);
+  }
+}
+
+/* Webkit mask support for gradient borders */
+@supports (-webkit-mask-composite: xor) or (mask-composite: exclude) {
+  .before\:\[mask\:linear-gradient\(\#fff_0_0\)_content-box\,linear-gradient\(\#fff_0_0\)\]::before {
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  }
+  
+  .before\:\[mask-composite\:exclude\]::before {
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+  }
+}
+
+/* Smooth transitions for input focus states */
+input:focus::placeholder {
+  opacity: 1;
+  transition: opacity 0.2s ease;
+}
+
+/* Disabled state for glassmorphism inputs */
+input:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+/* Better text rendering */
+body {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}

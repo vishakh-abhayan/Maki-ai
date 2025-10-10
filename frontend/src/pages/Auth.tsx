@@ -1,3 +1,4 @@
+// frontend/src/pages/Auth.tsx
 import { useState } from "react";
 import { useSignIn, useSignUp } from "@clerk/clerk-react";
 import { useNavigate } from "react-router-dom";
@@ -17,7 +18,6 @@ const AuthPage = () => {
   const { signUp, setActive: setActiveSignUp } = useSignUp();
   const navigate = useNavigate();
 
-  // OAuth Handler - Always shows all providers
   const handleOAuth = async (provider: "google" | "github" | "linkedin_oidc") => {
     setIsLoading(true);
     setError("");
@@ -43,7 +43,6 @@ const AuthPage = () => {
     }
   };
 
-  // Email/Password Sign In
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!signIn) return;
@@ -61,18 +60,15 @@ const AuthPage = () => {
         await setActiveSignIn({ session: result.createdSessionId });
         navigate("/");
       } else {
-        console.error("Sign in not complete:", result);
         setError("Sign in failed. Please try again.");
       }
     } catch (err: any) {
-      console.error("Sign in error:", err);
       setError(err.errors?.[0]?.message || "Invalid email or password");
     } finally {
       setIsLoading(false);
     }
   };
 
-  // Email/Password Sign Up
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!signUp) return;
@@ -94,14 +90,12 @@ const AuthPage = () => {
 
       setPendingVerification(true);
     } catch (err: any) {
-      console.error("Sign up error:", err);
       setError(err.errors?.[0]?.message || "Sign up failed");
     } finally {
       setIsLoading(false);
     }
   };
 
-  // Verify Email Code
   const handleVerifyEmail = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!signUp) return;
@@ -121,7 +115,6 @@ const AuthPage = () => {
         setError("Verification failed. Please try again.");
       }
     } catch (err: any) {
-      console.error("Verification error:", err);
       setError(err.errors?.[0]?.message || "Invalid verification code");
     } finally {
       setIsLoading(false);
@@ -130,161 +123,155 @@ const AuthPage = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center relative overflow-hidden p-4">
-      {/* Remove the old animated background and use the same one from your app */}
-      
-      <div className="relative z-10 w-full max-w-md">
-        {/* Header */}
-        <div className="text-center mb-8">
-          <h1 className="text-4xl font-light text-white/90 mb-3 tracking-wider">MAKI</h1>
-          <p className="text-gray-400 text-sm tracking-wide">Convergence of Mind and Machine</p>
-        </div>
-        
-        {/* Main auth card */}
-        <div className="glass-container p-8">
+      {/* Header */}
+      <div className="absolute top-24 left-0 right-0 flex flex-col items-center gap-2.5 z-20">
+        <h1 className="font-semibold text-white text-[40px] tracking-[2px]">
+          MAKI
+        </h1>
+        <p className="font-light text-white text-xl tracking-[1.2px]">
+          Convergence of Mind and Machine
+        </p>
+      </div>
+
+      {/* Main Auth Card - REAL GLASSMORPHISM */}
+      <div className="relative z-10 w-full max-w-[450px] mt-20">
+        {/* Glass Card */}
+        <div className="relative backdrop-blur-xl bg-white/10 border border-white/20 rounded-[30px] shadow-2xl p-8">
+          
           {!pendingVerification ? (
             <>
-              {/* Tab switcher */}
-              <div className="flex gap-1 mb-6 bg-black/20 p-1 rounded-xl w-fit mx-auto">
-                <button
-                  onClick={() => {
-                    setMode("sign-up");
-                    setError("");
-                    setEmail("");
-                    setPassword("");
-                    setFirstName("");
-                    setLastName("");
-                  }}
-                  className={`py-1.5 px-6 rounded-lg text-xs font-medium transition-all ${
-                    mode === "sign-up" 
-                      ? "bg-white/10 text-white" 
-                      : "text-gray-500 hover:text-gray-300"
-                  }`}
-                >
-                  Sign up
-                </button>
-                <button
-                  onClick={() => {
-                    setMode("sign-in");
-                    setError("");
-                    setEmail("");
-                    setPassword("");
-                  }}
-                  className={`py-1.5 px-6 rounded-lg text-xs font-medium transition-all ${
-                    mode === "sign-in" 
-                      ? "bg-white/10 text-white" 
-                      : "text-gray-500 hover:text-gray-300"
-                  }`}
-                >
-                  Sign in
-                </button>
+              {/* Tab Switcher with Glassmorphism */}
+              <div className="flex justify-center mb-6">
+                <div className="bg-white/5 backdrop-blur-md rounded-full p-1 inline-flex gap-1 border border-white/10">
+                  <button
+                    onClick={() => {
+                      setMode("sign-up");
+                      setError("");
+                      setEmail("");
+                      setPassword("");
+                      setFirstName("");
+                      setLastName("");
+                    }}
+                    className={`px-6 py-2 rounded-full text-sm font-medium tracking-wide transition-all ${
+                      mode === "sign-up" 
+                        ? "bg-white/20 text-white shadow-lg backdrop-blur-xl" 
+                        : "text-white/60 hover:text-white/80"
+                    }`}
+                  >
+                    Sign up
+                  </button>
+                  
+                  <button
+                    onClick={() => {
+                      setMode("sign-in");
+                      setError("");
+                      setEmail("");
+                      setPassword("");
+                    }}
+                    className={`px-6 py-2 rounded-full text-sm font-medium tracking-wide transition-all ${
+                      mode === "sign-in" 
+                        ? "bg-white/20 text-white shadow-lg backdrop-blur-xl" 
+                        : "text-white/60 hover:text-white/80"
+                    }`}
+                  >
+                    Sign in
+                  </button>
+                </div>
               </div>
-              
+
               {/* Subtitle */}
-              <p className="text-center text-gray-400 mb-5 text-sm font-light">
-                Join the movement.
-              </p>
+             <p className="text-left text-white text-lg tracking-wide mb-6">
+               {mode === "sign-up" ? "Join the movement." : "Welcome Back!"}
+             </p>
 
               {/* Error Message */}
               {error && (
-                <div className="mb-4 p-3 rounded-lg bg-red-500/10 border border-red-500/20">
-                  <p className="text-red-400 text-sm text-center">{error}</p>
+                <div className="mb-4 p-3 rounded-xl bg-red-500/20 border border-red-500/30 backdrop-blur-md">
+                  <p className="text-red-200 text-sm text-center">{error}</p>
                 </div>
               )}
-              
-              {/* Email/Password Form */}
+
+              {/* Form */}
               <form onSubmit={mode === "sign-in" ? handleSignIn : handleSignUp} className="space-y-4">
                 {/* First Name & Last Name - Only for Sign Up */}
                 {mode === "sign-up" && (
-                  <div className="grid grid-cols-2 gap-3">
-                    <div>
-                      <label className="block text-gray-300/80 text-sm mb-2">
-                        First name
-                      </label>
-                      <input
-                        type="text"
-                        value={firstName}
-                        onChange={(e) => setFirstName(e.target.value)}
-                        placeholder="First name"
-                        required
-                        disabled={isLoading}
-                        className="w-full bg-transparent border border-white/10 text-white placeholder:text-gray-500 rounded-xl px-4 py-3 text-sm transition-all focus:border-blue-400/50 focus:outline-none focus:ring-3 focus:ring-blue-400/10 disabled:opacity-50"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-gray-300/80 text-sm mb-2">
-                        Last name
-                      </label>
-                      <input
-                        type="text"
-                        value={lastName}
-                        onChange={(e) => setLastName(e.target.value)}
-                        placeholder="Last name"
-                        required
-                        disabled={isLoading}
-                        className="w-full bg-transparent border border-white/10 text-white placeholder:text-gray-500 rounded-xl px-4 py-3 text-sm transition-all focus:border-blue-400/50 focus:outline-none focus:ring-3 focus:ring-blue-400/10 disabled:opacity-50"
-                      />
-                    </div>
+                  <div className="flex gap-3">
+                    <input
+                      type="text"
+                      value={firstName}
+                      onChange={(e) => setFirstName(e.target.value)}
+                      placeholder="First name"
+                      required
+                      disabled={isLoading}
+                      className="flex-1 min-w-0 h-12 px-4 bg-white/10 backdrop-blur-md border border-white/20 rounded-xl text-white placeholder:text-white/40 focus:bg-white/15 focus:border-white/30 focus:outline-none transition-all disabled:opacity-50"
+                    />
+
+                    <input
+                      type="text"
+                      value={lastName}
+                      onChange={(e) => setLastName(e.target.value)}
+                      placeholder="Last name"
+                      required
+                      disabled={isLoading}
+                      className="flex-1 min-w-0 h-12 px-4 bg-white/10 backdrop-blur-md border border-white/20 rounded-xl text-white placeholder:text-white/40 focus:bg-white/15 focus:border-white/30 focus:outline-none transition-all disabled:opacity-50"
+                    />
                   </div>
                 )}
 
                 {/* Email Input */}
-                <div>
-                  <label className="block text-gray-300/80 text-sm mb-2">
-                    Email address
-                  </label>
-                  <input
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="Enter your email address"
-                    required
-                    disabled={isLoading}
-                    className="w-full bg-transparent border border-white/10 text-white placeholder:text-gray-500 rounded-xl px-4 py-3 text-sm transition-all focus:border-blue-400/50 focus:outline-none focus:ring-3 focus:ring-blue-400/10 disabled:opacity-50"
-                  />
-                </div>
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="Enter your email"
+                  required
+                  disabled={isLoading}
+                  className="w-full h-12 px-4 bg-white/10 backdrop-blur-md border border-white/20 rounded-xl text-white placeholder:text-white/40 focus:bg-white/15 focus:border-white/30 focus:outline-none transition-all disabled:opacity-50"
+                />
 
                 {/* Password Input */}
-                <div>
-                  <label className="block text-gray-300/80 text-sm mb-2">
-                    Password
-                  </label>
-                  <input
-                    type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    placeholder="Enter your password"
-                    required
-                    disabled={isLoading}
-                   className="w-full bg-transparent border border-white/10 text-white placeholder:text-gray-500 rounded-xl px-4 py-3 text-sm transition-all focus:border-blue-400/50 focus:outline-none focus:ring-3 focus:ring-blue-400/10 disabled:opacity-50"
-                  />
-                </div>
+                <input
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="Enter your password"
+                  required
+                  disabled={isLoading}
+                  className="w-full h-12 px-4 bg-white/10 backdrop-blur-md border border-white/20 rounded-xl text-white placeholder:text-white/40 focus:bg-white/15 focus:border-white/30 focus:outline-none transition-all disabled:opacity-50"
+                />
 
                 {/* Submit Button */}
-                <button
+               <button
                   type="submit"
                   disabled={isLoading}
-                  className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-xl transition-all shadow-lg shadow-blue-600/40 hover:shadow-blue-600/50 hover:translate-y-[-1px] disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full h-12 bg-blue-600 hover:bg-blue-700 rounded-xl text-white font-semibold shadow-lg shadow-blue-600/50 hover:shadow-blue-600/60 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {isLoading ? "Loading..." : "Continue"}
-                </button>
+                  {isLoading 
+                    ? "Loading..." 
+                    : mode === "sign-up" 
+                      ? "Join" 
+                      : "Login"
+                  }
+               </button>
+
               </form>
 
               {/* Divider */}
               <div className="flex items-center gap-4 my-6">
-                <div className="flex-1 h-px bg-white/10"></div>
-                <span className="text-gray-500 text-xs uppercase tracking-widest font-light">
-                  OR
+                <div className="flex-1 h-px bg-white/20"></div>
+                <span className="text-white/50 text-xs uppercase tracking-widest">
+                  OR JOIN WITH
                 </span>
-                <div className="flex-1 h-px bg-white/10"></div>
+                <div className="flex-1 h-px bg-white/20"></div>
               </div>
 
               {/* Social Login Buttons */}
-              <div className="flex justify-center gap-4">
+              <div className="flex justify-center gap-3">
                 {/* Google */}
                 <button
                   onClick={() => handleOAuth("google")}
                   disabled={isLoading}
-                  className="w-12 h-12 bg-white/6 border border-white/10 rounded-xl flex items-center justify-center hover:bg-white/10 hover:border-white/20 transition-all hover:translate-y-[-2px] disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-12 h-12 bg-white/10 backdrop-blur-md border border-white/20 rounded-xl hover:bg-white/15 transition-all disabled:opacity-50 flex items-center justify-center"
                   title="Continue with Google"
                 >
                   <svg className="w-5 h-5" viewBox="0 0 24 24">
@@ -299,7 +286,7 @@ const AuthPage = () => {
                 <button
                   onClick={() => handleOAuth("github")}
                   disabled={isLoading}
-                  className="w-12 h-12 bg-white/6 border border-white/10 rounded-xl flex items-center justify-center hover:bg-white/10 hover:border-white/20 transition-all hover:translate-y-[-2px] disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-12 h-12 bg-white/10 backdrop-blur-md border border-white/20 rounded-xl hover:bg-white/15 transition-all disabled:opacity-50 flex items-center justify-center"
                   title="Continue with GitHub"
                 >
                   <svg className="w-5 h-5" fill="#fff" viewBox="0 0 24 24">
@@ -311,7 +298,7 @@ const AuthPage = () => {
                 <button
                   onClick={() => handleOAuth("linkedin_oidc")}
                   disabled={isLoading}
-                  className="w-12 h-12 bg-white/6 border border-white/10 rounded-xl flex items-center justify-center hover:bg-white/10 hover:border-white/20 transition-all hover:translate-y-[-2px] disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-12 h-12 bg-white/10 backdrop-blur-md border border-white/20 rounded-xl hover:bg-white/15 transition-all disabled:opacity-50 flex items-center justify-center"
                   title="Continue with LinkedIn"
                 >
                   <svg className="w-5 h-5" fill="#fff" viewBox="0 0 24 24">
@@ -325,38 +312,33 @@ const AuthPage = () => {
             <>
               <div className="text-center mb-6">
                 <h2 className="text-2xl font-light text-white mb-2">Verify your email</h2>
-                <p className="text-gray-400 text-sm">
-                  We sent a code to <span className="text-white">{email}</span>
+                <p className="text-white/60 text-sm">
+                  We sent a code to <span className="text-white font-medium">{email}</span>
                 </p>
               </div>
 
               {error && (
-                <div className="mb-4 p-3 rounded-lg bg-red-500/10 border border-red-500/20">
-                  <p className="text-red-400 text-sm text-center">{error}</p>
+                <div className="mb-4 p-3 rounded-xl bg-red-500/20 border border-red-500/30 backdrop-blur-md">
+                  <p className="text-red-200 text-sm text-center">{error}</p>
                 </div>
               )}
 
               <form onSubmit={handleVerifyEmail} className="space-y-4">
-                <div>
-                  <label className="block text-gray-300/80 text-sm mb-2">
-                    Verification code
-                  </label>
-                  <input
-                    type="text"
-                    value={code}
-                    onChange={(e) => setCode(e.target.value)}
-                    placeholder="Enter 6-digit code"
-                    required
-                    maxLength={6}
-                    disabled={isLoading}
-                    className="w-full bg-transparent border border-white/10 text-white placeholder:text-gray-500 rounded-xl px-4 py-3 text-sm transition-all focus:border-blue-400/50 focus:outline-none focus:ring-3 focus:ring-blue-400/10 disabled:opacity-50 text-center text-2xl tracking-widest"
-                  />
-                </div>
+                <input
+                  type="text"
+                  value={code}
+                  onChange={(e) => setCode(e.target.value)}
+                  placeholder="000000"
+                  required
+                  maxLength={6}
+                  disabled={isLoading}
+                  className="w-full h-16 px-4 bg-white/10 backdrop-blur-md border border-white/20 rounded-xl text-white text-2xl text-center tracking-widest placeholder:text-white/30 focus:bg-white/15 focus:border-white/30 focus:outline-none transition-all disabled:opacity-50"
+                />
 
                 <button
                   type="submit"
                   disabled={isLoading}
-                  className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-xl transition-all shadow-lg shadow-blue-600/40 hover:shadow-blue-600/50 hover:translate-y-[-1px] disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full h-12 bg-blue-600 hover:bg-blue-700 rounded-xl text-white font-semibold shadow-lg shadow-blue-600/50 hover:shadow-blue-600/60 transition-all disabled:opacity-50"
                 >
                   {isLoading ? "Verifying..." : "Verify Email"}
                 </button>
@@ -368,7 +350,7 @@ const AuthPage = () => {
                     setCode("");
                     setError("");
                   }}
-                  className="w-full text-gray-400 hover:text-white text-sm transition-colors"
+                  className="w-full text-white/60 hover:text-white text-sm transition-colors"
                 >
                   ← Back to sign up
                 </button>
@@ -377,6 +359,11 @@ const AuthPage = () => {
           )}
         </div>
       </div>
+
+      {/* Footer */}
+      <footer className="absolute bottom-4 flex items-center justify-center gap-2 z-20">
+        <span className="text-white/60 text-sm">© maki.ai 2025</span>
+      </footer>
     </div>
   );
 };
