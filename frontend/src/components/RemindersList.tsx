@@ -1,14 +1,17 @@
 import { useEffect, useState } from "react";
 import { Phone, Calendar as CalendarIcon, MessageSquare, User } from "lucide-react";
-import { apiService, Reminder } from "@/services/api";
-import { format, parseISO } from "date-fns";
+import { createAPIService, Reminder } from "@/services/api";
 import { useDataRefresh } from "@/contexts/DataRefreshContext";
+import { useAuth } from "@clerk/clerk-react";
 
 const RemindersList = () => {
   const [reminders, setReminders] = useState<Reminder[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const { refreshTrigger } = useDataRefresh();
+  const { getToken } = useAuth();
+
+  const apiService = createAPIService(getToken);
 
   useEffect(() => {
     fetchReminders();
@@ -27,7 +30,7 @@ const RemindersList = () => {
            item.category === 'personal')
       );
       
-      setReminders(reminderItems);
+      setReminders(reminderItems.slice(0, 5));
       setError(null);
     } catch (err) {
       setError('Failed to load reminders');
@@ -51,43 +54,24 @@ const RemindersList = () => {
   };
 
   const getIconColor = (category: string) => {
-    if (category === 'call') {
-      return 'bg-green-500';
-    }
+    if (category === 'call') return 'bg-green-500';
     return 'bg-violet-500';
   };
 
   const getCardStyle = (category: string) => {
-    if (category === 'call') {
-      return 'border-green-500/50 ';
-    }
-    return 'border-violet-500/50 ';
+    if (category === 'call') return 'border-green-500/50';
+    return 'border-violet-500/50';
   };
 
-  const formatDueDate = (dateString: string | null): string => {
-    if (!dateString) return 'No due date';
-    
-    try {
-      const date = parseISO(dateString);
-      return format(date, 'MMM d \'at\' h:mm a');
-    } catch (e) {
-      console.error('Error parsing date:', e);
-      return 'Invalid date';
-    }
-  };
-
-  // UPDATED: Format speaker source
   const formatReminderSource = (from: string | null): string => {
     if (!from) return 'Unknown';
     
-    // Check if it's a speaker format (SPEAKER 1, SPEAKER 2, etc.)
     if (from.toUpperCase().startsWith('SPEAKER')) {
       const speakerNumber = from.split(' ')[1];
-      return `Conversation with Speaker ${speakerNumber}`;
+      return `Speaker ${speakerNumber}`;
     }
     
-    // Otherwise, it's a custom name
-    return `Conversation with ${from}`;
+    return from;
   };
 
   if (loading) {
@@ -151,12 +135,11 @@ const RemindersList = () => {
                       <p className="text-xs md:text-sm font-medium text-foreground mb-0.5 md:mb-1">
                         {reminder.title}
                       </p>
-                      {/* UPDATED: Show conversation source */}
                       <p className="text-[10px] md:text-xs text-muted-foreground mb-0.5 md:mb-1">
                         From: {formatReminderSource(reminder.from)}
                       </p>
                       <p className="text-[10px] md:text-xs text-muted-foreground">
-                        Due: {reminder.due_date_text || 'No due date'}
+                        Due: {reminder.dueDateText || 'No due date'}
                       </p>
                     </div>
                   </div>

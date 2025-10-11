@@ -1,14 +1,18 @@
 import { useEffect, useState } from "react";
 import { Checkbox } from "@/components/ui/checkbox";
-import { apiService, Task } from "@/services/api";
+import { createAPIService, Task } from "@/services/api";
 import { format, parseISO } from "date-fns";
 import { useDataRefresh } from "@/contexts/DataRefreshContext";
+import { useAuth } from "@clerk/clerk-react";
 
 const TasksList = () => {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const { refreshTrigger } = useDataRefresh();
+  const { getToken } = useAuth();
+
+  const apiService = createAPIService(getToken);
 
   useEffect(() => {
     fetchTasks();
@@ -21,7 +25,7 @@ const TasksList = () => {
       const taskItems = data.filter(
         (item) => item.category === 'task' || item.category === 'deadline'
       );
-      setTasks(taskItems.slice(0, 3));
+      setTasks(taskItems.slice(0, 5));
       setError(null);
     } catch (err) {
       setError('Failed to load tasks');
@@ -42,30 +46,15 @@ const TasksList = () => {
     }
   };
 
-  const formatDueDate = (dateString: string | null): string => {
-    if (!dateString) return 'No due date';
-    
-    try {
-      const date = parseISO(dateString);
-      return format(date, 'MMM d \'at\' h:mm a');
-    } catch (e) {
-      console.error('Error parsing date:', e);
-      return 'Invalid date';
-    }
-  };
-
-  // UPDATED: Format speaker source
   const formatTaskSource = (from: string | null): string => {
     if (!from) return 'Unknown';
     
-    // Check if it's a speaker format (SPEAKER 1, SPEAKER 2, etc.)
     if (from.toUpperCase().startsWith('SPEAKER')) {
       const speakerNumber = from.split(' ')[1];
-      return `Conversation with Speaker ${speakerNumber}`;
+      return `Speaker ${speakerNumber}`;
     }
     
-    // Otherwise, it's a custom name
-    return `Conversation with ${from}`;
+    return from;
   };
 
   if (loading) {
@@ -96,7 +85,9 @@ const TasksList = () => {
     <div className="glass-container p-2">
       <div className="glass-card p-4 md:p-6">
         <div className="flex items-center justify-between mb-4 md:mb-6">
-          <h3 className="text-lg md:text-xl font-medium text-foreground border-b-2 border-gray-100/10 pb-1">Today's Tasks</h3>
+          <h3 className="text-lg md:text-xl font-medium text-foreground border-b-2 border-gray-100/10 pb-1">
+            Today's Tasks
+          </h3>
           <button className="text-xs md:text-sm hover:text-foreground transition-colors">
             View all
           </button>
@@ -128,12 +119,11 @@ const TasksList = () => {
                   >
                     {task.title}
                   </label>
-                  {/* UPDATED: Show conversation source */}
                   <p className="text-[10px] md:text-xs text-muted-foreground mt-0.5">
-                     From: {formatTaskSource(task.from)}
+                    From: {formatTaskSource(task.from)}
                   </p>
                   <p className="text-[10px] md:text-xs text-muted-foreground mt-0.5">
-                     Due: {task.due_date_text || 'No due date'}
+                    Due: {task.dueDateText || 'No due date'}
                   </p>
                 </div>
                 {task.priority === 'high' && (

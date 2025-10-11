@@ -1,36 +1,34 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Mic, MicOff, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@clerk/clerk-react";
+import { createAPIService, TranscriptResponse } from "@/services/api";
 import { useDataRefresh } from "@/contexts/DataRefreshContext";
 
-interface TranscriptResponse {
-  transcript: string;
-  insights: {
-    [speaker: string]: {
-      action_items: string[];
-      key_information: string[];
-    };
-  };
-  reminders?: any[];
-}
+const NUM_SPEAKERS = 2;
 
 const VoiceAssistant = () => {
   const [isRecording, setIsRecording] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [transcriptData, setTranscriptData] = useState<TranscriptResponse | null>(null);
-  
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
   const { toast } = useToast();
-  const { triggerRefresh } = useDataRefresh(); // Get refresh function
+  const { getToken } = useAuth();
+  const { triggerRefresh } = useDataRefresh();
 
-  // Hardcoded number of speakers
-  const NUM_SPEAKERS = 2;
-  const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:8000';
+  const apiService = createAPIService(getToken);
+
+  useEffect(() => {
+    return () => {
+      if (mediaRecorderRef.current && isRecording) {
+        mediaRecorderRef.current.stop();
+      }
+    };
+  }, [isRecording]);
 
   const startRecording = async () => {
     try {
-      // Request microphone access
       const stream = await navigator.mediaDevices.getUserMedia({ 
         audio: {
           echoCancellation: true,
@@ -39,38 +37,47 @@ const VoiceAssistant = () => {
         } 
       });
 
-      // Use webm format (we'll convert later if needed)
-      const mimeType = MediaRecorder.isTypeSupported('audio/webm') 
-        ? 'audio/webm' 
-        : 'audio/mp4';
-
-      const mediaRecorder = new MediaRecorder(stream, { mimeType });
-
-      mediaRecorderRef.current = mediaRecorder;
       audioChunksRef.current = [];
 
-      // Collect audio data
+      let mimeType = 'audio/webm';
+      if (!MediaRecorder.isTypeSupported('audio/webm')) {
+        mimeType = 'audio/mp4';
+      }
+
+      const mediaRecorder = new MediaRecorder(stream, {
+        mimeType: mimeType,
+      });
+
+      mediaRecorderRef.current = mediaRecorder;
+
       mediaRecorder.ondataavailable = (event) => {
         if (event.data.size > 0) {
           audioChunksRef.current.push(event.data);
         }
       };
 
-      // Handle recording stop
       mediaRecorder.onstop = async () => {
         const audioBlob = new Blob(audioChunksRef.current, { type: mimeType });
-        await sendAudioToBackend(audioBlob, mimeType);
-        
-        // Stop all tracks to release microphone
         stream.getTracks().forEach(track => track.stop());
+        
+        if (audioBlob.size > 0) {
+          await sendAudioToBackend(audioBlob, mimeType);
+        } else {
+          toast({
+            title: "Recording failed",
+            description: "No audio data was captured",
+            variant: "destructive",
+          });
+          setIsProcessing(false);
+        }
       };
 
       mediaRecorder.start();
       setIsRecording(true);
-      
+
       toast({
         title: "Recording started",
-        description: "Speak into your microphone...",
+        description: "Maki is listening...",
       });
     } catch (error) {
       console.error("Error accessing microphone:", error);
@@ -93,11 +100,8 @@ const VoiceAssistant = () => {
   const sendAudioToBackend = async (audioBlob: Blob, mimeType: string) => {
     try {
       const timestamp = new Date().getTime();
-      
-      // Determine file extension based on mime type
       const extension = mimeType.includes('webm') ? 'webm' : 'mp4';
       
-      // Create file with proper extension
       const audioFile = new File(
         [audioBlob], 
         `recording_${timestamp}.${extension}`, 
@@ -111,26 +115,9 @@ const VoiceAssistant = () => {
         speakers: NUM_SPEAKERS
       });
 
-      // Prepare form data
-      const formData = new FormData();
-      formData.append('file', audioFile);
-      formData.append('num_speakers', NUM_SPEAKERS.toString());
-
-      // Send to backend
-      const response = await fetch(`${BACKEND_URL}/transcribe/`, {
-        method: 'POST',
-        body: formData,
-      });
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error('Backend error:', errorText);
-        throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
-      }
-
-      const data: TranscriptResponse = await response.json();
-      console.log('Transcription response:', data);
+      const data = await apiService.uploadAudio(audioFile, NUM_SPEAKERS);
       
+      console.log('Transcription response:', data);
       setTranscriptData(data);
       
       toast({
@@ -138,8 +125,6 @@ const VoiceAssistant = () => {
         description: "Your audio has been processed successfully.",
       });
 
-      // 🔥 TRIGGER REFRESH OF TASKS AND REMINDERS
-      // Add a small delay to ensure backend has finished processing
       setTimeout(() => {
         triggerRefresh();
       }, 500);
@@ -165,7 +150,7 @@ const VoiceAssistant = () => {
   };
 
   return (
-    <div className="flex flex-col items-center  justify-center py-6 md:py-12 w-full max-w-4xl mx-auto px-4">
+    <div className="flex flex-col items-center justify-center py-6 md:py-12 w-full max-w-4xl mx-auto px-4">
       <div className="relative mb-8">
         {isRecording && (
           <>
@@ -174,36 +159,37 @@ const VoiceAssistant = () => {
           </>
         )}
         
-        {/* Main button */}
-        <div className="glass-container p-1  rounded-full">
-        <button 
-          onClick={handleMicClick}
-          disabled={isProcessing}
-          className={`relative w-32 h-32 md:w-44 md:h-44 rounded-full  flex items-center justify-center transition-all shadow-xl ${
-            isRecording 
-              ? 'bg-red-500/20 hover:bg-red-500/30 border-red-500' 
-              : 'glass-card hover:bg-card/80 '
-          } ${isProcessing ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
-        >
-          {isProcessing ? (
-            <Loader2 className="w-12 h-12 md:w-16 md:h-16 text-foreground animate-spin" />
-          ) : isRecording ? (
-            <MicOff className="w-12 h-12 md:w-16 md:h-16 text-red-500" />
-          ) : (
-            <Mic className="w-12 h-12 md:w-16 md:h-16 text-foreground" />
-          )}
-        </button>
+        <div className="glass-container p-1 rounded-full">
+          <button 
+            onClick={handleMicClick}
+            disabled={isProcessing}
+            className={`relative w-32 h-32 md:w-44 md:h-44 rounded-full flex items-center justify-center transition-all shadow-xl ${
+              isRecording 
+                ? 'bg-red-500/20 hover:bg-red-500/30 border-red-500' 
+                : 'glass-card hover:bg-card/80'
+            } ${isProcessing ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
+          >
+            {isProcessing ? (
+              <Loader2 className="w-12 h-12 md:w-16 md:h-16 text-foreground animate-spin" />
+            ) : isRecording ? (
+              <MicOff className="w-12 h-12 md:w-16 md:h-16 text-red-500" />
+            ) : (
+              <Mic className="w-12 h-12 md:w-16 md:h-16 text-foreground" />
+            )}
+          </button>
         </div>
       </div>
       
       <p className="mt-4 md:mt-6 text-base md:text-lg text-foreground font-medium">
         {isProcessing 
-          ? "Maki isn't listening anymore" 
+          ? "Processing your recording..." 
           : isRecording 
             ? "Stop recording" 
             : "Let Maki listen"
         }
       </p>
+
+      
     </div>
   );
 };
