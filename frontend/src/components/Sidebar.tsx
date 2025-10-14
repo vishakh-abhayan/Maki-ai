@@ -1,11 +1,16 @@
+// frontend/src/components/Sidebar.tsx
 import { Home, Users, Network, History, CalendarCheck } from "lucide-react";
+import { useNavigate, useLocation } from "react-router-dom";
 
 const Sidebar = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
+
   const navItems = [
-    { icon: Home, active: true },
-    { icon: CalendarCheck, active: false },
-    { icon: Users, active: false },
-    { icon: Network, active: false },
+    { icon: Home, path: "/", active: location.pathname === "/" },
+    { icon: CalendarCheck, path: "/activities", active: location.pathname === "/activities" },
+    { icon: Users, path: "/contacts", active: false },
+    { icon: Network, path: "/network", active: false },
   ];
 
   return (
@@ -18,6 +23,7 @@ const Sidebar = () => {
           {navItems.map((item, index) => (
             <button
               key={index}
+              onClick={() => navigate(item.path)}
               className={`w-14 h-14 rounded-full flex items-center justify-center transition-all mx-auto ${
                 item.active
                   ? "bg-primary text-primary-foreground shadow-lg shadow-primary/30"
@@ -34,8 +40,9 @@ const Sidebar = () => {
           {/* Bottom Button - History */}
           <button
             className="w-12 h-12 rounded-full flex items-center justify-center transition-all mx-auto hover:bg-card/60 hover:text-foreground"
+            onClick={() => navigate("/history")}
           >
-            <History strokeWidth={1.5} className="w-7 h-7" />
+            <History  strokeWidth={1.5} className="w-7 h-7" />
           </button>
         </nav>
       </aside>
@@ -46,6 +53,7 @@ const Sidebar = () => {
           {navItems.map((item, index) => (
             <button
               key={index}
+              onClick={() => navigate(item.path)}
               className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-all ${
                 item.active
                   ? "bg-primary text-primary-foreground shadow-lg shadow-primary/30"
@@ -60,7 +68,7 @@ const Sidebar = () => {
           <button
             className="w-12 h-12 rounded-2xl flex items-center justify-center transition-all"
           >
-            <History strokeWidth={1.5} className="w-4 h-4" />
+            <History path="/history" strokeWidth={1.5} className="w-4 h-4" />
           </button>
         </div>
       </nav>
