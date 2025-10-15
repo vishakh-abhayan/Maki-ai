@@ -11,6 +11,7 @@ import AuthPage from "./pages/Auth";
 import NotFound from "./pages/NotFound";
 import AnimatedBackground from "./components/AnimatedBackground";
 import { DataRefreshProvider } from "./contexts/DataRefreshContext";
+import PersonalIntelligence from "./pages/PersonalIntelligence";
 
 const queryClient = new QueryClient();
 
@@ -51,6 +52,14 @@ const App = () => (
             element={
               <ProtectedRoute>
                 <Activities />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/personal-intelligence" 
+            element={
+              <ProtectedRoute>
+                <PersonalIntelligence />
               </ProtectedRoute>
             } 
           />

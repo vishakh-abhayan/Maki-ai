@@ -184,7 +184,7 @@ const VoiceAssistant = () => {
         {isProcessing 
           ? "Processing your recording..." 
           : isRecording 
-            ? "Stop recording" 
+            ? "Stop listening" 
             : "Let Maki listen"
         }
       </p>

@@ -9,7 +9,7 @@ const Sidebar = () => {
   const navItems = [
     { icon: Home, path: "/", active: location.pathname === "/" },
     { icon: CalendarCheck, path: "/activities", active: location.pathname === "/activities" },
-    { icon: Users, path: "/contacts", active: false },
+    { icon: Users, path: "/personal-intelligence", active: location.pathname === "/personal-intelligence" },
     { icon: Network, path: "/network", active: false },
   ];
 
