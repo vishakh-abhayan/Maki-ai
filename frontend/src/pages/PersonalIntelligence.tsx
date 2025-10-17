@@ -228,10 +228,14 @@ const PersonalIntelligence = () => {
                     const priorityConfig = getPriorityConfig(followUp.priority);
                     return (
                       <li 
-                        key={followUp._id} 
-                        className="space-y-1.5 cursor-pointer hover:opacity-80 transition-opacity"
-                        onClick={() => handlePersonClick(followUp.personId._id)}
-                      >
+                          key={followUp._id} 
+                          className="space-y-1.5 cursor-pointer hover:opacity-80 transition-opacity"
+                          onClick={() => {
+                            if (followUp.personId && followUp.personId._id) {
+                              handlePersonClick(followUp.personId._id);
+                            }
+                          }}
+                        >
                         <div className="flex items-center justify-between flex-wrap gap-3">
                           <span className="text-base lg:text-lg text-foreground">
                             {followUp.personId.name}{' '}
