@@ -295,6 +295,10 @@ class APIService {
 
   // Get Single Person Details
   async getPersonDetails(personId: string): Promise<Person> {
+
+    if (!personId || personId === 'undefined') {
+      throw new Error('Invalid person ID');
+    }
     const response = await fetch(`${this.baseURL}/people/${personId}`, {
       method: 'GET',
       headers: await this.getHeaders(),
