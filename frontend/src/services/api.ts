@@ -38,6 +38,130 @@ export interface TranscriptResponse {
   detected_speakers?: number;
 }
 
+export interface Person {
+  _id: string;
+  id: string;
+  name: string;
+  initials: string;
+  avatar?: string;
+  relationship: {
+    type: string;
+    subtype?: string;
+    displayText: string;
+  };
+  communication: {
+    lastContacted: string;
+    lastContactedFormatted: string;
+    frequency: string;
+    frequencyLabel: string;
+    frequencyBadgeColor: string;
+    totalConversations: number;
+    conversationCounter: number;
+  };
+  sentiment: {
+    closenessScore: number;
+    closenessPercentage: number;
+    tone: string;
+  };
+  profile: {
+    summary: string;
+    hobbies: string[];
+    interests: string[];
+    favorites: {
+      movies: string[];
+      music: string[];
+      books: string[];
+      food: string[];
+    };
+    travel: string[];
+    workInfo: any;
+    personalInfo: any;
+  };
+  mostDiscussedTopics: string[];
+  recentConversations: ConversationSummary[];
+  connections: PersonConnection[];
+}
+
+export interface PersonConnection {
+  id: string;
+  name: string;
+  initials: string;
+  avatar?: string;
+  relationshipType: string;
+  strength: number;
+}
+
+export interface ConversationSummary {
+  id: string;
+  title: string;
+  summary: string;
+  date: string;
+  dateFormatted: string;
+  duration: number;
+  tags: string[];
+  hasActionItems: boolean;
+}
+
+export interface FollowUp {
+  _id: string;
+  id: string;
+  personId: {
+    _id: string;
+    name: string;
+    initials: string;
+    avatar?: string;
+    relationship: any;
+  };
+  type: 'pending' | 'suggested';
+  priority: 'high' | 'medium' | 'low';
+  context: string;
+  reason?: string;
+  suggestedDate?: string;
+  completed: boolean;
+  createdAt: string;
+}
+
+export interface LatestInteraction {
+  id: string;
+  name: string;
+  description: string;
+  time: string;
+  personId?: string;
+}
+
+export interface IntelligenceDashboard {
+  pendingFollowUps: FollowUp[];
+  suggestedFollowUps: any[];
+  latestInteractions: any[];
+  networkOverview: {
+    totalPeople: number;
+    closeContacts: number;
+  };
+}
+
+export interface Conversation {
+  _id: string;
+  id: string;
+  title: string;
+  participants: string;
+  summary: string;
+  date: string;
+  duration: string;
+  tags: string[];
+}
+
+export interface PaginatedResponse<T> {
+  conversations?: T[];
+  pagination: {
+    currentPage: number;
+    totalPages: number;
+    totalItems: number;
+    itemsPerPage: number;
+    hasNextPage?: boolean;
+    hasPrevPage?: boolean;
+  };
+}
+
 class APIService {
   private baseURL: string;
   private getToken: () => Promise<string | null>;
@@ -125,6 +249,177 @@ class APIService {
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
+  }
+
+  // Get Intelligence Dashboard Data
+  async getIntelligenceDashboard(): Promise<IntelligenceDashboard> {
+    const response = await fetch(`${this.baseURL}/intelligence/dashboard`, {
+      method: 'GET',
+      headers: await this.getHeaders(),
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    return await response.json();
+  }
+
+  // Get All People
+  async getPeople(params?: {
+    search?: string;
+    relationship?: string;
+    sortBy?: string;
+    limit?: number;
+  }): Promise<Person[]> {
+    const queryParams = new URLSearchParams();
+    if (params?.search) queryParams.append('search', params.search);
+    if (params?.relationship) queryParams.append('relationship', params.relationship);
+    if (params?.sortBy) queryParams.append('sortBy', params.sortBy);
+    if (params?.limit) queryParams.append('limit', params.limit.toString());
+
+    const response = await fetch(
+      `${this.baseURL}/people?${queryParams.toString()}`,
+      {
+        method: 'GET',
+        headers: await this.getHeaders(),
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    return await response.json();
+  }
+
+  // Get Single Person Details
+  async getPersonDetails(personId: string): Promise<Person> {
+    const response = await fetch(`${this.baseURL}/people/${personId}`, {
+      method: 'GET',
+      headers: await this.getHeaders(),
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    return await response.json();
+  }
+
+  // Get Follow-ups
+  async getFollowUps(type?: 'all' | 'pending' | 'suggested'): Promise<FollowUp[]> {
+    let endpoint = `${this.baseURL}/followups`;
+    
+    if (type === 'pending') {
+      endpoint = `${this.baseURL}/followups/pending`;
+    } else if (type === 'suggested') {
+      endpoint = `${this.baseURL}/followups/suggested`;
+    }
+
+    const response = await fetch(endpoint, {
+      method: 'GET',
+      headers: await this.getHeaders(),
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    return await response.json();
+  }
+
+  // Update Follow-up
+  async updateFollowUp(
+    followUpId: string,
+    data: { completed?: boolean; priority?: string; context?: string }
+  ): Promise<void> {
+    const response = await fetch(`${this.baseURL}/followups/${followUpId}`, {
+      method: 'PATCH',
+      headers: await this.getHeaders(),
+      body: JSON.stringify(data),
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+  }
+
+  // Initiate Contact (Call/Message)
+  async initiateContact(
+    personId: string,
+    contactType: 'call' | 'message' | 'email'
+  ): Promise<void> {
+    const response = await fetch(`${this.baseURL}/people/${personId}/contact`, {
+      method: 'POST',
+      headers: await this.getHeaders(),
+      body: JSON.stringify({ contactType }),
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+  }
+
+  // Get History/Conversations
+  async getConversations(params?: {
+    page?: number;
+    limit?: number;
+    search?: string;
+    personId?: string;
+    dateRange?: string;
+  }): Promise<PaginatedResponse<Conversation>> {
+    const queryParams = new URLSearchParams();
+    if (params?.page) queryParams.append('page', params.page.toString());
+    if (params?.limit) queryParams.append('limit', params.limit.toString());
+    if (params?.search) queryParams.append('search', params.search);
+    if (params?.personId) queryParams.append('personId', params.personId);
+    if (params?.dateRange) queryParams.append('dateRange', params.dateRange);
+
+    const response = await fetch(
+      `${this.baseURL}/history?${queryParams.toString()}`,
+      {
+        method: 'GET',
+        headers: await this.getHeaders(),
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    return await response.json();
+  }
+
+  // Get Single Conversation Details
+  async getConversationDetails(conversationId: string): Promise<any> {
+    const response = await fetch(`${this.baseURL}/history/${conversationId}`, {
+      method: 'GET',
+      headers: await this.getHeaders(),
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    return await response.json();
+  }
+
+  // Search People
+  async searchPeople(query: string): Promise<Person[]> {
+    const response = await fetch(
+      `${this.baseURL}/people?search=${encodeURIComponent(query)}`,
+      {
+        method: 'GET',
+        headers: await this.getHeaders(),
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    return await response.json();
   }
 }
 
