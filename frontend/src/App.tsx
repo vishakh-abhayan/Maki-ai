@@ -13,6 +13,8 @@ import AnimatedBackground from "./components/AnimatedBackground";
 import { DataRefreshProvider } from "./contexts/DataRefreshContext";
 import PersonalIntelligence from "./pages/PersonalIntelligence";
 import PersonDetail from "./pages/PersonDetail";
+import HistoryViewDetails from "./pages/HistoryViewDetails";
+import TranscriptView from "./pages/TranscriptView";
 
 
 const queryClient = new QueryClient();
@@ -80,6 +82,24 @@ const App = () => (
             element={
               <ProtectedRoute>
                 <History />
+              </ProtectedRoute>
+            } 
+          />
+
+          <Route 
+            path="/history/:id" 
+            element={
+              <ProtectedRoute>
+                <HistoryViewDetails />
+              </ProtectedRoute>
+            } 
+          />
+
+          <Route 
+            path="/history/:id/transcript" 
+            element={
+              <ProtectedRoute>
+                <TranscriptView />
               </ProtectedRoute>
             } 
           />

@@ -1,4 +1,3 @@
-// frontend/src/pages/Activities.tsx
 import { useState, useEffect } from "react";
 import { Download, Settings, Calendar as CalendarIcon, MessageSquare, Clock } from "lucide-react";
 import { SignedIn, SignedOut, SignInButton, UserButton, useUser } from '@clerk/clerk-react';
