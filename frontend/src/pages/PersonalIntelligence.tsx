@@ -1,78 +1,80 @@
-// frontend/src/pages/PersonalIntelligence.tsx
-import { useState } from "react";
-import { Download, Settings, Search } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Download, Settings, Search, Phone } from "lucide-react";
 import { SignedIn, SignedOut, SignInButton, UserButton, useUser } from '@clerk/clerk-react';
+import { useNavigate } from "react-router-dom";
 import Sidebar from "@/components/Sidebar";
-
-interface FollowUp {
-  id: string;
-  name: string;
-  role: string;
-  priority: "high" | "medium" | "low";
-  description: string;
-}
-
-interface Contact {
-  initials: string;
-  name: string;
-}
-
-interface Interaction {
-  name: string;
-  description: string;
-  time: string;
-}
+import { createAPIService, FollowUp, IntelligenceDashboard } from "@/services/api";
+import { useAuth } from "@clerk/clerk-react";
+import { useDataRefresh } from "@/contexts/DataRefreshContext";
+import { useToast } from "@/hooks/use-toast";
 
 const PersonalIntelligence = () => {
   const { user } = useUser();
+  const { getToken } = useAuth();
+  const { refreshTrigger } = useDataRefresh();
+  const navigate = useNavigate();
+  const { toast } = useToast();
+  
   const [searchQuery, setSearchQuery] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [dashboardData, setDashboardData] = useState<IntelligenceDashboard | null>(null);
 
-  const pendingFollowUps: FollowUp[] = [
-    {
-      id: "1",
-      name: "Mark",
-      role: "Sales Lead",
-      priority: "high",
-      description: "Quarterly Sales Report",
-    },
-    {
-      id: "2",
-      name: "James",
-      role: "C.A.",
-      priority: "medium",
-      description: "Yearly Tax Report",
-    },
-    {
-      id: "3",
-      name: "Jenny",
-      role: "Wife",
-      priority: "low",
-      description: "Holiday Booking",
-    },
-  ];
+  const apiService = createAPIService(getToken);
 
-  const latestInteractions: Interaction[] = [
-    {
-      name: "Dev Nandan Anoop",
-      description: "Startup Discussion",
-      time: "9 P.M.",
-    },
-    {
-      name: "Alex Costa",
-      description: "Product Discussion",
-      time: "5 P.M.",
-    },
-    {
-      name: "Jack Reacher",
-      description: "Appraisal Meeting",
-      time: "3.30 P.M.",
-    },
-    {
-      name: "Alice",
-      description: "Requested new toy",
-      time: "2 P.M.",
-    },
-  ];
+  useEffect(() => {
+    fetchDashboardData();
+  }, [refreshTrigger]);
+
+  const fetchDashboardData = async () => {
+    try {
+      setLoading(true);
+      const data = await apiService.getIntelligenceDashboard();
+      setDashboardData(data);
+    } catch (error) {
+      console.error('Failed to fetch dashboard data:', error);
+      toast({
+        title: "Error",
+        description: "Failed to load intelligence dashboard",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handlePersonClick = (personId: string) => {
+    navigate(`/person/${personId}`);
+  };
+
+  const handleCallPerson = async (personId: string, personName: string) => {
+    try {
+      await apiService.initiateContact(personId, 'call');
+      toast({
+        title: "Call Initiated",
+        description: `Calling ${personName}...`,
+      });
+    } catch (error) {
+      console.error('Failed to initiate call:', error);
+    }
+  };
+
+  const handleSearch = async () => {
+    if (!searchQuery.trim()) return;
+
+    try {
+      const results = await apiService.searchPeople(searchQuery);
+      if (results.length > 0) {
+        navigate(`/person/${results[0]._id}`);
+      } else {
+        toast({
+          title: "No results",
+          description: `No person found with name "${searchQuery}"`,
+        });
+      }
+    } catch (error) {
+      console.error('Search failed:', error);
+    }
+  };
 
   const getPriorityConfig = (priority: "high" | "medium" | "low") => {
     const configs = {
@@ -91,6 +93,23 @@ const PersonalIntelligence = () => {
     };
     return configs[priority];
   };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex lg:pl-[170px] pb-16 lg:pb-0">
+        <Sidebar />
+        <main className="flex-1 p-4 md:p-6 lg:p-8 w-full">
+          <div className="flex items-center justify-center h-[60vh]">
+            <p className="text-muted-foreground">Loading intelligence dashboard...</p>
+          </div>
+        </main>
+      </div>
+    );
+  }
+
+  const pendingFollowUps = dashboardData?.pendingFollowUps || [];
+  const suggestedFollowUps = dashboardData?.suggestedFollowUps || [];
+  const latestInteractions = dashboardData?.latestInteractions || [];
 
   return (
     <div className="min-h-screen flex lg:pl-[170px] pb-16 lg:pb-0 overflow-hidden">
@@ -176,6 +195,7 @@ const PersonalIntelligence = () => {
                   placeholder="Search for a name"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
+                  onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
                   className="flex-1 bg-transparent border-none outline-none text-sm text-foreground placeholder:text-muted-foreground"
                   aria-label="Search for a name"
                 />
@@ -198,29 +218,46 @@ const PersonalIntelligence = () => {
                 Pending Follow Ups
               </h3>
               
-              <ul className="space-y-5">
-                {pendingFollowUps.map((followUp) => {
-                  const priorityConfig = getPriorityConfig(followUp.priority);
-                  return (
-                    <li key={followUp.id} className="space-y-1.5">
-                      <div className="flex items-center justify-between flex-wrap gap-3">
-                        <span className="text-base lg:text-lg text-foreground">
-                          {followUp.name} <span className="text-muted-foreground text-sm">({followUp.role})</span>
-                        </span>
-                        <span 
-                          className={`inline-flex items-center px-2.5 py-0.5 rounded text-xs font-semibold text-white ${priorityConfig.bgColor}`}
-                          aria-label={`Priority: ${priorityConfig.label}`}
+              {pendingFollowUps.length === 0 ? (
+                <div className="flex items-center justify-center h-[200px]">
+                  <p className="text-sm text-muted-foreground">No pending follow-ups</p>
+                </div>
+              ) : (
+                <ul className="space-y-5 overflow-y-auto max-h-[220px]">
+                  {pendingFollowUps.map((followUp) => {
+                    const priorityConfig = getPriorityConfig(followUp.priority);
+                    return (
+                      <li 
+                          key={followUp._id} 
+                          className="space-y-1.5 cursor-pointer hover:opacity-80 transition-opacity"
+                          onClick={() => {
+                            if (followUp.personId && followUp.personId._id) {
+                              handlePersonClick(followUp.personId._id);
+                            }
+                          }}
                         >
-                          {priorityConfig.label}
-                        </span>
-                      </div>
-                      <p className="text-sm text-muted-foreground">
-                        {followUp.description}
-                      </p>
-                    </li>
-                  );
-                })}
-              </ul>
+                        <div className="flex items-center justify-between flex-wrap gap-3">
+                          <span className="text-base lg:text-lg text-foreground">
+                            {followUp.personId.name}{' '}
+                            <span className="text-muted-foreground text-sm">
+                              ({followUp.personId.relationship?.type || 'Contact'})
+                            </span>
+                          </span>
+                          <span 
+                            className={`inline-flex items-center px-2.5 py-0.5 rounded text-xs font-semibold text-white ${priorityConfig.bgColor}`}
+                            aria-label={`Priority: ${priorityConfig.label}`}
+                          >
+                            {priorityConfig.label}
+                          </span>
+                        </div>
+                        <p className="text-sm text-muted-foreground">
+                          {followUp.context}
+                        </p>
+                      </li>
+                    );
+                  })}
+                </ul>
+              )}
             </section>
 
             {/* Suggested Follow Ups Section */}
@@ -237,55 +274,57 @@ const PersonalIntelligence = () => {
               </h3>
               
               <div className="flex justify-center items-center h-[230px]">
-                <div className="relative w-[240px] h-[240px]">
-                  {/* Center - Mom */}
-                  <button
-                    className="group absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col items-center justify-center w-16 h-16 rounded-full border-2 border-primary/50 hover:border-primary hover:bg-primary/20 transition-all duration-200 z-10"
-                    aria-label="Follow up with Mom"
-                  >
-                    <span className="text-base font-semibold text-foreground opacity-80 group-hover:opacity-100">
-                      M
-                    </span>
-                    <span className="text-[9px] text-muted-foreground opacity-60 group-hover:opacity-80 mt-0.5">
-                      Mom
-                    </span>
-                  </button>
-
-                  {/* Surrounding contacts in circular pattern */}
-                  {[
-                    { contact: { initials: "NVP", name: "Naveen" }, angle: 0 },
-                    { contact: { initials: "TD", name: "Tyler" }, angle: 60 },
-                    { contact: { initials: "D", name: "Dad" }, angle: 120 },
-                    { contact: { initials: "PB", name: "Patrick" }, angle: 180 },
-                    { contact: { initials: "WW", name: "Walter" }, angle: 240 },
-                    { contact: { initials: "YK", name: "Yash" }, angle: 300 },
-                  ].map(({ contact, angle }, index) => {
-                    const radius = 90;
-                    const angleRad = (angle * Math.PI) / 180;
-                    const x = Math.cos(angleRad) * radius;
-                    const y = Math.sin(angleRad) * radius;
-                    
-                    return (
+                {suggestedFollowUps.length === 0 ? (
+                  <p className="text-sm text-muted-foreground">No suggestions available</p>
+                ) : (
+                  <div className="relative w-[240px] h-[240px]">
+                    {/* Center Person */}
+                    {suggestedFollowUps[0] && (
                       <button
-                        key={`${contact.initials}-${index}`}
-                        className="group absolute flex flex-col items-center justify-center w-14 h-14 rounded-full border-2 border-primary/50 hover:border-primary hover:bg-primary/20 transition-all duration-200"
-                        style={{
-                          left: `calc(50% + ${x}px)`,
-                          top: `calc(50% + ${y}px)`,
-                          transform: 'translate(-50%, -50%)'
-                        }}
-                        aria-label={`Follow up with ${contact.name}`}
+                        onClick={() => handlePersonClick(suggestedFollowUps[0].personId)}
+                        className="group absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col items-center justify-center w-16 h-16 rounded-full border-2 border-primary/50 hover:border-primary hover:bg-primary/20 transition-all duration-200 z-10"
+                        aria-label={`Follow up with ${suggestedFollowUps[0].person}`}
                       >
-                        <span className="text-sm font-semibold text-foreground opacity-80 group-hover:opacity-100">
-                          {contact.initials}
+                        <span className="text-base font-semibold text-foreground opacity-80 group-hover:opacity-100">
+                          {suggestedFollowUps[0].person?.charAt(0) || 'U'}
                         </span>
-                        <span className="text-[8px] text-muted-foreground opacity-60 group-hover:opacity-80 mt-0.5">
-                          {contact.name}
+                        <span className="text-[9px] text-muted-foreground opacity-60 group-hover:opacity-80 mt-0.5">
+                          {suggestedFollowUps[0].person?.split(' ')[0] || 'User'}
                         </span>
                       </button>
-                    );
-                  })}
-                </div>
+                    )}
+
+                    {/* Surrounding contacts in circular pattern */}
+                    {suggestedFollowUps.slice(1, 7).map((followUp, index) => {
+                      const angle = index * 60;
+                      const radius = 90;
+                      const angleRad = (angle * Math.PI) / 180;
+                      const x = Math.cos(angleRad) * radius;
+                      const y = Math.sin(angleRad) * radius;
+                      
+                      return (
+                        <button
+                          key={`${followUp.personId}-${index}`}
+                          onClick={() => handlePersonClick(followUp.personId)}
+                          className="group absolute flex flex-col items-center justify-center w-14 h-14 rounded-full border-2 border-primary/50 hover:border-primary hover:bg-primary/20 transition-all duration-200"
+                          style={{
+                            left: `calc(50% + ${x}px)`,
+                            top: `calc(50% + ${y}px)`,
+                            transform: 'translate(-50%, -50%)'
+                          }}
+                          aria-label={`Follow up with ${followUp.person}`}
+                        >
+                          <span className="text-sm font-semibold text-foreground opacity-80 group-hover:opacity-100">
+                            {followUp.person?.charAt(0) || 'U'}
+                          </span>
+                          <span className="text-[8px] text-muted-foreground opacity-60 group-hover:opacity-80 mt-0.5">
+                            {followUp.person?.split(' ')[0] || 'User'}
+                          </span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
               </div>
             </section>
           </div>
@@ -302,24 +341,45 @@ const PersonalIntelligence = () => {
               Latest Interactions
             </h3>
             
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              {latestInteractions.map((interaction, index) => (
-                <article 
-                  key={index}
-                  className="bg-primary/20 rounded-xl p-3.5 hover:bg-primary/30 transition-colors cursor-pointer border border-primary/30"
-                >
-                  <h4 className="text-sm lg:text-base font-semibold text-foreground mb-1 opacity-90">
-                    {interaction.name}
-                  </h4>
-                  <p className="text-xs text-muted-foreground opacity-70 mb-1.5">
-                    {interaction.description}
-                  </p>
-                  <time className="text-xs text-muted-foreground opacity-60">
-                    {interaction.time}
-                  </time>
-                </article>
-              ))}
-            </div>
+            {latestInteractions.length === 0 ? (
+              <div className="flex items-center justify-center py-8">
+                <p className="text-sm text-muted-foreground">No recent interactions</p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                {latestInteractions.map((interaction: any, index: number) => (
+                  <article 
+                    key={index}
+                    onClick={() => {
+                      // Navigate to person detail or conversation
+                      if (interaction.participants && interaction.participants[0]?.personId) {
+                        handlePersonClick(interaction.participants[0].personId._id);
+                      }
+                    }}
+                    className="bg-primary/20 rounded-xl p-3.5 hover:bg-primary/30 transition-colors cursor-pointer border border-primary/30"
+                  >
+                    <h4 className="text-sm lg:text-base font-semibold text-foreground mb-1 opacity-90">
+                      {interaction.participants
+                        ? interaction.participants
+                            .filter((p: any) => !p.isUser)
+                            .map((p: any) => p.name)
+                            .join(', ')
+                        : 'Unknown'}
+                    </h4>
+                    <p className="text-xs text-muted-foreground opacity-70 mb-1.5">
+                      {interaction.title || interaction.summary?.short || 'Conversation'}
+                    </p>
+                    <time className="text-xs text-muted-foreground opacity-60">
+                      {new Date(interaction.conversationDate).toLocaleTimeString('en-US', {
+                        hour: 'numeric',
+                        minute: '2-digit',
+                        hour12: true,
+                      })}
+                    </time>
+                  </article>
+                ))}
+              </div>
+            )}
           </section>
         </div>
       </main>
