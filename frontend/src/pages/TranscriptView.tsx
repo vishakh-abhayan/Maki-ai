@@ -44,7 +44,7 @@ const TranscriptView = () => {
 
       // Fetch transcript
       const transRes = await fetch(
-        `${import.meta.env.VITE_API_URL}/transcripts/${transcriptId}`,
+        `${import.meta.env.VITE_API_URL}/transcribe/${transcriptId}`,
         { headers: { Authorization: `Bearer ${token}` }}
       );
       
