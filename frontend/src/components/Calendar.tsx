@@ -19,7 +19,7 @@ const Calendar = () => {
   return (
     <div className="glass-container p-2">
       <div className="glass-card p-5 lg:p-10">
-        <h3 className="text-base lg:text-xl font-medium text-foreground mb-5 lg:mb-6 text-left border-t-2 border-gray-100/10 pb-1">
+        <h3 className="text-base lg:text-xl font-medium text-foreground mb-5 lg:mb-6 text-left border-b-2 border-gray-100/10 pb-1">
           {format(currentDate, 'MMMM, yyyy')}
         </h3>
         

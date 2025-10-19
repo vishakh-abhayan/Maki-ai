@@ -1,6 +1,8 @@
 // frontend/src/components/Sidebar.tsx
-import { Home, Users, Network, History, CalendarCheck } from "lucide-react";
+import { Home, Users, History, CalendarCheck } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
+import { SignedIn, UserButton } from '@clerk/clerk-react';
+import { dark } from '@clerk/themes';
 
 const Sidebar = () => {
   const navigate = useNavigate();
@@ -10,16 +12,49 @@ const Sidebar = () => {
     { icon: Home, path: "/", active: location.pathname === "/" },
     { icon: CalendarCheck, path: "/activities", active: location.pathname === "/activities" },
     { icon: Users, path: "/personal-intelligence", active: location.pathname === "/personal-intelligence" },
-    { icon: Network, path: "/network", active: false },
+    { icon: History, path: "/history", active: location.pathname === "/history" },
   ];
+
+  // Enhanced UserButton appearance
+  const userButtonAppearance = {
+    baseTheme: dark,
+    elements: {
+      // Avatar
+      userButtonAvatarBox: "w-10 h-10 lg:w-10 lg:h-10 ",
+      
+      // Popover Card - Main dropdown container
+      userButtonPopoverCard: "glassmorphic-popover",
+      userButtonPopoverMain: "glassmorphic-popover-content",
+      
+      // User info in popover
+      userPreviewMainIdentifier: "text-white font-semibold",
+      userPreviewSecondaryIdentifier: "text-white/70 text-sm",
+      
+      // Action buttons (Manage account, Sign out)
+      userButtonPopoverActionButton: "glassmorphic-action-btn",
+      userButtonPopoverActionButtonText: "text-white",
+      userButtonPopoverActionButtonIcon: "text-white/80",
+      
+      // Footer
+      userButtonPopoverFooter: "hidden", // Hide "Secured by Clerk"
+      
+      // Badge
+      badge: "hidden", // Hide "Development mode"
+    },
+    variables: {
+      colorPrimary: '#60a5fa',
+      colorBackground: 'rgba(255, 255, 255, 0.1)',
+      colorText: '#ffffff',
+      borderRadius: '1rem',
+    },
+  };
 
   return (
     <div>
-      {/* Desktop Sidebar - Fixed Position */}
+      {/* Desktop Sidebar */}
       <aside className="hidden lg:flex lg:fixed lg:left-8 lg:top-1/2 lg:-translate-y-1/2 lg:z-40 glass-container rounded-bl-none rounded-tl-none py-1 lg:h-[calc(100vh-14rem)] w-[90px] flex-col items-center">
         
-        {/* Navigation Icons */}
-        <nav className="flex glass-card flex-col gap-8 pt-8 w-full flex-1 p-4 rounded-bl-none rounded-tl-none">
+        <nav className="flex flex-col gap-8 pt-8 w-full flex-1 p-4 rounded-bl-none rounded-tl-none">
           {navItems.map((item, index) => (
             <button
               key={index}
@@ -34,16 +69,16 @@ const Sidebar = () => {
             </button>
           ))}
           
-          {/* Spacer to push last button to bottom */}
           <div className="flex-1" />
           
-          {/* Bottom Button - History */}
-          <button
-            className="w-12 h-12 rounded-full flex items-center justify-center transition-all mx-auto hover:bg-card/60 hover:text-foreground"
-            onClick={() => navigate("/history")}
-          >
-            <History  strokeWidth={1.5} className="w-7 h-7" />
-          </button>
+          {/* User Button */}
+          <div className="flex items-center justify-center mx-auto">
+            <SignedIn>
+              <UserButton 
+                appearance={userButtonAppearance}
+              />
+            </SignedIn>
+          </div>
         </nav>
       </aside>
 
@@ -64,12 +99,11 @@ const Sidebar = () => {
             </button>
           ))}
           
-          {/* Add History button to mobile nav */}
-          <button
-            className="w-12 h-12 rounded-2xl flex items-center justify-center transition-all"
-          >
-            <History path="/history" strokeWidth={1.5} className="w-4 h-4" />
-          </button>
+          <div className="flex items-center justify-center">
+            <SignedIn>
+              <UserButton appearance={userButtonAppearance} />
+            </SignedIn>
+          </div>
         </div>
       </nav>
     </div>

@@ -250,3 +250,322 @@
 
 
 
+
+
+/* ===================================================
+   CLERK GLASSMORPHIC THEME - COMPLETE STYLING
+   =================================================== */
+
+/* =====================================
+   1. USER BUTTON POPOVER (Dropdown)
+   ===================================== */
+
+/* Main Popover Card */
+.cl-userButtonPopoverCard,
+.glassmorphic-popover {
+  background: rgba(255, 255, 255, 0.1) !important;
+  backdrop-filter: blur(20px) saturate(180%) !important;
+  -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
+  border-radius: 20px !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+}
+
+/* Popover Content Area */
+.cl-userButtonPopoverMain,
+.glassmorphic-popover-content {
+  background: transparent !important;
+  padding: 1rem !important;
+}
+
+/* User Preview Section */
+.cl-userPreview {
+  padding: 0.75rem 0 !important;
+  margin-bottom: 0.5rem !important;
+}
+
+/* User Name */
+.cl-userPreviewMainIdentifier {
+  color: white !important;
+  font-weight: 600 !important;
+  font-size: 0.95rem !important;
+}
+
+/* User Email */
+.cl-userPreviewSecondaryIdentifier {
+  color: rgba(255, 255, 255, 0.7) !important;
+  font-size: 0.8rem !important;
+}
+
+/* Avatar in Popover */
+
+
+/* Action Buttons (Manage Account, Sign Out) */
+.cl-userButtonPopoverActionButton,
+.glassmorphic-action-btn {
+  background: rgba(255, 255, 255, 0.08) !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  border-radius: 12px !important;
+  color: white !important;
+  padding: 0.75rem 1rem !important;
+  margin: 0.25rem 0 !important;
+  transition: all 0.2s ease !important;
+  font-size: 0.875rem !important;
+}
+
+.cl-userButtonPopoverActionButton:hover {
+  background: rgba(255, 255, 255, 0.15) !important;
+  border-color: rgba(255, 255, 255, 0.25) !important;
+  transform: translateY(-1px) !important;
+}
+
+/* Action Button Text & Icons */
+.cl-userButtonPopoverActionButtonText {
+  color: white !important;
+}
+
+.cl-userButtonPopoverActionButtonIcon {
+  color: rgba(255, 255, 255, 0.8) !important;
+}
+
+/* Footer - HIDE IT */
+.cl-userButtonPopoverFooter,
+.cl-footer,
+.cl-footerPages {
+  display: none !important;
+}
+
+/* Menu List */
+.cl-menuList {
+  background: transparent !important;
+  padding: 0.5rem 0 !important;
+}
+
+/* Individual Menu Items */
+.cl-menuItem {
+  background: rgba(255, 255, 255, 0.08) !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  border-radius: 12px !important;
+  color: white !important;
+  padding: 0.75rem 1rem !important;
+  margin: 0.25rem 0 !important;
+  transition: all 0.2s ease !important;
+}
+
+.cl-menuItem:hover {
+  background: rgba(255, 255, 255, 0.15) !important;
+  border-color: rgba(255, 255, 255, 0.25) !important;
+}
+
+/* =====================================
+   2. USER PROFILE MODAL (Manage Account)
+   ===================================== */
+
+/* Modal Backdrop */
+.cl-modalBackdrop,
+.glassmorphic-backdrop {
+  background: rgba(0, 0, 0, 0.6) !important;
+  backdrop-filter: blur(8px) !important;
+}
+
+/* Main Modal Container */
+.cl-modalContent,
+.cl-card,
+.glassmorphic-card {
+  background: rgba(255, 255, 255, 0.1) !important;
+  backdrop-filter: blur(24px) saturate(180%) !important;
+  -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+  border-radius: 24px !important;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.37) !important;
+  max-width: 100% !important;
+}
+
+/* Root Box */
+.cl-rootBox,
+.glassmorphic-root {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+/* Profile Main Container */
+.cl-userProfile,
+.glassmorphic-profile {
+  background: transparent !important;
+}
+
+/* Sidebar Navigation in UserProfile */
+.cl-navbar,
+.cl-profileSection__sidebar {
+  background: rgba(255, 255, 255, 0.05) !important;
+  border-right: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+/* Navigation Items */
+.cl-navbarButton {
+  color: rgba(255, 255, 255, 0.7) !important;
+  border-radius: 12px !important;
+  transition: all 0.2s ease !important;
+}
+
+.cl-navbarButton:hover,
+.cl-navbarButton[data-active="true"] {
+  background: rgba(255, 255, 255, 0.1) !important;
+  color: white !important;
+}
+
+/* Content Area */
+.cl-profileSection,
+.glassmorphic-section {
+  background: transparent !important;
+  padding: 2rem !important;
+}
+
+/* Headings */
+.cl-profileSection h1,
+.cl-profileSection h2,
+.cl-profileSection h3 {
+  color: white !important;
+}
+
+/* Text */
+.cl-profileSection p,
+.cl-profileSection span,
+.cl-profileSection label {
+  color: rgba(255, 255, 255, 0.9) !important;
+}
+
+/* Form Fields */
+.cl-formFieldInput {
+  background: rgba(255, 255, 255, 0.08) !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+  color: white !important;
+  border-radius: 12px !important;
+  padding: 0.75rem 1rem !important;
+  transition: all 0.3s ease !important;
+}
+
+.cl-formFieldInput:focus {
+  background: rgba(255, 255, 255, 0.12) !important;
+  border-color: rgba(96, 165, 250, 0.5) !important;
+  outline: none !important;
+  box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.1) !important;
+}
+
+.cl-formFieldInput::placeholder {
+  color: rgba(255, 255, 255, 0.4) !important;
+}
+
+/* Primary Buttons */
+.cl-formButtonPrimary,
+.glassmorphic-button-primary {
+  background: linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%) !important;
+  color: white !important;
+  border: none !important;
+  border-radius: 12px !important;
+  padding: 0.75rem 1.5rem !important;
+  font-weight: 600 !important;
+  box-shadow: 0 4px 20px rgba(96, 165, 250, 0.4) !important;
+  transition: all 0.3s ease !important;
+}
+
+.cl-formButtonPrimary:hover {
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%) !important;
+  box-shadow: 0 6px 30px rgba(96, 165, 250, 0.5) !important;
+  transform: translateY(-2px) !important;
+}
+
+/* Secondary Buttons */
+.cl-formButtonReset,
+.cl-button {
+  background: rgba(255, 255, 255, 0.08) !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+  color: white !important;
+  border-radius: 12px !important;
+  transition: all 0.2s ease !important;
+}
+
+.cl-formButtonReset:hover,
+.cl-button:hover {
+  background: rgba(255, 255, 255, 0.15) !important;
+  border-color: rgba(255, 255, 255, 0.3) !important;
+}
+
+/* =====================================
+   3. HIDE UNWANTED ELEMENTS
+   ===================================== */
+
+/* Hide "Secured by Clerk" */
+.cl-internal-b3fm6y,
+.cl-footerActionText {
+  display: none !important;
+}
+
+/* Hide "Development mode" badge */
+.cl-badge,
+.cl-internal-badge {
+  display: none !important;
+}
+
+/* Hide any Clerk branding */
+[class*='cl-branded'] {
+  display: none !important;
+}
+
+/* =====================================
+   4. SCROLLBAR STYLING
+   ===================================== */
+
+.cl-scrollBox {
+  scrollbar-width: thin !important;
+  scrollbar-color: rgba(255, 255, 255, 0.3) transparent !important;
+}
+
+.cl-scrollBox::-webkit-scrollbar {
+  width: 6px !important;
+  height: 6px !important;
+}
+
+.cl-scrollBox::-webkit-scrollbar-track {
+  background: transparent !important;
+}
+
+.cl-scrollBox::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.3) !important;
+  border-radius: 3px !important;
+}
+
+.cl-scrollBox::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.5) !important;
+}
+
+/* =====================================
+   5. Z-INDEX & POSITIONING
+   ===================================== */
+
+.cl-userButtonPopoverCard,
+.cl-modalBackdrop,
+.cl-modal {
+  z-index: 9999 !important;
+}
+
+/* =====================================
+   6. MOBILE RESPONSIVENESS
+   ===================================== */
+
+@media (max-width: 640px) {
+  .cl-modalContent,
+  .cl-userProfile {
+    max-width: 95vw !important;
+    margin: 1rem !important;
+  }
+  
+  .cl-profileSection {
+    padding: 1rem !important;
+  }
+}
+
+[class*='cl-'] {
+  border: none !important;
+}

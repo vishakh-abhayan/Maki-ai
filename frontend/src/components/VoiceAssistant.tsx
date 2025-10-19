@@ -154,8 +154,8 @@ const VoiceAssistant = () => {
       <div className="relative mb-8">
         {isRecording && (
           <>
-            <div className="absolute inset-0 rounded-full bg-red-500/20 animate-ping" style={{ animationDuration: '2s' }} />
-            <div className="absolute inset-0 rounded-full bg-red-500/10 animate-ping" style={{ animationDuration: '3s' }} />
+            <div className="absolute inset-0 rounded-full bg-blue-500/20 animate-ping" style={{ animationDuration: '2s' }} />
+            <div className="absolute inset-0 rounded-full bg-blue-500/10 animate-ping" style={{ animationDuration: '3s' }} />
           </>
         )}
         
@@ -182,7 +182,7 @@ const VoiceAssistant = () => {
       
       <p className="mt-4 md:mt-6 text-base md:text-lg text-foreground font-medium">
         {isProcessing 
-          ? "Processing your recording..." 
+          ? " " 
           : isRecording 
             ? "Stop listening" 
             : "Let Maki listen"

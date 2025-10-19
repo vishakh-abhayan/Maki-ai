@@ -151,7 +151,7 @@ const HistoryViewDetails = () => {
                 <SignInButton />
               </SignedOut>
               <SignedIn>
-                <UserButton />
+                
               </SignedIn>
             </div>
           </div>
@@ -178,7 +178,7 @@ const HistoryViewDetails = () => {
                 <SignInButton />
               </SignedOut>
               <SignedIn>
-                <UserButton />
+                
               </SignedIn>
             </div>
           </div>
