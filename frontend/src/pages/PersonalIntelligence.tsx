@@ -8,6 +8,9 @@ import { useAuth } from "@clerk/clerk-react";
 import { useDataRefresh } from "@/contexts/DataRefreshContext";
 import { useToast } from "@/hooks/use-toast";
 
+
+
+
 const PersonalIntelligence = () => {
   const { user } = useUser();
   const { getToken } = useAuth();
@@ -206,6 +209,7 @@ const PersonalIntelligence = () => {
           {/* Main Content Grid */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 mb-5">
             {/* Pending Follow Ups Section */}
+            {/* Pending Follow Ups Section - ENHANCED */}
             <section 
               className="glass-container rounded-3xl p-6 lg:p-7"
               aria-labelledby="pending-follow-ups-title"
@@ -223,36 +227,77 @@ const PersonalIntelligence = () => {
                   <p className="text-sm text-muted-foreground">No pending follow-ups</p>
                 </div>
               ) : (
-                <ul className="space-y-5 overflow-y-auto max-h-[220px]">
+                <ul className="space-y-4 overflow-y-auto max-h-[220px] pr-2">
                   {pendingFollowUps.map((followUp) => {
                     const priorityConfig = getPriorityConfig(followUp.priority);
                     return (
                       <li 
-                          key={followUp._id} 
-                          className="space-y-1.5 cursor-pointer hover:opacity-80 transition-opacity"
+                        key={followUp._id} 
+                        className="group relative"
+                      >
+                        {/* Person Card - Clickable */}
+                        {/* make scrollbar hidden but still scrollable write the code for it  */}
+                        <div 
+                          className="flex items-start  gap-2 p-2 rounded-xl 
+                                     hover:bg-primary/20 transition-all cursor-pointer"
                           onClick={() => {
-                            if (followUp.personId && followUp.personId._id) {
-                              handlePersonClick(followUp.personId._id);
+                            if (followUp.personId) {
+                              handlePersonClick(followUp.personId);
                             }
                           }}
                         >
-                        <div className="flex items-center justify-between flex-wrap gap-3">
-                          <span className="text-base lg:text-lg text-foreground">
-                            {followUp.personId.name}{' '}
-                            <span className="text-muted-foreground text-sm">
-                              ({followUp.personId.relationship?.type || 'Contact'})
-                            </span>
-                          </span>
-                          <span 
-                            className={`inline-flex items-center px-2.5 py-0.5 rounded text-xs font-semibold text-white ${priorityConfig.bgColor}`}
-                            aria-label={`Priority: ${priorityConfig.label}`}
-                          >
-                            {priorityConfig.label}
-                          </span>
+                          {/* Avatar/Initial */}
+                          {/* <div className="flex-shrink-0">
+                            {followUp.avatar ? (
+                              <img 
+                                src={followUp.avatar} 
+                                alt={followUp.person}
+                                className="w-10 h-10 rounded-full object-cover"
+                              />
+                            ) : (
+                              <div className="w-10 h-10 rounded-full bg-primary/30 flex items-center justify-center">
+                                <span className="text-sm font-semibold text-foreground">
+                                  {followUp.initials || followUp.person?.charAt(0) || 'U'}
+                                </span>
+                              </div>
+                            )}
+                          </div> */}
+                          
+                          {/* Content */}
+                          <div className="flex-1 min-w-0">
+                            {/* Person Name & Relationship */}
+                            <div className="flex items-center justify-between gap-2 mb-1">
+                              <div className="flex items-center gap-2">
+                                <span className="text-base font-semibold text-foreground group-hover:text-primary transition-colors">
+                                  {followUp.person}
+                                </span>
+                                <span className="text-xs text-muted-foreground opacity-60 capitalize">
+                                  ({followUp.relationship || 'acquaintance'})
+                                </span>
+                              </div>
+                              
+                              {/* Priority Badge */}
+                              <span 
+                                className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold text-white ${priorityConfig.bgColor}`}
+                                aria-label={`Priority: ${priorityConfig.label}`}
+                              >
+                                {priorityConfig.label}
+                              </span>
+                            </div>
+                            
+                            {/* Follow-up Context */}
+                            <p className="text-sm text-muted-foreground line-clamp-2">
+                              {followUp.context}
+                            </p>
+                            
+                            {/* Optional: Conversation Context */}
+                            {followUp.conversationTitle && (
+                              <p className="text-xs text-muted-foreground opacity-50 mt-1">
+                                From: {followUp.conversationTitle}
+                              </p>
+                            )}
+                          </div>
                         </div>
-                        <p className="text-sm text-muted-foreground">
-                          {followUp.context}
-                        </p>
                       </li>
                     );
                   })}
@@ -347,35 +392,54 @@ const PersonalIntelligence = () => {
               </div>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                {latestInteractions.map((interaction: any, index: number) => (
+                {latestInteractions.map((person: any) => (
                   <article 
-                    key={index}
-                    onClick={() => {
-                      // Navigate to person detail or conversation
-                      if (interaction.participants && interaction.participants[0]?.personId) {
-                        handlePersonClick(interaction.participants[0].personId._id);
-                      }
-                    }}
-                    className="bg-primary/20 rounded-xl p-3.5 hover:bg-primary/30 transition-colors cursor-pointer border border-primary/30"
+                    key={person.personId}
+                    onClick={() => handlePersonClick(person.personId)}
+                    className="bg-primary/20 rounded-xl p-4 hover:bg-primary/30 transition-all cursor-pointer border border-primary/30 group"
                   >
-                    <h4 className="text-sm lg:text-base font-semibold text-foreground mb-1 opacity-90">
-                      {interaction.participants
-                        ? interaction.participants
-                            .filter((p: any) => !p.isUser)
-                            .map((p: any) => p.name)
-                            .join(', ')
-                        : 'Unknown'}
-                    </h4>
-                    <p className="text-xs text-muted-foreground opacity-70 mb-1.5">
-                      {interaction.title || interaction.summary?.short || 'Conversation'}
-                    </p>
-                    <time className="text-xs text-muted-foreground opacity-60">
-                      {new Date(interaction.conversationDate).toLocaleTimeString('en-US', {
-                        hour: 'numeric',
-                        minute: '2-digit',
-                        hour12: true,
-                      })}
-                    </time>
+                    {/* Person Avatar/Initial */}
+                    <div className="flex items-center gap-3 mb-3">
+                      {person.avatar ? (
+                        <img 
+                          src={person.avatar} 
+                          alt={person.name}
+                          className="w-12 h-12 rounded-full object-cover"
+                        />
+                      ) : (
+                        <div className="w-12 h-12 rounded-full bg-primary/40 flex items-center justify-center">
+                          <span className="text-lg font-semibold text-foreground">
+                            {person.initials}
+                          </span>
+                        </div>
+                      )}
+                      
+                      <div className="flex-1 min-w-0">
+                        <h4 className="text-sm lg:text-base font-semibold text-foreground truncate group-hover:text-primary transition-colors">
+                          {person.name}
+                        </h4>
+                        <p className="text-xs text-muted-foreground opacity-60 capitalize">
+                          {person.relationship}
+                        </p>
+                      </div>
+                    </div>
+                    
+                    {/* Last Conversation Info */}
+                    <div className="space-y-1.5">
+                      <p className="text-xs text-muted-foreground opacity-70 line-clamp-2">
+                        {person.lastConversationTitle || person.lastConversationSummary || 'Recent conversation'}
+                      </p>
+                      <time className="text-xs text-muted-foreground opacity-60 block">
+                        {new Date(person.lastConversationDate).toLocaleDateString('en-US', {
+                          month: 'short',
+                          day: 'numeric',
+                        })} • {new Date(person.lastConversationDate).toLocaleTimeString('en-US', {
+                          hour: 'numeric',
+                          minute: '2-digit',
+                          hour12: true,
+                        })}
+                      </time>
+                    </div>
                   </article>
                 ))}
               </div>
