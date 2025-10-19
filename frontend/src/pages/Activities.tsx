@@ -5,6 +5,7 @@ import Sidebar from "@/components/Sidebar";
 import { createAPIService, Task, Reminder } from "@/services/api";
 import { useAuth } from "@clerk/clerk-react";
 import { useDataRefresh } from "@/contexts/DataRefreshContext";
+import { isPast, isToday, isYesterday, parseISO,format } from "date-fns";
 
 const Activities = () => {
   const { user } = useUser();
@@ -235,8 +236,21 @@ const getReminderBorderColor = (category: string) => {
                             </span>
                           )}
                           <p className="text-sm text-muted-foreground/60">
-                            Due: {task.dueDateText || 'No due date'}
-                          </p>
+                          Due: {(() => {
+                            if (!task.dueDate) return task.dueDateText || 'No due date';
+                            
+                            try {
+                              const date = parseISO(task.dueDate);
+                              if (isToday(date)) return 'Today';
+                              if (isYesterday(date)) return 'Yesterday (overdue)';
+                              if (isPast(date)) return `${format(date, 'MMM d')} (overdue)`;
+                              return format(date, 'MMM d, yyyy');
+                            } catch {
+                              return task.dueDateText || 'Invalid date';
+                            }
+                          })()}
+                        </p>
+
                         </div>
                       </div>
                     </div>

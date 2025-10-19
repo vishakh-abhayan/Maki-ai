@@ -3,7 +3,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { createAPIService, Task } from "@/services/api";
 import { useDataRefresh } from "@/contexts/DataRefreshContext";
 import { useAuth } from "@clerk/clerk-react";
-import { isToday, parseISO } from "date-fns";
+import { format, isToday, parseISO, isPast, isFuture, isYesterday } from "date-fns";
 import { useNavigate } from "react-router-dom";
 
 const TasksList = () => {
@@ -14,43 +14,53 @@ const TasksList = () => {
   const { getToken } = useAuth();
 
   const apiService = createAPIService(getToken);
-
-  //configure navigate
   const navigate = useNavigate();
 
   useEffect(() => {
     fetchTasks();
   }, [refreshTrigger]);
 
-  const fetchTasks = async () => {
-    try {
-      setLoading(true);
-      const data = await apiService.getTasks();
+ const fetchTasks = async () => {
+  try {
+    setLoading(true);
+    const data = await apiService.getTasks();
+    
+    // ✅ Filter for TODAY's tasks ONLY (not overdue from yesterday)
+    const todayTasks = data.filter((item) => {
+      if (item.completed) return false;
       
-      // Filter for tasks with due date TODAY only (not completed)
-      const todayTasks = data.filter((item) => {
-        if (item.completed) return false;
-        if (item.category !== 'task' && item.category !== 'deadline') return false;
-        if (!item.dueDate) return false;
-        
-        try {
-          const taskDate = parseISO(item.dueDate);
-          return isToday(taskDate);
-        } catch {
-          return false;
-        }
-      });
+      if (!item.dueDate) {
+        // If no date, only include if text explicitly says "today"
+        const text = item.dueDateText?.toLowerCase() || '';
+        return text.includes('today') && !text.includes('yesterday');
+      }
       
-      // Limit to 3 tasks
-      setTasks(todayTasks.slice(0, 3));
-      setError(null);
-    } catch (err) {
-      setError('Failed to load tasks');
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
-  };
+      try {
+        const taskDate = parseISO(item.dueDate);
+        // ✅ ONLY show tasks that are actually TODAY (not past)
+        return isToday(taskDate);
+      } catch {
+        return false;
+      }
+    });
+    
+    // Sort by priority
+    const sorted = todayTasks.sort((a, b) => {
+      const priorityOrder = { high: 3, medium: 2, normal: 1, low: 1 };
+      const aPriority = priorityOrder[a.priority as keyof typeof priorityOrder] || 0;
+      const bPriority = priorityOrder[b.priority as keyof typeof priorityOrder] || 0;
+      return bPriority - aPriority;
+    });
+    
+    setTasks(sorted.slice(0, 3));
+    setError(null);
+  } catch (err) {
+    setError('Failed to load tasks');
+    console.error(err);
+  } finally {
+    setLoading(false);
+  }
+};
 
   const handleToggleTask = async (taskId: string, currentStatus: boolean) => {
     try {
@@ -62,6 +72,30 @@ const TasksList = () => {
       console.error('Failed to update task:', err);
     }
   };
+
+  const formatDueDate = (dueDate: string | null, dueDateText: string): string => {
+  if (!dueDate) {
+    return dueDateText || 'No due date';
+  }
+  
+  try {
+    const date = parseISO(dueDate);
+    
+    // ✅ Show actual status, not just what was said
+    if (isToday(date)) {
+      return 'Today';
+    } else if (isYesterday(date)) {
+      return 'Yesterday (overdue)';
+    } else if (isPast(date)) {
+      return `${format(date, 'MMM d')} (overdue)`;
+    } else {
+      return format(date, 'MMM d, yyyy');
+    }
+  } catch {
+    return dueDateText || 'No due date';
+  }
+};
+
 
   const formatTaskSource = (from: string | null): string => {
     if (!from) return 'Unknown';
@@ -120,7 +154,7 @@ const getCategoryColor = (category: string) => {
     );
   }
 
-  return (
+   return (
     <div className="glass-container p-2">
       <div className="glass-card p-4 md:p-6">
         <div className="flex items-center justify-between mb-4 md:mb-6">
@@ -132,44 +166,62 @@ const getCategoryColor = (category: string) => {
           </button>
         </div>
 
-        {tasks.length === 0 ? (
-          <div className="text-center py-8">
-            <p className="text-sm text-muted-foreground">No tasks for today</p>
+        {loading ? (
+          <div className="flex items-center justify-center py-8">
+            <p className="text-sm text-muted-foreground">Loading tasks...</p>
+          </div>
+        ) : error ? (
+          <div className="flex items-center justify-center py-8">
+            <p className="text-sm text-destructive">{error}</p>
+          </div>
+        ) : tasks.length === 0 ? (
+          <div className="flex items-center justify-center py-8">
+            <p className="text-sm text-muted-foreground">No tasks due today</p>
           </div>
         ) : (
-          <div className="space-y-3 md:space-y-4">
+          <div className="space-y-3">
             {tasks.map((task) => (
-              <div
-                key={task._id}
-                className="flex items-start gap-3 p-3 md:p-4 rounded-xl border border-border/50 bg-card/50 transition-all hover:border-border"
-              >
-                <Checkbox
-                  id={task._id}
-                  checked={task.completed}
-                  onCheckedChange={() => handleToggleTask(task._id, task.completed)}
-                  className="mt-1"
-                />
-                <div className="flex-1 min-w-0">
-                  <label
-                    htmlFor={task._id}
-                    className={`text-xs md:text-sm font-medium cursor-pointer ${
-                      task.completed ? 'line-through text-muted-foreground' : 'text-foreground'
-                    }`}
-                  >
-                    {task.title}
-                  </label>
-                  <p className="text-[10px] md:text-xs text-muted-foreground mt-0.5">
-                    From: {formatTaskSource(task.from)}
-                  </p>
-                  <p className="text-[10px] md:text-xs text-muted-foreground mt-0.5">
-                    Due: {task.dueDateText || 'No due date'}
-                  </p>
-                </div>
-                {task.priority === 'high' && (
-                  <span className="px-2 py-1 text-[10px] font-medium bg-destructive/10 text-destructive rounded-md">
-                    High
+              <div key={task._id} className="flex items-start gap-3 p-3 rounded-lg bg-card/5 hover:bg-card/10 transition-colors">
+                <label className="flex items-center cursor-pointer mt-0.5">
+                  <input
+                    type="checkbox"
+                    checked={task.completed}
+                    onChange={() => handleToggleTask(task._id, task.completed)}
+                    className="sr-only"
+                  />
+                  <span className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-all ${
+                    task.completed ? 'bg-primary border-primary' : 'border-muted-foreground'
+                  }`}>
+                    {task.completed && (
+                      <svg className="w-3 h-3 text-white" viewBox="0 0 12 9" fill="none">
+                        <path d="M1 4.5L4.5 8L11 1" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
+                    )}
                   </span>
-                )}
+                </label>
+
+                <div className="flex-1 min-w-0">
+                  <h4 className={`text-sm font-normal text-foreground mb-1 ${task.completed ? 'line-through opacity-75' : ''}`}>
+                    {task.title}
+                  </h4>
+                  {task.from && (
+                    <p className="text-xs text-muted-foreground/60 mb-1">
+                      From: {task.from.replace(/SPEAKER \d+/i, 'Speaker')}
+                    </p>
+                  )}
+                  <div className="flex items-center gap-2 flex-wrap">
+                    {task.priority !== 'normal' && task.priority !== 'medium' && (
+                      <span className={`px-2 py-0.5 rounded-md text-xs font-semibold ${
+                        task.priority === 'high' ? 'bg-red-500/10 text-red-600' : 'bg-green-500/10 text-green-600'
+                      }`}>
+                        {task.priority}
+                      </span>
+                    )}
+                      <p className="text-xs text-muted-foreground/60">
+                        {formatDueDate(task.dueDate, task.dueDateText)}
+                      </p>
+                  </div>
+                </div>
               </div>
             ))}
           </div>

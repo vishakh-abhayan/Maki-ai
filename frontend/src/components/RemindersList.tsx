@@ -3,6 +3,7 @@ import { Phone, Calendar as CalendarIcon, MessageSquare, User, Clock } from "luc
 import { createAPIService, Reminder } from "@/services/api";
 import { useDataRefresh } from "@/contexts/DataRefreshContext";
 import { useAuth } from "@clerk/clerk-react";
+import { isToday, parseISO, isPast, isFuture } from "date-fns"; 
 import { useNavigate } from "react-router";
 
 const RemindersList = () => {
@@ -21,28 +22,44 @@ const RemindersList = () => {
     fetchReminders();
   }, [refreshTrigger]);
 
-  const fetchReminders = async () => {
-    try {
-      setLoading(true);
-      const data = await apiService.getReminders();
+ const fetchReminders = async () => {
+  try {
+    setLoading(true);
+    const data = await apiService.getReminders();
+    
+    // ✅ Filter for UPCOMING reminders (today + future, not completed)
+    const upcomingReminders = data.filter((item) => {
+      if (item.completed) return false;
       
-      const reminderItems = data.filter(
-        (item) => 
-          !item.completed && 
-          (item.category === 'meeting' || 
-           item.category === 'call' || 
-           item.category === 'personal')
-      );
+      // If no due date, show it anyway
+      if (!item.dueDate) return true;
       
-      setReminders(reminderItems.slice(0, 3));
-      setError(null);
-    } catch (err) {
-      setError('Failed to load reminders');
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
-  };
+      try {
+        const reminderDate = parseISO(item.dueDate);
+        // ✅ Show reminders for TODAY or FUTURE
+        return isToday(reminderDate) || isFuture(reminderDate);
+      } catch {
+        return true; // Include if date parsing fails
+      }
+    });
+    
+    // Sort by date (earliest first)
+    const sorted = upcomingReminders.sort((a, b) => {
+      if (!a.dueDate) return 1;
+      if (!b.dueDate) return -1;
+      return new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime();
+    });
+    
+    // Limit to 3 reminders
+    setReminders(sorted.slice(0, 3));
+    setError(null);
+  } catch (err) {
+    setError('Failed to load reminders');
+    console.error(err);
+  } finally {
+    setLoading(false);
+  }
+};
 
   const getIcon = (category: string) => {
   switch (category) {

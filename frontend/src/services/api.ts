@@ -6,10 +6,10 @@ export interface Task {
   userId: string;
   filename: string;
   title: string;
-  from: string;
+  from: string | null;
   dueDate: string | null;
-  dueDateText: string | null;
-  priority: 'high' | 'normal' | 'low';
+  dueDateText: string;
+  priority: "high" | "medium" | "normal" | "low"; // ✅ Added "medium" and "normal"
   category: string;
   extractedFrom: string;
   completed: boolean;
@@ -17,7 +17,22 @@ export interface Task {
   updatedAt: string;
 }
 
-export interface Reminder extends Task {}
+export interface Reminder {
+  _id: string;
+  transcriptId: string;
+  userId: string;
+  filename: string;
+  title: string;
+  from: string | null;
+  dueDate: string | null;
+  dueDateText: string;
+  priority: "high" | "medium" | "normal" | "low"; // ✅ Added "medium" and "normal"
+  category: "meeting" | "call" | "event" | "deadline" | "personal";
+  extractedFrom: string;
+  completed: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
 
 export interface TranscriptResponse {
   transcript: string;
