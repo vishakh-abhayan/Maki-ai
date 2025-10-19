@@ -136,13 +136,13 @@ const PersonDetail = () => {
                     {person.relationship.displayText}
                   </p>
                 </div>
-                <button
+                {/* <button
                   onClick={handleCall}
                   className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors"
                 >
                   <Phone className="w-4 h-4" />
                   Call {person.name.split(' ')[0]}
-                </button>
+                </button> */}
               </div>
 
               <div className="space-y-3 mb-6">
@@ -190,21 +190,7 @@ const PersonDetail = () => {
                 </div>
               )}
 
-              {/* Most Discussed Topics */}
-              {person.mostDiscussedTopics && person.mostDiscussedTopics.length > 0 && (
-                <div>
-                  <h3 className="text-xl font-medium text-foreground mb-3 border-b border-border/30 pb-2">
-                    Most Discussed Topics
-                  </h3>
-                  <ul className="list-disc list-inside space-y-1">
-                    {person.mostDiscussedTopics.map((topic, index) => (
-                      <li key={index} className="text-sm text-muted-foreground">
-                        {topic}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
+            
             </div>
 
             {/* Right: Closeness Score */}

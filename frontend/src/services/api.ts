@@ -102,42 +102,62 @@ export interface ConversationSummary {
   hasActionItems: boolean;
 }
 
+// Update the FollowUp interface
 export interface FollowUp {
   _id: string;
-  id: string;
-  personId: {
-    _id: string;
-    name: string;
-    initials: string;
-    avatar?: string;
-    relationship: any;
-  };
+  personId: string;  // ✅ Changed from object to string (just the ID)
+  person: string;    // ✅ Added: Person's name
+  initials: string;  // ✅ Added: Person's initials
+  avatar?: string;   // ✅ Added: Person's avatar
+  relationship: string; // ✅ Added: Person's relationship type
   type: 'pending' | 'suggested';
   priority: 'high' | 'medium' | 'low';
   context: string;
   reason?: string;
+  conversationTitle?: string;  // ✅ Added: Title of related conversation
+  conversationDate?: string;   // ✅ Added: Date of related conversation
   suggestedDate?: string;
   completed: boolean;
   createdAt: string;
 }
 
-export interface LatestInteraction {
-  id: string;
-  name: string;
-  description: string;
-  time: string;
-  personId?: string;
+// Update the SuggestedFollowUp interface  
+export interface SuggestedFollowUp {
+  personId: string;
+  person: string;
+  name: string;  // ✅ Added for compatibility
+  initials: string;
+  avatar?: string;
+  relationship: string;
+  lastContacted?: string;
+  frequency?: string;
+  closeness?: number;
+  reason?: string;
 }
 
+// Update IntelligenceDashboard interface
 export interface IntelligenceDashboard {
   pendingFollowUps: FollowUp[];
-  suggestedFollowUps: any[];
-  latestInteractions: any[];
+  suggestedFollowUps: SuggestedFollowUp[];  // ✅ Changed from any[]
+  latestInteractions: LatestInteraction[];   // ✅ Changed from any[]
   networkOverview: {
     totalPeople: number;
     closeContacts: number;
   };
 }
+
+// Update LatestInteraction interface
+export interface LatestInteraction {
+  personId: string;
+  name: string;
+  initials: string;
+  avatar?: string;
+  relationship: string;
+  lastConversationTitle?: string;
+  lastConversationDate: string;
+  lastConversationSummary?: string;
+}
+
 
 export interface Conversation {
   _id: string;
