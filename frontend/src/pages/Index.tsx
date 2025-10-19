@@ -1,12 +1,12 @@
 // frontend/src/pages/Index.tsx
-import { Download, Settings, CircleUserRound } from "lucide-react";
+import { Download, Settings } from "lucide-react";
 import Sidebar from "@/components/Sidebar";
 import VoiceAssistant from "@/components/VoiceAssistant";
 import Calendar from "@/components/Calendar";
 import TasksList from "@/components/TasksList";
 import RemindersList from "@/components/RemindersList";
 
-import { SignedIn, SignedOut, SignInButton, UserButton, useUser } from '@clerk/clerk-react';
+import { SignedIn, SignedOut, SignInButton, useUser } from '@clerk/clerk-react';
 
 const Index = () => {
   const { user } = useUser();
@@ -30,30 +30,26 @@ const Index = () => {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               <div className="ml-5">
-                <p className="text-2xl font-medium text-foreground">Hey, Dev!</p>
+                <p className="text-2xl font-medium text-foreground">Hey, {user?.firstName || "Dev"}!</p>
                 <p className="text-sm text-muted-foreground mt-0.5">Here's what's important today</p>
               </div>
             </div>
             <div className="flex gap-2 absolute right-4 top-4">
-              <button className="w-7 h-7 p-2 rounded-lg bg-card/40 backdrop-blur-xl border border-card-border flex items-center justify-center">
-                <Download className="w-4 h-4 text-foreground" />
+              <button className="w-7 h-7 p-2 rounded-lg bg-card/40 backdrop-blur-xl border border-card-border flex items-center justify-center hover:bg-card/60 transition-all">
+                <Download className="w-5 h-5 text-foreground" />
               </button>
-              <button className="w-7 h-7 p-2 rounded-lg bg-card/40 backdrop-blur-xl border border-card-border flex items-center justify-center">
-                <Settings className="w-4 h-4 text-foreground" />
+              <button className="w-7 h-7 p-2 rounded-lg bg-card/40 backdrop-blur-xl border border-card-border flex items-center justify-center hover:bg-card/60 transition-all">
+                <Settings className="w-5 h-5 text-foreground" />
               </button>
               <SignedOut>
                 <SignInButton />
               </SignedOut>
-              <SignedIn>
-                <UserButton />
-              </SignedIn>
             </div>
           </div>
         </div>
 
         {/* Desktop Header */}
-        <div className="hidden lg:block mb-8">
-          {/* Logo */}
+        <div className="hidden lg:block mb-12">
           <div className="mb-6 absolute top-6 left-8">
             <h1 className="text-xl font-semibold text-foreground fixed tracking-wide" 
                 style={{ fontFamily: "'Courier New', 'Courier', monospace" }}>
@@ -72,9 +68,6 @@ const Index = () => {
               <SignedOut>
                 <SignInButton />
               </SignedOut>
-              <SignedIn>
-                <UserButton />
-              </SignedIn>
             </div>
           </div>
           

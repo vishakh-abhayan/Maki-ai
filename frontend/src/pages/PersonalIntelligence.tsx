@@ -143,7 +143,7 @@ const PersonalIntelligence = () => {
                 <SignInButton />
               </SignedOut>
               <SignedIn>
-                <UserButton />
+               
               </SignedIn>
             </div>
           </div>
@@ -170,7 +170,7 @@ const PersonalIntelligence = () => {
                 <SignInButton />
               </SignedOut>
               <SignedIn>
-                <UserButton />
+               
               </SignedIn>
             </div>
           </div>

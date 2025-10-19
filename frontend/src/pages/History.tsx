@@ -187,7 +187,7 @@ const History = () => {
                 <SignInButton />
               </SignedOut>
               <SignedIn>
-                <UserButton />
+               
               </SignedIn>
             </div>
           </div>
@@ -214,7 +214,7 @@ const History = () => {
                 <SignInButton />
               </SignedOut>
               <SignedIn>
-                <UserButton />
+                
               </SignedIn>
             </div>
           </div>

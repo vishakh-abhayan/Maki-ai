@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Download, Settings, Calendar as CalendarIcon, MessageSquare, Clock } from "lucide-react";
-import { SignedIn, SignedOut, SignInButton, UserButton, useUser } from '@clerk/clerk-react';
+import { SignedIn, SignedOut, SignInButton, useUser } from '@clerk/clerk-react';
 import Sidebar from "@/components/Sidebar";
 import { createAPIService, Task, Reminder } from "@/services/api";
 import { useAuth } from "@clerk/clerk-react";
@@ -27,6 +27,8 @@ const Activities = () => {
         apiService.getTasks(),
         apiService.getReminders()
       ]);
+      
+      // No filtering needed - they're already separate collections!
       setTasks(tasksData);
       setReminders(remindersData);
     } catch (error) {
@@ -73,27 +75,35 @@ const Activities = () => {
     }
   };
 
-  const getReminderIconColor = (category: string) => {
-    switch (category) {
-      case 'call':
-        return 'bg-[#c48600]';
-      case 'meeting':
-        return 'bg-indigo-500';
-      default:
-        return 'bg-[#c48600]';
-    }
-  };
+const getReminderIconColor = (category: string) => {
+  switch (category) {
+    case 'call':
+      return 'bg-green-500';
+    case 'meeting':
+      return 'bg-indigo-500';
+    case 'event':
+      return 'bg-blue-500';
+    case 'personal':
+      return 'bg-orange-500';
+    default:
+      return 'bg-gray-500';
+  }
+};
 
-  const getReminderBorderColor = (category: string) => {
-    switch (category) {
-      case 'call':
-        return 'border-[#c48600]/30';
-      case 'meeting':
-        return 'border-indigo-500/30';
-      default:
-        return 'border-[#c48600]/30';
-    }
-  };
+const getReminderBorderColor = (category: string) => {
+  switch (category) {
+    case 'call':
+      return 'border-green-500/30';
+    case 'meeting':
+      return 'border-indigo-500/30';
+    case 'event':
+      return 'border-blue-500/30';
+    case 'personal':
+      return 'border-orange-500/30';
+    default:
+      return 'border-gray-500/30';
+  }
+};
 
   return (
     <div className="min-h-screen flex lg:pl-[170px] pb-16 lg:pb-0">
@@ -126,9 +136,6 @@ const Activities = () => {
               <SignedOut>
                 <SignInButton />
               </SignedOut>
-              <SignedIn>
-                <UserButton />
-              </SignedIn>
             </div>
           </div>
         </div>
@@ -153,13 +160,10 @@ const Activities = () => {
               <SignedOut>
                 <SignInButton />
               </SignedOut>
-              <SignedIn>
-                <UserButton />
-              </SignedIn>
             </div>
           </div>
           
-          {/* Activities Header - Not Absolute */}
+          {/* Activities Header */}
           <div className="pt-6">
             <h2 className="text-4xl font-semibold text-foreground">Activities</h2>
             <p className="text-base text-muted-foreground mt-1">Keep track, stay ahead.</p>

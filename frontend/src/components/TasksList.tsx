@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { createAPIService, Task } from "@/services/api";
-import { format, parseISO } from "date-fns";
 import { useDataRefresh } from "@/contexts/DataRefreshContext";
 import { useAuth } from "@clerk/clerk-react";
+import { isToday, parseISO } from "date-fns";
+import { useNavigate } from "react-router-dom";
 
 const TasksList = () => {
   const [tasks, setTasks] = useState<Task[]>([]);
@@ -14,6 +15,9 @@ const TasksList = () => {
 
   const apiService = createAPIService(getToken);
 
+  //configure navigate
+  const navigate = useNavigate();
+
   useEffect(() => {
     fetchTasks();
   }, [refreshTrigger]);
@@ -22,10 +26,23 @@ const TasksList = () => {
     try {
       setLoading(true);
       const data = await apiService.getTasks();
-      const taskItems = data.filter(
-        (item) => item.category === 'task' || item.category === 'deadline'
-      );
-      setTasks(taskItems.slice(0, 5));
+      
+      // Filter for tasks with due date TODAY only (not completed)
+      const todayTasks = data.filter((item) => {
+        if (item.completed) return false;
+        if (item.category !== 'task' && item.category !== 'deadline') return false;
+        if (!item.dueDate) return false;
+        
+        try {
+          const taskDate = parseISO(item.dueDate);
+          return isToday(taskDate);
+        } catch {
+          return false;
+        }
+      });
+      
+      // Limit to 3 tasks
+      setTasks(todayTasks.slice(0, 3));
       setError(null);
     } catch (err) {
       setError('Failed to load tasks');
@@ -56,6 +73,28 @@ const TasksList = () => {
     
     return from;
   };
+
+  const getCategoryLabel = (category: string) => {
+  const labels: Record<string, string> = {
+    work: 'Work',
+    personal: 'Personal',
+    followup: 'Follow-up',
+    deadline: 'Deadline',
+    general: 'Task'
+  };
+  return labels[category] || 'Task';
+};
+
+const getCategoryColor = (category: string) => {
+  const colors: Record<string, string> = {
+    work: 'bg-blue-500/10 text-blue-600',
+    personal: 'bg-purple-500/10 text-purple-600',
+    followup: 'bg-green-500/10 text-green-600',
+    deadline: 'bg-red-500/10 text-red-600',
+    general: 'bg-gray-500/10 text-gray-600'
+  };
+  return colors[category] || 'bg-gray-500/10 text-gray-600';
+};
 
   if (loading) {
     return (
@@ -88,7 +127,7 @@ const TasksList = () => {
           <h3 className="text-lg md:text-xl font-medium text-foreground border-b-2 border-gray-100/10 pb-1">
             Today's Tasks
           </h3>
-          <button className="text-xs md:text-sm hover:text-foreground transition-colors">
+          <button onClick={() => navigate('/activities')} className="underline text-xs md:text-sm hover:text-foreground transition-colors">
             View all
           </button>
         </div>

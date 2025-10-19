@@ -156,7 +156,7 @@ const TranscriptView = () => {
                 <SignInButton />
               </SignedOut>
               <SignedIn>
-                <UserButton />
+                
               </SignedIn>
             </div>
           </div>
@@ -183,7 +183,6 @@ const TranscriptView = () => {
                 <SignInButton />
               </SignedOut>
               <SignedIn>
-                <UserButton />
               </SignedIn>
             </div>
           </div>
@@ -240,7 +239,7 @@ const TranscriptView = () => {
                         }`}>
                           {msg.speaker}
                         </span>
-                        <span className="text-white/30 text-xs">#{idx + 1}</span>
+                        
                       </div>
                       <p className="text-white/60 text-xl leading-relaxed">
                         {msg.text}

@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
-import { Phone, Calendar as CalendarIcon, MessageSquare, User } from "lucide-react";
+import { Phone, Calendar as CalendarIcon, MessageSquare, User, Clock } from "lucide-react";
 import { createAPIService, Reminder } from "@/services/api";
 import { useDataRefresh } from "@/contexts/DataRefreshContext";
 import { useAuth } from "@clerk/clerk-react";
+import { useNavigate } from "react-router";
 
 const RemindersList = () => {
   const [reminders, setReminders] = useState<Reminder[]>([]);
@@ -12,6 +13,9 @@ const RemindersList = () => {
   const { getToken } = useAuth();
 
   const apiService = createAPIService(getToken);
+
+  //configure navigate
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchReminders();
@@ -30,7 +34,7 @@ const RemindersList = () => {
            item.category === 'personal')
       );
       
-      setReminders(reminderItems.slice(0, 5));
+      setReminders(reminderItems.slice(0, 3));
       setError(null);
     } catch (err) {
       setError('Failed to load reminders');
@@ -41,27 +45,49 @@ const RemindersList = () => {
   };
 
   const getIcon = (category: string) => {
-    switch (category) {
-      case 'call':
-        return Phone;
-      case 'meeting':
-        return CalendarIcon;
-      case 'personal':
-        return User;
-      default:
-        return MessageSquare;
-    }
-  };
+  switch (category) {
+    case 'call':
+      return Phone;
+    case 'meeting':
+      return CalendarIcon;
+    case 'event':
+      return Clock;
+    case 'personal':
+      return User;
+    default:
+      return MessageSquare;
+  }
+};
 
-  const getIconColor = (category: string) => {
-    if (category === 'call') return 'bg-green-500';
-    return 'bg-violet-500';
-  };
+const getIconColor = (category: string) => {
+  switch (category) {
+    case 'call':
+      return 'bg-green-500';
+    case 'meeting':
+      return 'bg-violet-500';
+    case 'event':
+      return 'bg-blue-500';
+    case 'personal':
+      return 'bg-orange-500';
+    default:
+      return 'bg-gray-500';
+  }
+};
 
-  const getCardStyle = (category: string) => {
-    if (category === 'call') return 'border-green-500/50';
-    return 'border-violet-500/50';
-  };
+const getCardStyle = (category: string) => {
+  switch (category) {
+    case 'call':
+      return 'border-green-500/50';
+    case 'meeting':
+      return 'border-violet-500/50';
+    case 'event':
+      return 'border-blue-500/50';
+    case 'personal':
+      return 'border-orange-500/50';
+    default:
+      return 'border-gray-500/50';
+  }
+};
 
   const formatReminderSource = (from: string | null): string => {
     if (!from) return 'Unknown';
@@ -105,7 +131,7 @@ const RemindersList = () => {
           <h3 className="text-lg md:text-xl font-medium text-foreground border-b-2 border-gray-100/10 pb-1">
             Upcoming Reminders
           </h3>
-          <button className="text-xs md:text-sm hover:text-foreground transition-colors">
+          <button onClick={() => navigate('/activities')} className="underline text-xs md:text-sm hover:text-foreground transition-colors">
             View all
           </button>
         </div>

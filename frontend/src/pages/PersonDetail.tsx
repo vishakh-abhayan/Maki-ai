@@ -116,7 +116,7 @@ const PersonDetail = () => {
                 <SignInButton />
               </SignedOut>
               <SignedIn>
-                <UserButton />
+                
               </SignedIn>
             </div>
           </div>
