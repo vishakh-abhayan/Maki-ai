@@ -27,7 +27,6 @@ const PersonalIntelligence = () => {
   const { toast } = useToast();
 
   const [searchQuery, setSearchQuery] = useState("");
-  const [loading, setLoading] = useState(true);
   const [dashboardData, setDashboardData] =
     useState<IntelligenceDashboard | null>(null);
 
@@ -106,21 +105,6 @@ const PersonalIntelligence = () => {
     return configs[priority];
   };
 
-  if (loading) {
-    return (
-      <div className="min-h-screen flex lg:pl-[170px] pb-16 lg:pb-0">
-        <Sidebar />
-        <main className="flex-1 p-4 md:p-6 lg:p-8 w-full">
-          <div className="flex items-center justify-center h-[60vh]">
-            <p className="text-muted-foreground">
-              Loading intelligence dashboard...
-            </p>
-          </div>
-        </main>
-      </div>
-    );
-  }
-
   const pendingFollowUps = dashboardData?.pendingFollowUps || [];
   const suggestedFollowUps = dashboardData?.suggestedFollowUps || [];
   const latestInteractions = dashboardData?.latestInteractions || [];
@@ -130,7 +114,7 @@ const PersonalIntelligence = () => {
       <Sidebar />
 
       <main className="flex-1 p-4 md:p-6 lg:p-8 w-full overflow-hidden">
-        <Header logoImage="/icon.png" showDivider={true} />
+        <Header logoImage="favicon.ico" showDivider={true} />
 
         {/* Page Title - Separate */}
         <div className="mb-6 lg:mb-12 mt-4 lg:mt-16">

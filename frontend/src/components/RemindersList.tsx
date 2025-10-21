@@ -1,9 +1,15 @@
 import { useEffect, useState } from "react";
-import { Phone, Calendar as CalendarIcon, MessageSquare, User, Clock } from "lucide-react";
+import {
+  Phone,
+  Calendar as CalendarIcon,
+  MessageSquare,
+  User,
+  Clock,
+} from "lucide-react";
 import { createAPIService, Reminder } from "@/services/api";
 import { useDataRefresh } from "@/contexts/DataRefreshContext";
 import { useAuth } from "@clerk/clerk-react";
-import { isToday, parseISO, isPast, isFuture } from "date-fns"; 
+import { isToday, parseISO, isPast, isFuture } from "date-fns";
 import { useNavigate } from "react-router";
 
 const RemindersList = () => {
@@ -22,98 +28,98 @@ const RemindersList = () => {
     fetchReminders();
   }, [refreshTrigger]);
 
- const fetchReminders = async () => {
-  try {
-    setLoading(true);
-    const data = await apiService.getReminders();
-    
-    // ✅ Filter for UPCOMING reminders (today + future, not completed)
-    const upcomingReminders = data.filter((item) => {
-      if (item.completed) return false;
-      
-      // If no due date, show it anyway
-      if (!item.dueDate) return true;
-      
-      try {
-        const reminderDate = parseISO(item.dueDate);
-        // ✅ Show reminders for TODAY or FUTURE
-        return isToday(reminderDate) || isFuture(reminderDate);
-      } catch {
-        return true; // Include if date parsing fails
-      }
-    });
-    
-    // Sort by date (earliest first)
-    const sorted = upcomingReminders.sort((a, b) => {
-      if (!a.dueDate) return 1;
-      if (!b.dueDate) return -1;
-      return new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime();
-    });
-    
-    // Limit to 3 reminders
-    setReminders(sorted.slice(0, 3));
-    setError(null);
-  } catch (err) {
-    setError('Failed to load reminders');
-    console.error(err);
-  } finally {
-    setLoading(false);
-  }
-};
+  const fetchReminders = async () => {
+    try {
+      setLoading(true);
+      const data = await apiService.getReminders();
+
+      // ✅ Filter for UPCOMING reminders (today + future, not completed)
+      const upcomingReminders = data.filter((item) => {
+        if (item.completed) return false;
+
+        // If no due date, show it anyway
+        if (!item.dueDate) return true;
+
+        try {
+          const reminderDate = parseISO(item.dueDate);
+          // ✅ Show reminders for TODAY or FUTURE
+          return isToday(reminderDate) || isFuture(reminderDate);
+        } catch {
+          return true; // Include if date parsing fails
+        }
+      });
+
+      // Sort by date (earliest first)
+      const sorted = upcomingReminders.sort((a, b) => {
+        if (!a.dueDate) return 1;
+        if (!b.dueDate) return -1;
+        return new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime();
+      });
+
+      // Limit to 3 reminders
+      setReminders(sorted.slice(0, 3));
+      setError(null);
+    } catch (err) {
+      setError("Failed to load reminders");
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const getIcon = (category: string) => {
-  switch (category) {
-    case 'call':
-      return Phone;
-    case 'meeting':
-      return CalendarIcon;
-    case 'event':
-      return Clock;
-    case 'personal':
-      return User;
-    default:
-      return MessageSquare;
-  }
-};
+    switch (category) {
+      case "call":
+        return Phone;
+      case "meeting":
+        return CalendarIcon;
+      case "event":
+        return Clock;
+      case "personal":
+        return User;
+      default:
+        return MessageSquare;
+    }
+  };
 
-const getIconColor = (category: string) => {
-  switch (category) {
-    case 'call':
-      return 'bg-green-500';
-    case 'meeting':
-      return 'bg-violet-500';
-    case 'event':
-      return 'bg-blue-500';
-    case 'personal':
-      return 'bg-orange-500';
-    default:
-      return 'bg-gray-500';
-  }
-};
+  const getIconColor = (category: string) => {
+    switch (category) {
+      case "call":
+        return "bg-green-500";
+      case "meeting":
+        return "bg-violet-500";
+      case "event":
+        return "bg-blue-500";
+      case "personal":
+        return "bg-orange-500";
+      default:
+        return "bg-gray-500";
+    }
+  };
 
-const getCardStyle = (category: string) => {
-  switch (category) {
-    case 'call':
-      return 'border-green-500/50';
-    case 'meeting':
-      return 'border-violet-500/50';
-    case 'event':
-      return 'border-blue-500/50';
-    case 'personal':
-      return 'border-orange-500/50';
-    default:
-      return 'border-gray-500/50';
-  }
-};
+  const getCardStyle = (category: string) => {
+    switch (category) {
+      case "call":
+        return "border-green-500/50";
+      case "meeting":
+        return "border-violet-500/50";
+      case "event":
+        return "border-blue-500/50";
+      case "personal":
+        return "border-orange-500/50";
+      default:
+        return "border-gray-500/50";
+    }
+  };
 
   const formatReminderSource = (from: string | null): string => {
-    if (!from) return 'Unknown';
-    
-    if (from.toUpperCase().startsWith('SPEAKER')) {
-      const speakerNumber = from.split(' ')[1];
+    if (!from) return "Unknown";
+
+    if (from.toUpperCase().startsWith("SPEAKER")) {
+      const speakerNumber = from.split(" ")[1];
       return `Speaker ${speakerNumber}`;
     }
-    
+
     return from;
   };
 
@@ -122,7 +128,9 @@ const getCardStyle = (category: string) => {
       <div className="glass-container p-2 md:mb-14">
         <div className="glass-card p-4 md:p-6">
           <div className="flex items-center justify-center py-8">
-            <p className="text-sm text-muted-foreground">Loading reminders...</p>
+            <p className="text-sm text-muted-foreground">
+              Loading reminders...
+            </p>
           </div>
         </div>
       </div>
@@ -148,14 +156,19 @@ const getCardStyle = (category: string) => {
           <h3 className="text-lg md:text-xl font-medium text-foreground border-b-2 border-gray-100/10 pb-1">
             Upcoming Reminders
           </h3>
-          <button onClick={() => navigate('/activities')} className="underline text-xs md:text-sm hover:text-foreground transition-colors">
+          <button
+            onClick={() => navigate("/activities")}
+            className="text-xs md:text-sm hover:text-foreground transition-colors"
+          >
             View all
           </button>
         </div>
 
         {reminders.length === 0 ? (
           <div className="text-center py-8">
-            <p className="text-sm text-muted-foreground">No upcoming reminders</p>
+            <p className="text-sm text-muted-foreground">
+              No upcoming reminders
+            </p>
           </div>
         ) : (
           <div className="space-y-3 md:space-y-4">
@@ -182,7 +195,7 @@ const getCardStyle = (category: string) => {
                         From: {formatReminderSource(reminder.from)}
                       </p>
                       <p className="text-[10px] md:text-xs text-muted-foreground">
-                        Due: {reminder.dueDateText || 'No due date'}
+                        Due: {reminder.dueDateText || "No due date"}
                       </p>
                     </div>
                   </div>

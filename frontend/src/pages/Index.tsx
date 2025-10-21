@@ -1,4 +1,3 @@
-// frontend/src/pages/Index.tsx
 import { Download, Settings } from "lucide-react";
 import Sidebar from "@/components/Sidebar";
 import VoiceAssistant from "@/components/VoiceAssistant";
@@ -18,7 +17,7 @@ const Index = () => {
 
       <main className="flex-1 p-4 md:p-6 lg:p-8 w-full">
         {/* Mobile Header */}
-        <Header logoImage="/icon.png" />
+        <Header logoImage="favicon.ico" />
 
         <div className="mt-6 lg:mt-20 lg:mb-12">
           <p className="text-2xl lg:text-4xl font-medium text-foreground ml-5 lg:ml-0">
@@ -42,13 +41,13 @@ const Index = () => {
           {/* Left Column - Voice Assistant and Tasks */}
           <div className="space-y-4 md:space-y-6 lg:space-y-8">
             <VoiceAssistant />
-            <RemindersList />
+            <TasksList />
           </div>
 
           {/* Right Column - Calendar and Reminders */}
           <div className="space-y-4 md:space-y-6 lg:space-y-8">
             <Calendar />
-            <TasksList />
+            <RemindersList />
           </div>
         </div>
         <div className="h-10 lg:hidden"></div>
