@@ -1,11 +1,4 @@
 import { useState, useEffect } from "react";
-import { Download, Settings } from "lucide-react";
-import {
-  SignedIn,
-  SignedOut,
-  SignInButton,
-  UserButton,
-} from "@clerk/clerk-react";
 
 interface HeaderProps {
   logoImage?: string;
@@ -39,7 +32,7 @@ const Header = ({ logoImage, showDivider = true }: HeaderProps) => {
       {/* Mobile Logo - FIXED */}
       <div className="lg:hidden fixed top-0 left-4 h-14 z-50 flex items-center">
         {logoImage ? (
-          <img src={logoImage} alt="maki.ai" className="h-11 w-auto" />
+          <img src={logoImage} alt="maki.ai" className="h-10 w-auto" />
         ) : (
           <h1
             className="text-lg font-semibold text-foreground tracking-wide"
@@ -51,14 +44,6 @@ const Header = ({ logoImage, showDivider = true }: HeaderProps) => {
       </div>
 
       {/* Mobile Buttons - FIXED */}
-      <div className="lg:hidden fixed right-4 top-3.5 z-50 flex items-center gap-2">
-        <button className="w-8 h-8 rounded-lg bg-card/60 backdrop-blur-xl border border-card-border flex items-center justify-center hover:bg-card/80 transition-colors active:scale-95 shadow-lg">
-          <Download className="w-4 h-4 text-foreground" />
-        </button>
-        <button className="w-8 h-8 rounded-lg bg-card/60 backdrop-blur-xl border border-card-border flex items-center justify-center hover:bg-card/80 transition-colors active:scale-95 shadow-lg">
-          <Settings className="w-4 h-4 text-foreground" />
-        </button>
-      </div>
 
       {/* Spacer for mobile */}
       <div className="lg:hidden h-14"></div>
@@ -68,7 +53,7 @@ const Header = ({ logoImage, showDivider = true }: HeaderProps) => {
         {/* Desktop Logo */}
         <div className="fixed top-0 left-8 h-20 z-50 flex items-center">
           {logoImage ? (
-            <img src={logoImage} alt="maki.ai" className="h-16 w-auto" />
+            <img src={logoImage} alt="maki.ai" className="h-14 w-auto" />
           ) : (
             <h1
               className="text-xl font-semibold text-foreground tracking-wide"
@@ -77,18 +62,6 @@ const Header = ({ logoImage, showDivider = true }: HeaderProps) => {
               maki.ai
             </h1>
           )}
-        </div>
-
-        {/* Desktop Buttons */}
-        <div className="fixed right-8 top-6 z-50">
-          <div className="flex items-center gap-3">
-            <button className="w-9 h-9 rounded-full bg-card/60 backdrop-blur-xl border border-card-border flex items-center justify-center hover:bg-card/80 transition-all active:scale-95 shadow-lg">
-              <Download className="w-[18px] h-[18px] text-foreground" />
-            </button>
-            <button className="w-9 h-9 rounded-full bg-card/60 backdrop-blur-xl border border-card-border flex items-center justify-center hover:bg-card/80 transition-all active:scale-95 shadow-lg">
-              <Settings className="w-[18px] h-[18px] text-foreground" />
-            </button>
-          </div>
         </div>
       </div>
     </>

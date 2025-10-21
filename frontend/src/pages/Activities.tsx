@@ -103,7 +103,7 @@ const Activities = () => {
 
       <main className="flex-1 p-4 md:p-6 lg:p-8 w-full">
         {/* Header Component */}
-        <Header logoImage="icon.png" showDivider={true} />
+        <Header logoImage="favicon.ico" showDivider={true} />
 
         {/* Page Title - Separate */}
         <div className="mb-6 lg:mb-12 mt-4 lg:mt-16">

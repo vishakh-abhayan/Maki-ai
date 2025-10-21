@@ -7,7 +7,7 @@ import { SignedIn, SignedOut } from "@clerk/clerk-react";
 import Index from "./pages/Index";
 import Activities from "./pages/Activities";
 import History from "./pages/History";
-import AuthPage from "./pages/Auth"; 
+import AuthPage from "./pages/Auth";
 import NotFound from "./pages/NotFound";
 import AnimatedBackground from "./components/AnimatedBackground";
 import { DataRefreshProvider } from "./contexts/DataRefreshContext";
@@ -15,7 +15,6 @@ import PersonalIntelligence from "./pages/PersonalIntelligence";
 import PersonDetail from "./pages/PersonDetail";
 import HistoryViewDetails from "./pages/HistoryViewDetails";
 import TranscriptView from "./pages/TranscriptView";
-
 
 const queryClient = new QueryClient();
 
@@ -30,7 +29,7 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   );
 };
 
-const App = () => (  
+const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <DataRefreshProvider>
@@ -41,69 +40,70 @@ const App = () => (
           <Route path="/auth" element={<AuthPage />} />
           <Route path="/sign-in" element={<Navigate to="/auth" replace />} />
           <Route path="/sign-up" element={<Navigate to="/auth" replace />} />
-          
-          <Route 
-            path="/" 
+
+          <Route
+            path="/"
             element={
               <ProtectedRoute>
                 <Index />
               </ProtectedRoute>
-            } 
+            }
           />
 
-          <Route 
-            path="/activities" 
+          <Route
+            path="/activities"
             element={
               <ProtectedRoute>
                 <Activities />
               </ProtectedRoute>
-            } 
+            }
           />
-          <Route 
-            path="/personal-intelligence" 
+
+          <Route
+            path="/personal-intelligence"
             element={
               <ProtectedRoute>
                 <PersonalIntelligence />
               </ProtectedRoute>
-            } 
+            }
           />
 
-          <Route 
-            path="/person/:personId" 
+          <Route
+            path="/person/:personId"
             element={
               <ProtectedRoute>
                 <PersonDetail />
               </ProtectedRoute>
-            } 
-            />
+            }
+          />
 
-          <Route 
-            path="/history" 
+          <Route
+            path="/history"
             element={
               <ProtectedRoute>
                 <History />
               </ProtectedRoute>
-            } 
+            }
           />
 
-          <Route 
-            path="/history/:id" 
+          <Route
+            path="/history/:id"
             element={
               <ProtectedRoute>
                 <HistoryViewDetails />
               </ProtectedRoute>
-            } 
+            }
           />
 
-          <Route 
-            path="/history/:id/transcript" 
+          <Route
+            path="/history/:id/transcript"
             element={
               <ProtectedRoute>
                 <TranscriptView />
               </ProtectedRoute>
-            } 
+            }
           />
-          
+
           <Route path="*" element={<NotFound />} />
         </Routes>
       </DataRefreshProvider>
