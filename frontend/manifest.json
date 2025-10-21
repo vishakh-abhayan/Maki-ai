@@ -1,0 +1,48 @@
+{
+  "name": "Maki.ai",
+  "short_name": "Maki.ai",
+  "start_url": "/",
+  "display": "standalone",
+  "description": "Your personal AI that listens, understands and acts",
+  "lang": "en-US",
+  "dir": "auto",
+  "theme_color": "#0c284a",
+  "background_color": "#0c284a",
+  "orientation": "any",
+  "icons": [
+    {
+      "src": "https://heymaki.ai/512x512-icon.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "https://heymaki.ai/192x192-icon.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "https://heymaki.ai/screenshot.jpeg",
+      "sizes": "2880x1800",
+      "type": "image/png",
+      "description": "A screenshot of the home page"
+    }
+  ],
+  "related_applications": [
+    {
+      "platform": "windows",
+      "url": "https://heymaki.ai"
+    }
+  ],
+  "prefer_related_applications": false,
+  "shortcuts": [
+    {
+      "name": "Maki.ai",
+      "url": "/",
+      "description": "Your personal AI that listens, understands and acts"
+    }
+  ]
+}
