@@ -1,25 +1,11 @@
+
 import { useState, useEffect } from "react";
-import {
-  Download,
-  Settings,
-  Mic,
-  Users,
-  MessageCircle,
-  Trash2,
-  SlidersHorizontal,
-} from "lucide-react";
-import {
-  SignedIn,
-  SignedOut,
-  SignInButton,
-  UserButton,
-  useUser,
-} from "@clerk/clerk-react";
+import { Download, Settings, Mic, Users, MessageCircle, Trash2, SlidersHorizontal } from "lucide-react";
+import { SignedIn, SignedOut, SignInButton, UserButton, useUser } from '@clerk/clerk-react';
 import Sidebar from "@/components/Sidebar";
 import { useAuth } from "@clerk/clerk-react";
 import { useNavigate } from "react-router-dom";
 import { useDataRefresh } from "@/contexts/DataRefreshContext";
-import Header from "../components/Header";
 
 interface ConversationHistory {
   _id: string;
@@ -44,12 +30,10 @@ const History = () => {
   const { getToken } = useAuth();
   const navigate = useNavigate();
   const { refreshTrigger } = useDataRefresh();
-
+  
   const [searchQuery, setSearchQuery] = useState("");
   const [conversations, setConversations] = useState<ConversationHistory[]>([]);
-  const [filteredConversations, setFilteredConversations] = useState<
-    ConversationHistory[]
-  >([]);
+  const [filteredConversations, setFilteredConversations] = useState<ConversationHistory[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -61,18 +45,11 @@ const History = () => {
     if (searchQuery.trim() === "") {
       setFilteredConversations(conversations);
     } else {
-      const filtered = conversations.filter(
-        (conv) =>
-          conv.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          conv.participants.some((p) =>
-            p.name.toLowerCase().includes(searchQuery.toLowerCase())
-          ) ||
-          conv.summary.short
-            .toLowerCase()
-            .includes(searchQuery.toLowerCase()) ||
-          conv.summary.extended
-            .toLowerCase()
-            .includes(searchQuery.toLowerCase())
+      const filtered = conversations.filter(conv =>
+        conv.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        conv.participants.some(p => p.name.toLowerCase().includes(searchQuery.toLowerCase())) ||
+        conv.summary.short.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        conv.summary.extended.toLowerCase().includes(searchQuery.toLowerCase())
       );
       setFilteredConversations(filtered);
     }
@@ -83,7 +60,7 @@ const History = () => {
       setLoading(true);
       setError(null);
       const token = await getToken();
-
+      
       const response = await fetch(
         `${import.meta.env.VITE_API_URL}/conversations`,
         {
@@ -102,9 +79,7 @@ const History = () => {
       setFilteredConversations(data.conversations || []);
     } catch (err) {
       console.error("Error fetching conversations:", err);
-      setError(
-        err instanceof Error ? err.message : "Failed to load conversations"
-      );
+      setError(err instanceof Error ? err.message : "Failed to load conversations");
       setConversations([]);
       setFilteredConversations([]);
     } finally {
@@ -116,12 +91,9 @@ const History = () => {
     navigate(`/history/${conversationId}`);
   };
 
-  const handleDeleteConversation = async (
-    conversationId: string,
-    e: React.MouseEvent
-  ) => {
+  const handleDeleteConversation = async (conversationId: string, e: React.MouseEvent) => {
     e.stopPropagation(); // Prevent navigation when clicking delete
-
+    
     if (!window.confirm("Are you sure you want to delete this conversation?")) {
       return;
     }
@@ -143,22 +115,18 @@ const History = () => {
       }
 
       // Remove from local state
-      setConversations((prev) => prev.filter((c) => c._id !== conversationId));
-      setFilteredConversations((prev) =>
-        prev.filter((c) => c._id !== conversationId)
-      );
+      setConversations(prev => prev.filter(c => c._id !== conversationId));
+      setFilteredConversations(prev => prev.filter(c => c._id !== conversationId));
     } catch (err) {
       console.error("Error deleting conversation:", err);
       alert("Failed to delete conversation");
     }
   };
 
-  const getParticipantNames = (
-    participants: Array<{ name: string; isUser: boolean }>
-  ) => {
+  const getParticipantNames = (participants: Array<{ name: string; isUser: boolean }>) => {
     return participants
-      .filter((p) => !p.isUser)
-      .map((p) => p.name)
+      .filter(p => !p.isUser)
+      .map(p => p.name)
       .join(", ");
   };
 
@@ -170,23 +138,11 @@ const History = () => {
     const diffInDays = diffInMs / (1000 * 60 * 60 * 24);
 
     if (diffInHours < 24) {
-      return `Today, ${date.toLocaleTimeString("en-US", {
-        hour: "numeric",
-        minute: "2-digit",
-        hour12: true,
-      })}`;
+      return `Today, ${date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })}`;
     } else if (diffInDays < 2) {
-      return `Yesterday, ${date.toLocaleTimeString("en-US", {
-        hour: "numeric",
-        minute: "2-digit",
-        hour12: true,
-      })}`;
+      return `Yesterday, ${date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })}`;
     } else {
-      return date.toLocaleDateString("en-US", {
-        month: "short",
-        day: "numeric",
-        year: "numeric",
-      });
+      return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
     }
   };
 
@@ -202,36 +158,83 @@ const History = () => {
   return (
     <div className="min-h-screen flex lg:pl-[170px] pb-16 lg:pb-0">
       <Sidebar />
-
+      
       <main className="flex-1 p-4 md:p-6 lg:p-8 w-full max-w-[1400px] mx-auto">
-        <Header logoImage="/icon.png" showDivider={true} />
+        {/* Mobile Header */}
+        <div className="lg:hidden mb-6">
+          <div className="mb-4">
+            <h1 className="text-xl font-semibold text-foreground tracking-wide" 
+                style={{ fontFamily: "'Courier New', 'Courier', monospace" }}>
+              maki.ai
+            </h1>
+          </div>
+          
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <div className="ml-5">
+                <h2 className="text-2xl font-light text-foreground">History</h2>
+                <p className="text-sm text-muted-foreground mt-0.5 opacity-60">Your past conversations</p>
+              </div>
+            </div>
+            <div className="flex gap-2 absolute right-4 top-4">
+              <button className="w-7 h-7 p-2 rounded-lg bg-card/40 backdrop-blur-xl border border-card-border flex items-center justify-center">
+                <Download className="w-4 h-4 text-foreground" />
+              </button>
+              <button className="w-7 h-7 p-2 rounded-lg bg-card/40 backdrop-blur-xl border border-card-border flex items-center justify-center">
+                <Settings className="w-4 h-4 text-foreground" />
+              </button>
+              <SignedOut>
+                <SignInButton />
+              </SignedOut>
+              <SignedIn>
+               
+              </SignedIn>
+            </div>
+          </div>
+        </div>
 
-        {/* Page Title - Separate */}
-        <div className="mb-6 lg:mb-12 mt-4 lg:mt-16">
-          <h2 className="text-2xl lg:text-4xl font-semibold text-foreground ml-5 lg:ml-0">
-            History
-          </h2>
-          <p className="text-sm lg:text-base text-muted-foreground mt-0.5 lg:mt-1 opacity-60 ml-5 lg:ml-0">
-            Your past conversations
-          </p>
+        {/* Desktop Header */}
+        <div className="hidden lg:block mb-12">
+          <div className="mb-6 absolute top-6 left-8">
+            <h1 className="text-xl font-semibold text-foreground fixed tracking-wide" 
+                style={{ fontFamily: "'Courier New', 'Courier', monospace" }}>
+              maki.ai
+            </h1>
+          </div>
+          
+          <div className="absolute right-36 top-6 z-10">
+            <div className="fixed flex gap-3">
+              <button className="w-8 h-8 p-2 rounded-full bg-card/40 backdrop-blur-xl border border-card-border flex items-center justify-center hover:bg-card/60 transition-all">
+                <Download className="w-5 h-5 text-foreground" />
+              </button>
+              <button className="w-8 h-8 p-2 rounded-full bg-card/40 backdrop-blur-xl border border-card-border flex items-center justify-center hover:bg-card/60 transition-all">
+                <Settings className="w-5 h-5 text-foreground" />
+              </button>
+              <SignedOut>
+                <SignInButton />
+              </SignedOut>
+              <SignedIn>
+                
+              </SignedIn>
+            </div>
+          </div>
+          
+          <div className="flex items-start justify-between pt-16">
+            <div className="flex items-center gap-6">
+              <div>
+                <h2 className="text-4xl font-semibold text-foreground">History</h2>
+                <p className="text-base text-muted-foreground mt-1 opacity-60">Your past conversations</p>
+              </div>
+            </div>
+          </div>
         </div>
 
         {/* Search Bar */}
         <div className="mb-8">
           <div className="glass-container p-1">
             <div className="glass-card px-6 py-4 rounded-full flex items-center gap-4">
-              <svg
-                className="w-6 h-6 text-muted-foreground opacity-60"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                />
+              <svg className="w-6 h-6 text-muted-foreground opacity-60" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
               </svg>
               <input
                 type="text"
@@ -253,33 +256,17 @@ const History = () => {
             {loading ? (
               <div className="flex flex-col items-center justify-center py-20">
                 <div className="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mb-4"></div>
-                <p className="text-lg text-muted-foreground">
-                  Loading conversations...
-                </p>
+                <p className="text-lg text-muted-foreground">Loading conversations...</p>
               </div>
             ) : error ? (
               <div className="flex flex-col items-center justify-center py-20">
                 <div className="w-20 h-20 rounded-full bg-red-500/10 flex items-center justify-center mb-4">
-                  <svg
-                    className="w-10 h-10 text-red-500"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                    />
+                  <svg className="w-10 h-10 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
                 </div>
-                <p className="text-lg text-red-400 mb-2">
-                  Failed to load conversations
-                </p>
-                <p className="text-sm text-muted-foreground opacity-60 mb-4">
-                  {error}
-                </p>
+                <p className="text-lg text-red-400 mb-2">Failed to load conversations</p>
+                <p className="text-sm text-muted-foreground opacity-60 mb-4">{error}</p>
                 <button
                   onClick={fetchConversations}
                   className="px-6 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg text-white transition-colors"
@@ -290,40 +277,24 @@ const History = () => {
             ) : filteredConversations.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-20">
                 <div className="w-20 h-20 rounded-full bg-card/50 flex items-center justify-center mb-4">
-                  <svg
-                    className="w-10 h-10 text-muted-foreground opacity-50"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                    />
+                  <svg className="w-10 h-10 text-muted-foreground opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                   </svg>
                 </div>
                 <p className="text-lg text-muted-foreground">
-                  {searchQuery
-                    ? "No conversations found"
-                    : "No conversations yet"}
+                  {searchQuery ? "No conversations found" : "No conversations yet"}
                 </p>
                 <p className="text-sm text-muted-foreground opacity-60 mt-2">
-                  {searchQuery
-                    ? "Try adjusting your search query"
-                    : "Start a conversation to see your history"}
+                  {searchQuery ? "Try adjusting your search query" : "Start a conversation to see your history"}
                 </p>
               </div>
             ) : (
               <div className="space-y-6">
                 {filteredConversations.map((conversation) => {
                   const convDate = new Date(conversation.conversationDate);
-                  const month = convDate
-                    .toLocaleString("en-US", { month: "short" })
-                    .toUpperCase();
+                  const month = convDate.toLocaleString('en-US', { month: 'short' }).toUpperCase();
                   const day = convDate.getDate();
-
+                  
                   return (
                     <div
                       key={conversation._id}
@@ -334,9 +305,7 @@ const History = () => {
                         {/* Calendar Icon */}
                         <div className="w-12 h-12 rounded-lg bg-[#e74c3c] flex flex-col items-center justify-center text-white flex-shrink-0">
                           <span className="text-xs font-medium">{month}</span>
-                          <span className="text-lg font-bold leading-none">
-                            {day}
-                          </span>
+                          <span className="text-lg font-bold leading-none">{day}</span>
                         </div>
 
                         {/* Content Section */}
@@ -347,11 +316,10 @@ const History = () => {
                                 {conversation.title}
                               </h3>
                               <p className="text-base text-muted-foreground/80">
-                                With{" "}
-                                {getParticipantNames(conversation.participants)}
+                                With {getParticipantNames(conversation.participants)}
                               </p>
                             </div>
-
+                            
                             <div className="flex flex-col items-end gap-1 flex-shrink-0">
                               <p className="text-sm text-muted-foreground/60 whitespace-nowrap">
                                 {formatDate(conversation.conversationDate)}
@@ -363,28 +331,23 @@ const History = () => {
                           </div>
 
                           <p className="text-lg text-muted-foreground mb-4">
-                            {conversation.summary.short ||
-                              conversation.summary.extended}
+                            {conversation.summary.short || conversation.summary.extended}
                           </p>
 
                           {/* Bottom Row with Icons and Button */}
                           <div className="flex items-center justify-between">
                             <div className="flex gap-3">
-                              <button
+                              <button 
                                 onClick={(e) => {
                                   e.stopPropagation();
-                                  navigate(
-                                    `/history/${conversation._id}/transcript`
-                                  );
+                                  navigate(`/history/${conversation._id}/transcript`);
                                 }}
                                 className="p-2 hover:bg-card/50 rounded-lg transition-all"
                               >
                                 <MessageCircle className="w-5 h-5 text-primary" />
                               </button>
-                              <button
-                                onClick={(e) =>
-                                  handleDeleteConversation(conversation._id, e)
-                                }
+                              <button 
+                                onClick={(e) => handleDeleteConversation(conversation._id, e)}
                                 className="p-2 hover:bg-card/50 rounded-lg transition-all"
                               >
                                 <Trash2 className="w-5 h-5 text-primary" />
