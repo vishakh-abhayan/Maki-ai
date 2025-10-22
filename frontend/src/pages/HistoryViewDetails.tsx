@@ -210,7 +210,7 @@ const HistoryViewDetails = () => {
 
             {/* Metadata */}
             <div className="flex items-center gap-6 mt-8 pt-8 border-t border-white/5">
-              <div className="text-sm text-muted-foreground">
+              <div className="text-sm text-white/40">
                 <span className="font-medium">Duration:</span>{" "}
                 {conversation.duration} min
               </div>

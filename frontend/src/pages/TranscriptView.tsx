@@ -35,13 +35,13 @@ const TranscriptView = () => {
       const conv = await convRes.json();
       setConversationTitle(conv.title);
 
-      // Convert transcriptId to string to avoid [object Object]
+      // FIX: Convert transcriptId to string to avoid [object Object]
       const transcriptId =
         typeof conv.transcriptId === "object"
           ? conv.transcriptId._id || conv.transcriptId.toString()
           : conv.transcriptId;
 
-      console.log("Fetching transcript with ID:", transcriptId);
+      console.log("Fetching transcript with ID:", transcriptId); // Debug log
 
       // Fetch transcript
       const transRes = await fetch(
@@ -54,7 +54,7 @@ const TranscriptView = () => {
       }
 
       const transcriptData = await transRes.json();
-      console.log("Transcript data:", transcriptData);
+      console.log("Transcript data:", transcriptData); // Debug log
 
       // Parse transcript
       const parsed = parseTranscript(
@@ -84,6 +84,7 @@ const TranscriptView = () => {
     for (const segment of segments) {
       if (!segment.trim()) continue;
 
+      // Match pattern: [timestamp] SPEAKER N:\ntext
       const match = segment.match(
         /\[[\d:\ \-]+\]\s*(SPEAKER\s+\d+):\s*\n?([\s\S]*)/
       );
@@ -92,8 +93,9 @@ const TranscriptView = () => {
         const speakerLabel = match[1].trim();
         const text = match[2].trim();
 
-        if (!text || text === ".") continue;
+        if (!text || text === ".") continue; // Skip empty messages
 
+        // Find participant by speaker label
         const participant = participants.find(
           (p) => p.speakerLabel === speakerLabel
         );
@@ -106,7 +108,7 @@ const TranscriptView = () => {
       }
     }
 
-    console.log("Parsed messages:", messages);
+    console.log("Parsed messages:", messages); // Debug log
     return messages;
   };
 
@@ -117,9 +119,7 @@ const TranscriptView = () => {
         <main className="flex-1 p-4 md:p-6 lg:p-8 w-full">
           <Header logoImage="/favicon.ico" showDivider={true} />
           <div className="flex items-center justify-center h-[600px]">
-            <p className="text-muted-foreground text-xl">
-              Loading transcript...
-            </p>
+            <p className="text-white text-xl">Loading transcript...</p>
           </div>
         </main>
       </div>
@@ -161,9 +161,7 @@ const TranscriptView = () => {
               <h3 className="text-3xl font-extralight text-foreground tracking-wide mb-2">
                 Transcript
               </h3>
-              <p className="text-muted-foreground text-sm">
-                {conversationTitle}
-              </p>
+              <p className="text-white/50 text-sm">{conversationTitle}</p>
             </div>
 
             <div className="h-px bg-gradient-to-r from-transparent via-white/10 to-transparent mb-8" />
@@ -172,7 +170,7 @@ const TranscriptView = () => {
             <div className="space-y-6 max-h-[650px] overflow-y-auto pr-4">
               {messages.length === 0 ? (
                 <div className="text-center py-12">
-                  <p className="text-muted-foreground text-lg">
+                  <p className="text-white/40 text-lg">
                     No transcript available
                   </p>
                 </div>

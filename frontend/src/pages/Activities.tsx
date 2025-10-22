@@ -82,7 +82,7 @@ const Activities = () => {
       case "meeting":
         return "bg-indigo-500";
       default:
-        return "bg-[#c48600]";
+        return "bg-gray-500";
     }
   };
 
@@ -93,7 +93,7 @@ const Activities = () => {
       case "meeting":
         return "border-indigo-500/30";
       default:
-        return "border-[#c48600]/30";
+        return "border-gray-500/50";
     }
   };
 

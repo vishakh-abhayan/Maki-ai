@@ -105,18 +105,17 @@ const PersonDetail = () => {
       <Sidebar />
 
       <main className="flex-1 p-4 md:p-6 lg:p-8 w-full">
-        {/* Header Component */}
-        <Header logoImage="/favicon.ico" showDivider={true} />
+        {/* Header */}
+        <div className="mb-6">
+          <button
+            onClick={() => navigate("/personal-intelligence")}
+            className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors mb-4"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            <span>Back to Personal Intelligence</span>
+          </button>
 
-        {/* Page Title - Separate with Back Button */}
-        <div className="mb-6 lg:mb-12 mt-4 lg:mt-16">
-          <div className="flex items-center gap-4 ml-5 lg:ml-0">
-            <button
-              onClick={() => navigate("/personal-intelligence")}
-              className="p-2 hover:bg-card/60 rounded-lg transition-all opacity-60 hover:opacity-100"
-            >
-              <ArrowLeft className="w-5 lg:w-6 h-5 lg:h-6 text-foreground" />
-            </button>
+          <div className="flex items-center justify-between">
             <div>
               <h2 className="text-2xl lg:text-4xl font-semibold text-foreground">
                 Personal Intelligence
@@ -173,9 +172,9 @@ const PersonDetail = () => {
 
               {/* About Section */}
               <div className="mb-6">
-                <h4 className="text-xl font-medium text-foreground mb-3 border-b border-border/30 pb-2">
+                <h3 className="text-xl font-medium text-foreground mb-3 border-b border-border/30 pb-2">
                   About {person.name.split(" ")[0]}
-                </h4>
+                </h3>
                 <p className="text-sm text-muted-foreground leading-relaxed">
                   {person.profile.summary}
                 </p>
@@ -248,9 +247,9 @@ const PersonDetail = () => {
         {person.recentConversations &&
           person.recentConversations.length > 0 && (
             <div className="glass-container rounded-3xl p-6 lg:p-8">
-              <h4 className="text-xl font-medium text-foreground mb-5 border-b border-border/30 pb-3">
+              <h3 className="text-xl font-medium text-foreground mb-5 border-b border-border/30 pb-3">
                 Recent Conversations
-              </h4>
+              </h3>
               <div className="space-y-4">
                 {person.recentConversations.map((conv) => (
                   <div
@@ -259,9 +258,9 @@ const PersonDetail = () => {
                     onClick={() => navigate(`/history`)}
                   >
                     <div className="flex items-start justify-between mb-2">
-                      <h5 className="text-base font-semibold text-foreground">
+                      <h4 className="text-base font-semibold text-foreground">
                         {conv.title}
-                      </h5>
+                      </h4>
                       <span className="text-xs text-muted-foreground">
                         {conv.dateFormatted}
                       </span>
@@ -285,8 +284,6 @@ const PersonDetail = () => {
               </div>
             </div>
           )}
-
-        <div className="h-10 lg:hidden"></div>
       </main>
     </div>
   );
