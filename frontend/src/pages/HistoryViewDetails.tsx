@@ -1,8 +1,14 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Download, Settings, ArrowLeft, FileText, Trash2 } from "lucide-react";
-import { SignedIn, SignedOut, SignInButton, UserButton } from '@clerk/clerk-react';
+import {
+  SignedIn,
+  SignedOut,
+  SignInButton,
+  UserButton,
+} from "@clerk/clerk-react";
 import Sidebar from "@/components/Sidebar";
+import Header from "@/components/Header";
 import { useAuth } from "@clerk/clerk-react";
 
 interface ConversationDetails {
@@ -27,7 +33,9 @@ const HistoryViewDetails = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { getToken } = useAuth();
-  const [conversation, setConversation] = useState<ConversationDetails | null>(null);
+  const [conversation, setConversation] = useState<ConversationDetails | null>(
+    null
+  );
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -38,7 +46,7 @@ const HistoryViewDetails = () => {
     try {
       setLoading(true);
       const token = await getToken();
-      
+
       const response = await fetch(
         `${import.meta.env.VITE_API_URL}/conversations/${id}`,
         {
@@ -49,7 +57,7 @@ const HistoryViewDetails = () => {
       );
 
       if (!response.ok) throw new Error("Failed to fetch conversation");
-      
+
       const data = await response.json();
       setConversation(data);
     } catch (err) {
@@ -60,7 +68,8 @@ const HistoryViewDetails = () => {
   };
 
   const handleDelete = async () => {
-    if (!window.confirm("Are you sure you want to delete this conversation?")) return;
+    if (!window.confirm("Are you sure you want to delete this conversation?"))
+      return;
 
     try {
       const token = await getToken();
@@ -82,8 +91,8 @@ const HistoryViewDetails = () => {
   const getParticipantNames = () => {
     if (!conversation) return "";
     return conversation.participants
-      .filter(p => !p.isUser)
-      .map(p => p.name)
+      .filter((p) => !p.isUser)
+      .map((p) => p.name)
       .join(", ");
   };
 
@@ -92,8 +101,9 @@ const HistoryViewDetails = () => {
       <div className="min-h-screen flex lg:pl-[170px] pb-16 lg:pb-0">
         <Sidebar />
         <main className="flex-1 p-4 md:p-6 lg:p-8 w-full">
+          <Header logoImage="/favicon.ico" showDivider={true} />
           <div className="flex items-center justify-center h-[600px]">
-            <p className="text-white text-xl">Loading...</p>
+            <p className="text-muted-foreground text-xl">Loading...</p>
           </div>
         </main>
       </div>
@@ -105,6 +115,7 @@ const HistoryViewDetails = () => {
       <div className="min-h-screen flex lg:pl-[170px] pb-16 lg:pb-0">
         <Sidebar />
         <main className="flex-1 p-4 md:p-6 lg:p-8 w-full">
+          <Header logoImage="/favicon.ico" showDivider={true} />
           <div className="flex items-center justify-center h-[600px]">
             <p className="text-red-400 text-xl">Conversation not found</p>
           </div>
@@ -116,83 +127,27 @@ const HistoryViewDetails = () => {
   return (
     <div className="min-h-screen flex lg:pl-[170px] pb-16 lg:pb-0">
       <Sidebar />
-      
-      <main className="flex-1 p-4 md:p-6 lg:p-8 w-full max-w-[1400px] mx-auto">
-        {/* Mobile Header */}
-        <div className="lg:hidden mb-6">
-          <div className="mb-4">
-            <h1 className="text-xl font-semibold text-foreground tracking-wide" 
-                style={{ fontFamily: "'Courier New', 'Courier', monospace" }}>
-              maki.ai
-            </h1>
-          </div>
-          
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <button
-                onClick={() => navigate("/history")}
-                className="p-2 hover:bg-card/60 rounded-lg transition-all"
-              >
-                <ArrowLeft className="w-5 h-5 text-foreground" />
-              </button>
-              <div>
-                <h2 className="text-2xl font-light text-foreground">History</h2>
-                <p className="text-sm text-muted-foreground mt-0.5 opacity-60">Your past conversations</p>
-              </div>
-            </div>
-            <div className="flex gap-2 absolute right-4 top-4">
-              <button className="w-7 h-7 p-2 rounded-lg bg-card/40 backdrop-blur-xl border border-card-border flex items-center justify-center">
-                <Download className="w-4 h-4 text-foreground" />
-              </button>
-              <button className="w-7 h-7 p-2 rounded-lg bg-card/40 backdrop-blur-xl border border-card-border flex items-center justify-center">
-                <Settings className="w-4 h-4 text-foreground" />
-              </button>
-              <SignedOut>
-                <SignInButton />
-              </SignedOut>
-              <SignedIn>
-                
-              </SignedIn>
-            </div>
-          </div>
-        </div>
 
-        {/* Desktop Header */}
-        <div className="hidden lg:block mb-12">
-          <div className="mb-6 absolute top-6 left-8">
-            <h1 className="text-xl font-semibold text-foreground fixed tracking-wide" 
-                style={{ fontFamily: "'Courier New', 'Courier', monospace" }}>
-              maki.ai
-            </h1>
-          </div>
-          
-          <div className="absolute right-36 top-6 z-10">
-            <div className="fixed flex gap-3">
-              <button className="w-8 h-8 p-2 rounded-full bg-card/40 backdrop-blur-xl border border-card-border flex items-center justify-center hover:bg-card/60 transition-all">
-                <Download className="w-5 h-5 text-foreground" />
-              </button>
-              <button className="w-8 h-8 p-2 rounded-full bg-card/40 backdrop-blur-xl border border-card-border flex items-center justify-center hover:bg-card/60 transition-all">
-                <Settings className="w-5 h-5 text-foreground" />
-              </button>
-              <SignedOut>
-                <SignInButton />
-              </SignedOut>
-              <SignedIn>
-                
-              </SignedIn>
-            </div>
-          </div>
-          
-          <div className="flex items-center gap-4 pt-16">
+      <main className="flex-1 p-4 md:p-6 lg:p-8 w-full max-w-[1400px] mx-auto">
+        {/* Header Component */}
+        <Header logoImage="/favicon.ico" showDivider={true} />
+
+        {/* Page Title - Separate with Back Button */}
+        <div className="mb-6 lg:mb-12 mt-4 lg:mt-16">
+          <div className="flex items-center gap-4 ml-5 lg:ml-0">
             <button
               onClick={() => navigate("/history")}
               className="p-2 hover:bg-card/60 rounded-lg transition-all opacity-60 hover:opacity-100"
             >
-              <ArrowLeft className="w-6 h-6 text-foreground" />
+              <ArrowLeft className="w-5 lg:w-6 h-5 lg:h-6 text-foreground" />
             </button>
             <div>
-              <h2 className="text-4xl font-semibold text-foreground">History</h2>
-              <p className="text-base text-muted-foreground mt-1 opacity-60">Your past conversations</p>
+              <h2 className="text-2xl lg:text-4xl font-semibold text-foreground">
+                History
+              </h2>
+              <p className="text-sm lg:text-base text-muted-foreground mt-0.5 lg:mt-1 opacity-60">
+                Your past conversations
+              </p>
             </div>
           </div>
         </div>
@@ -206,7 +161,7 @@ const HistoryViewDetails = () => {
                 <h3 className="text-3xl font-semibold text-foreground mb-3">
                   {conversation.title}
                 </h3>
-                <p className="text-xl font-medium text-white/70">
+                <p className="text-xl font-medium text-muted-foreground">
                   With {getParticipantNames()}
                 </p>
               </div>
@@ -234,7 +189,7 @@ const HistoryViewDetails = () => {
 
             {/* Summary */}
             <div className="max-w-4xl">
-              <p className="text-2xl font-normal text-white/70 leading-relaxed">
+              <p className="text-2xl font-normal text-muted-foreground leading-relaxed">
                 {conversation.summary.extended}
               </p>
             </div>
@@ -245,7 +200,7 @@ const HistoryViewDetails = () => {
                 {conversation.tags.map((tag, idx) => (
                   <span
                     key={idx}
-                    className="px-4 py-1.5 bg-white/5 border border-white/10 rounded-full text-sm text-white/60"
+                    className="px-4 py-1.5 bg-white/5 border border-white/10 rounded-full text-sm text-muted-foreground"
                   >
                     {tag}
                   </span>
@@ -255,16 +210,19 @@ const HistoryViewDetails = () => {
 
             {/* Metadata */}
             <div className="flex items-center gap-6 mt-8 pt-8 border-t border-white/5">
-              <div className="text-sm text-white/40">
-                <span className="font-medium">Duration:</span> {conversation.duration} min
+              <div className="text-sm text-muted-foreground">
+                <span className="font-medium">Duration:</span>{" "}
+                {conversation.duration} min
               </div>
-              <div className="text-sm text-white/40">
+              <div className="text-sm text-muted-foreground">
                 <span className="font-medium">Date:</span>{" "}
                 {new Date(conversation.conversationDate).toLocaleDateString()}
               </div>
             </div>
           </div>
         </div>
+
+        <div className="h-10 lg:hidden"></div>
       </main>
     </div>
   );

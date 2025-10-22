@@ -2,6 +2,7 @@
   "name": "Maki.ai",
   "short_name": "Maki.ai",
   "start_url": "/",
+  "scope": "/",
   "display": "standalone",
   "description": "Your personal AI that listens, understands and acts",
   "lang": "en-US",

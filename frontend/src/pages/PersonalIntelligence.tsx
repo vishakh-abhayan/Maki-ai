@@ -38,7 +38,6 @@ const PersonalIntelligence = () => {
 
   const fetchDashboardData = async () => {
     try {
-      setLoading(true);
       const data = await apiService.getIntelligenceDashboard();
       setDashboardData(data);
     } catch (error) {
@@ -48,8 +47,6 @@ const PersonalIntelligence = () => {
         description: "Failed to load intelligence dashboard",
         variant: "destructive",
       });
-    } finally {
-      setLoading(false);
     }
   };
 
