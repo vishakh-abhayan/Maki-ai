@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { Checkbox } from "@/components/ui/checkbox";
 import { createAPIService, Task } from "@/services/api";
 import { useDataRefresh } from "@/contexts/DataRefreshContext";
 import { useAuth } from "@clerk/clerk-react";
@@ -17,6 +16,7 @@ const TasksList = () => {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [completingTaskId, setCompletingTaskId] = useState<string | null>(null);
   const { refreshTrigger } = useDataRefresh();
   const { getToken } = useAuth();
 
@@ -73,13 +73,23 @@ const TasksList = () => {
 
   const handleToggleTask = async (taskId: string, currentStatus: boolean) => {
     try {
-      // ✅ Optimistically remove the task from UI immediately
-      setTasks((prevTasks) => prevTasks.filter((task) => task._id !== taskId));
+      // ✅ STEP 1: Mark as completing (shows tick + strikethrough)
+      setCompletingTaskId(taskId);
 
       // Update on backend
       await apiService.updateTaskStatus(taskId, !currentStatus);
+
+      // ✅ STEP 2: Wait 1 second to show the animation
+      setTimeout(() => {
+        // ✅ STEP 3: Remove from UI
+        setTasks((prevTasks) =>
+          prevTasks.filter((task) => task._id !== taskId)
+        );
+        setCompletingTaskId(null);
+      }, 1000);
     } catch (err) {
       console.error("Failed to update task:", err);
+      setCompletingTaskId(null);
       // ✅ Revert on error by refetching
       fetchTasks();
     }
@@ -189,76 +199,87 @@ const TasksList = () => {
           </div>
         ) : (
           <div className="space-y-3">
-            {tasks.map((task) => (
-              <div
-                key={task._id}
-                className="flex items-start gap-3 p-3 rounded-lg bg-card/5 hover:bg-card/10 transition-colors"
-              >
-                <label className="flex items-center cursor-pointer mt-0.5">
-                  <input
-                    type="checkbox"
-                    checked={task.completed}
-                    onChange={() => handleToggleTask(task._id, task.completed)}
-                    className="sr-only"
-                  />
-                  <span
-                    className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-all ${
-                      task.completed
-                        ? "bg-primary border-primary"
-                        : "border-muted-foreground"
-                    }`}
-                  >
-                    {task.completed && (
-                      <svg
-                        className="w-3 h-3 text-white"
-                        viewBox="0 0 12 9"
-                        fill="none"
-                      >
-                        <path
-                          d="M1 4.5L4.5 8L11 1"
-                          stroke="currentColor"
-                          strokeWidth="2"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                        />
-                      </svg>
-                    )}
-                  </span>
-                </label>
+            {tasks.map((task) => {
+              const isCompleting = completingTaskId === task._id;
 
-                <div className="flex-1 min-w-0">
-                  <h4
-                    className={`text-sm font-normal text-foreground mb-1 ${
-                      task.completed ? "line-through opacity-75" : ""
-                    }`}
-                  >
-                    {task.title}
-                  </h4>
-                  {task.from && (
-                    <p className="text-xs text-muted-foreground/60 mb-1">
-                      From: {task.from.replace(/SPEAKER \d+/i, "Speaker")}
-                    </p>
-                  )}
-                  <div className="flex items-center gap-2 flex-wrap">
-                    {task.priority !== "normal" &&
-                      task.priority !== "medium" && (
-                        <span
-                          className={`px-2 py-0.5 rounded-md text-xs font-semibold ${
-                            task.priority === "high"
-                              ? "bg-red-500/10 text-red-600"
-                              : "bg-green-500/10 text-green-600"
-                          }`}
+              return (
+                <div
+                  key={task._id}
+                  className={`flex items-start gap-3 p-3 rounded-lg bg-card/5 hover:bg-card/10 transition-all duration-300 ${
+                    isCompleting ? "opacity-100" : "opacity-100"
+                  }`}
+                >
+                  <label className="flex items-center cursor-pointer mt-0.5">
+                    <input
+                      type="checkbox"
+                      checked={isCompleting || task.completed}
+                      onChange={() =>
+                        handleToggleTask(task._id, task.completed)
+                      }
+                      disabled={isCompleting}
+                      className="sr-only"
+                    />
+                    <span
+                      className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-all duration-300 ${
+                        isCompleting || task.completed
+                          ? "bg-primary border-primary"
+                          : "border-muted-foreground"
+                      }`}
+                    >
+                      {(isCompleting || task.completed) && (
+                        <svg
+                          className="w-3 h-3 text-white"
+                          viewBox="0 0 12 9"
+                          fill="none"
                         >
-                          {task.priority}
-                        </span>
+                          <path
+                            d="M1 4.5L4.5 8L11 1"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          />
+                        </svg>
                       )}
-                    <p className="text-xs text-muted-foreground/60">
-                      {formatDueDate(task.dueDate, task.dueDateText)}
-                    </p>
+                    </span>
+                  </label>
+
+                  <div className="flex-1 min-w-0">
+                    <h4
+                      className={`text-sm font-normal text-foreground mb-1 transition-all duration-300 ${
+                        isCompleting || task.completed
+                          ? "line-through opacity-75"
+                          : ""
+                      }`}
+                    >
+                      {task.title}
+                    </h4>
+                    {task.from && (
+                      <p className="text-xs text-muted-foreground/60 mb-1">
+                        From: {task.from.replace(/SPEAKER \d+/i, "Speaker")}
+                      </p>
+                    )}
+                    <div className="flex items-center gap-2 flex-wrap">
+                      {task.priority !== "normal" &&
+                        task.priority !== "medium" && (
+                          <span
+                            className={`px-2 py-0.5 rounded-md text-xs font-semibold ${
+                              task.priority === "high"
+                                ? "bg-red-500/10 text-red-600"
+                                : "bg-green-500/10 text-green-600"
+                            }`}
+                          >
+                            {task.priority}
+                          </span>
+                        )}
+                      <p className="text-xs text-muted-foreground/60">
+                        {formatDueDate(task.dueDate, task.dueDateText)}
+                      </p>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </div>

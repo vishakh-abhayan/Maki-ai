@@ -13,6 +13,7 @@ const Activities = () => {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [reminders, setReminders] = useState<Reminder[]>([]);
   const [loading, setLoading] = useState(true);
+  const [completingTaskId, setCompletingTaskId] = useState<string | null>(null);
 
   const apiService = createAPIService(getToken);
 
@@ -57,13 +58,23 @@ const Activities = () => {
 
   const handleToggleTask = async (taskId: string, currentStatus: boolean) => {
     try {
-      // ✅ Optimistically remove the task from UI immediately
-      setTasks((prevTasks) => prevTasks.filter((task) => task._id !== taskId));
+      // ✅ STEP 1: Mark as completing (shows tick + strikethrough)
+      setCompletingTaskId(taskId);
 
       // Update on backend
       await apiService.updateTaskStatus(taskId, !currentStatus);
+
+      // ✅ STEP 2: Wait 1 second to show the animation
+      setTimeout(() => {
+        // ✅ STEP 3: Remove from UI
+        setTasks((prevTasks) =>
+          prevTasks.filter((task) => task._id !== taskId)
+        );
+        setCompletingTaskId(null);
+      }, 1000);
     } catch (error) {
       console.error("Failed to update task:", error);
+      setCompletingTaskId(null);
       // ✅ Revert on error by refetching
       fetchData();
     }
@@ -158,75 +169,84 @@ const Activities = () => {
                 </div>
               ) : (
                 <div className="space-y-4">
-                  {tasks.map((task) => (
-                    <div
-                      key={task._id}
-                      className="flex items-start gap-3 p-4 rounded-lg bg-card/20 border-0"
-                    >
-                      <label className="cursor-pointer mt-1">
-                        <input
-                          type="checkbox"
-                          checked={task.completed}
-                          onChange={() =>
-                            handleToggleTask(task._id, task.completed)
-                          }
-                          className="sr-only"
-                        />
-                        <span
-                          className={`block w-5 h-5 rounded border-2 flex items-center justify-center ${
-                            task.completed
-                              ? "bg-primary border-primary"
-                              : "border-muted-foreground"
-                          }`}
-                        >
-                          {task.completed && (
-                            <svg
-                              className="w-3 h-3 text-white"
-                              viewBox="0 0 12 9"
-                              fill="none"
-                            >
-                              <path
-                                d="M1 4.5L4.5 8L11 1"
-                                stroke="currentColor"
-                                strokeWidth="2"
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                              />
-                            </svg>
-                          )}
-                        </span>
-                      </label>
+                  {tasks.map((task) => {
+                    const isCompleting = completingTaskId === task._id;
 
-                      <div className="flex-1 min-w-0">
-                        <h4
-                          className={`text-base font-normal text-foreground mb-1 ${
-                            task.completed ? "line-through opacity-75" : ""
-                          }`}
-                        >
-                          {task.title}
-                        </h4>
-                        {task.from && (
-                          <p className="text-xs text-muted-foreground/60 mb-2">
-                            From: {task.from}
-                          </p>
-                        )}
-                        <div className="flex items-center gap-2 flex-wrap">
-                          {task.priority !== "normal" && (
-                            <span
-                              className={`px-3 py-1 rounded-md text-xs font-semibold ${getPriorityStyles(
-                                task.priority
-                              )}`}
-                            >
-                              {getPriorityLabel(task.priority)}
-                            </span>
+                    return (
+                      <div
+                        key={task._id}
+                        className={`flex items-start gap-3 p-4 rounded-lg bg-card/20 border-0 transition-all duration-300 ${
+                          isCompleting ? "opacity-100" : "opacity-100"
+                        }`}
+                      >
+                        <label className="cursor-pointer mt-1">
+                          <input
+                            type="checkbox"
+                            checked={isCompleting || task.completed}
+                            onChange={() =>
+                              handleToggleTask(task._id, task.completed)
+                            }
+                            disabled={isCompleting}
+                            className="sr-only"
+                          />
+                          <span
+                            className={`block w-5 h-5 rounded border-2 flex items-center justify-center transition-all duration-300 ${
+                              isCompleting || task.completed
+                                ? "bg-primary border-primary"
+                                : "border-muted-foreground"
+                            }`}
+                          >
+                            {(isCompleting || task.completed) && (
+                              <svg
+                                className="w-3 h-3 text-white"
+                                viewBox="0 0 12 9"
+                                fill="none"
+                              >
+                                <path
+                                  d="M1 4.5L4.5 8L11 1"
+                                  stroke="currentColor"
+                                  strokeWidth="2"
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                />
+                              </svg>
+                            )}
+                          </span>
+                        </label>
+
+                        <div className="flex-1 min-w-0">
+                          <h4
+                            className={`text-base font-normal text-foreground mb-1 transition-all duration-300 ${
+                              isCompleting || task.completed
+                                ? "line-through opacity-75"
+                                : ""
+                            }`}
+                          >
+                            {task.title}
+                          </h4>
+                          {task.from && (
+                            <p className="text-xs text-muted-foreground/60 mb-2">
+                              From: {task.from}
+                            </p>
                           )}
-                          <p className="text-sm text-muted-foreground/60">
-                            Due: {task.dueDateText || "No due date"}
-                          </p>
+                          <div className="flex items-center gap-2 flex-wrap">
+                            {task.priority !== "normal" && (
+                              <span
+                                className={`px-3 py-1 rounded-md text-xs font-semibold ${getPriorityStyles(
+                                  task.priority
+                                )}`}
+                              >
+                                {getPriorityLabel(task.priority)}
+                              </span>
+                            )}
+                            <p className="text-sm text-muted-foreground/60">
+                              Due: {task.dueDateText || "No due date"}
+                            </p>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               )}
             </div>
