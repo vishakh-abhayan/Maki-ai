@@ -1,4 +1,3 @@
-// frontend/src/pages/Activities.tsx
 import { useState, useEffect } from "react";
 import Sidebar from "@/components/Sidebar";
 import Header from "@/components/Header";
@@ -6,6 +5,7 @@ import { createAPIService, Task, Reminder } from "@/services/api";
 import { useAuth } from "@clerk/clerk-react";
 import { useDataRefresh } from "@/contexts/DataRefreshContext";
 import { Calendar as CalendarIcon, MessageSquare, Clock } from "lucide-react";
+import { parseISO, isAfter, isToday } from "date-fns";
 
 const Activities = () => {
   const { getToken } = useAuth();
@@ -27,8 +27,27 @@ const Activities = () => {
         apiService.getTasks(),
         apiService.getReminders(),
       ]);
-      setTasks(tasksData);
-      setReminders(remindersData);
+
+      const now = new Date();
+
+      // ✅ Filter out completed tasks
+      const activeTasks = tasksData.filter((task) => !task.completed);
+
+      // ✅ Filter reminders based on due date/time
+      const upcomingReminders = remindersData.filter((reminder) => {
+        if (!reminder.dueDate) return true; // Keep reminders without dates
+
+        try {
+          const reminderDate = parseISO(reminder.dueDate);
+          // Show if future or today (not yet passed)
+          return isAfter(reminderDate, now) || isToday(reminderDate);
+        } catch {
+          return true; // Keep if date parsing fails
+        }
+      });
+
+      setTasks(activeTasks);
+      setReminders(upcomingReminders);
     } catch (error) {
       console.error("Failed to fetch data:", error);
     } finally {
@@ -38,14 +57,15 @@ const Activities = () => {
 
   const handleToggleTask = async (taskId: string, currentStatus: boolean) => {
     try {
+      // ✅ Optimistically remove the task from UI immediately
+      setTasks((prevTasks) => prevTasks.filter((task) => task._id !== taskId));
+
+      // Update on backend
       await apiService.updateTaskStatus(taskId, !currentStatus);
-      setTasks(
-        tasks.map((task) =>
-          task._id === taskId ? { ...task, completed: !currentStatus } : task
-        )
-      );
     } catch (error) {
       console.error("Failed to update task:", error);
+      // ✅ Revert on error by refetching
+      fetchData();
     }
   };
 

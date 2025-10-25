@@ -1,13 +1,6 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { ArrowLeft, Phone, MessageSquare, Mail, Calendar } from "lucide-react";
-import { mockConversationDetails } from "@/mocks/testData";
-import {
-  SignedIn,
-  SignedOut,
-  SignInButton,
-  UserButton,
-} from "@clerk/clerk-react";
 import Sidebar from "@/components/Sidebar";
 import Header from "@/components/Header";
 import { createAPIService, Person } from "@/services/api";

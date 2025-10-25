@@ -9,7 +9,7 @@ import {
 import { createAPIService, Reminder } from "@/services/api";
 import { useDataRefresh } from "@/contexts/DataRefreshContext";
 import { useAuth } from "@clerk/clerk-react";
-import { isToday, parseISO, isPast, isFuture } from "date-fns";
+import { isToday, parseISO, isPast, isFuture, isAfter } from "date-fns";
 import { useNavigate } from "react-router";
 
 const RemindersList = () => {
@@ -20,8 +20,6 @@ const RemindersList = () => {
   const { getToken } = useAuth();
 
   const apiService = createAPIService(getToken);
-
-  //configure navigate
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -33,17 +31,18 @@ const RemindersList = () => {
       setLoading(true);
       const data = await apiService.getReminders();
 
-      // ✅ Filter for UPCOMING reminders (today + future, not completed)
-      const upcomingReminders = data.filter((item) => {
-        if (item.completed) return false;
+      const now = new Date();
 
+      // ✅ Filter for UPCOMING reminders (future or today but not past time)
+      const upcomingReminders = data.filter((item) => {
         // If no due date, show it anyway
         if (!item.dueDate) return true;
 
         try {
           const reminderDate = parseISO(item.dueDate);
-          // ✅ Show reminders for TODAY or FUTURE
-          return isToday(reminderDate) || isFuture(reminderDate);
+
+          // ✅ Show reminders that are in the future OR today and not yet passed
+          return isAfter(reminderDate, now) || isToday(reminderDate);
         } catch {
           return true; // Include if date parsing fails
         }

@@ -32,9 +32,9 @@ const TasksList = () => {
       setLoading(true);
       const data = await apiService.getTasks();
 
-      // ✅ Filter for TODAY's tasks ONLY (not overdue from yesterday)
+      // ✅ Filter for TODAY's tasks ONLY (not overdue from yesterday) AND not completed
       const todayTasks = data.filter((item) => {
-        if (item.completed) return false;
+        if (item.completed) return false; // ✅ Filter out completed tasks
 
         if (!item.dueDate) {
           // If no date, only include if text explicitly says "today"
@@ -73,14 +73,15 @@ const TasksList = () => {
 
   const handleToggleTask = async (taskId: string, currentStatus: boolean) => {
     try {
+      // ✅ Optimistically remove the task from UI immediately
+      setTasks((prevTasks) => prevTasks.filter((task) => task._id !== taskId));
+
+      // Update on backend
       await apiService.updateTaskStatus(taskId, !currentStatus);
-      setTasks(
-        tasks.map((task) =>
-          task._id === taskId ? { ...task, completed: !currentStatus } : task
-        )
-      );
     } catch (err) {
       console.error("Failed to update task:", err);
+      // ✅ Revert on error by refetching
+      fetchTasks();
     }
   };
 
@@ -182,15 +183,7 @@ const TasksList = () => {
           </button>
         </div>
 
-        {loading ? (
-          <div className="flex items-center justify-center py-8">
-            <p className="text-sm text-muted-foreground">Loading tasks...</p>
-          </div>
-        ) : error ? (
-          <div className="flex items-center justify-center py-8">
-            <p className="text-sm text-destructive">{error}</p>
-          </div>
-        ) : tasks.length === 0 ? (
+        {tasks.length === 0 ? (
           <div className="flex items-center justify-center py-8">
             <p className="text-sm text-muted-foreground">No tasks due today</p>
           </div>
