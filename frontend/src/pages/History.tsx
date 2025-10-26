@@ -328,48 +328,50 @@ const History = () => {
                     <div
                       key={conversation._id}
                       onClick={() => handleViewDetails(conversation._id)}
-                      className="p-6 rounded-lg border border-white/25 hover:border-white/50 transition-all bg-card/5 cursor-pointer"
+                      className="p-4 md:p-6 rounded-lg border border-white/25 hover:border-white/50 transition-all bg-card/5 cursor-pointer"
                     >
-                      <div className="flex items-start gap-4">
+                      <div className="flex items-start gap-3 md:gap-4">
                         {/* Calendar Icon */}
-                        <div className="w-12 h-12 rounded-lg bg-[#e74c3c] flex flex-col items-center justify-center text-white flex-shrink-0">
-                          <span className="text-xs font-medium">{month}</span>
-                          <span className="text-lg font-bold leading-none">
+                        <div className="w-10 h-10 md:w-12 md:h-12 rounded-lg bg-[#e74c3c] flex flex-col items-center justify-center text-white flex-shrink-0">
+                          <span className="text-[10px] md:text-xs font-medium">
+                            {month}
+                          </span>
+                          <span className="text-base md:text-lg font-bold leading-none">
                             {day}
                           </span>
                         </div>
 
                         {/* Content Section */}
                         <div className="flex-1 min-w-0">
-                          <div className="flex items-start justify-between gap-4 mb-3">
+                          <div className="flex items-start justify-between gap-2 md:gap-4 mb-2 md:mb-3">
                             <div>
-                              <h3 className="text-xl font-semibold text-foreground mb-1">
+                              <h3 className="text-lg md:text-xl font-semibold text-foreground mb-0.5 md:mb-1">
                                 {conversation.title}
                               </h3>
-                              <p className="text-base text-muted-foreground/80">
+                              <p className="text-sm md:text-base text-muted-foreground/80">
                                 With{" "}
                                 {getParticipantNames(conversation.participants)}
                               </p>
                             </div>
 
-                            <div className="flex flex-col items-end gap-1 flex-shrink-0">
-                              <p className="text-sm text-muted-foreground/60 whitespace-nowrap">
+                            <div className="flex flex-col items-end gap-0.5 md:gap-1 flex-shrink-0">
+                              <p className="text-xs md:text-sm text-muted-foreground/60 whitespace-nowrap">
                                 {formatDate(conversation.conversationDate)}
                               </p>
-                              <p className="text-sm text-muted-foreground/60">
+                              <p className="text-xs md:text-sm text-muted-foreground/60">
                                 {formatDuration(conversation.duration)}
                               </p>
                             </div>
                           </div>
 
-                          <p className="text-lg text-muted-foreground mb-4">
+                          <p className="text-sm md:text-lg text-muted-foreground mb-3 md:mb-4">
                             {conversation.summary.short ||
                               conversation.summary.extended}
                           </p>
 
                           {/* Bottom Row with Icons and Button */}
                           <div className="flex items-center justify-between">
-                            <div className="flex gap-3">
+                            <div className="flex gap-2 md:gap-3">
                               <button
                                 onClick={(e) => {
                                   e.stopPropagation();
@@ -377,17 +379,17 @@ const History = () => {
                                     `/history/${conversation._id}/transcript`
                                   );
                                 }}
-                                className="p-2 hover:bg-card/50 rounded-lg transition-all"
+                                className="p-1.5 md:p-2 hover:bg-card/50 rounded-lg transition-all"
                               >
-                                <MessageCircle className="w-5 h-5 text-primary" />
+                                <MessageCircle className="w-4 h-4 md:w-5 md:h-5 text-primary" />
                               </button>
                               <button
                                 onClick={(e) =>
                                   handleDeleteConversation(conversation._id, e)
                                 }
-                                className="p-2 hover:bg-card/50 rounded-lg transition-all"
+                                className="p-1.5 md:p-2 hover:bg-card/50 rounded-lg transition-all"
                               >
-                                <Trash2 className="w-5 h-5 text-primary" />
+                                <Trash2 className="w-4 h-4 md:w-5 md:h-5 text-primary" />
                               </button>
                             </div>
 
@@ -396,7 +398,7 @@ const History = () => {
                                 e.stopPropagation();
                                 handleViewDetails(conversation._id);
                               }}
-                              className="px-6 py-2.5 bg-blue-700 rounded-[20px] text-white text-xs font-semibold hover:bg-blue-600 transition-all"
+                              className="px-3 py-1.5 md:px-6 md:py-2.5 bg-blue-700 rounded-2xl md:rounded-[20px] text-white text-xs font-semibold hover:bg-blue-600 transition-all"
                             >
                               View details
                             </button>

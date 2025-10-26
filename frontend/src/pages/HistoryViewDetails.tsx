@@ -156,40 +156,40 @@ const HistoryViewDetails = () => {
         <div className="glass-container p-2">
           <div className="glass-card p-8">
             {/* Title and Actions */}
-            <div className="flex items-start justify-between mb-8">
-              <div className="flex-1">
-                <h3 className="text-3xl font-semibold text-foreground mb-3">
+            <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mb-6 md:mb-8">
+              <div className="flex-1 w-full md:w-auto">
+                <h3 className="text-2xl md:text-3xl font-semibold text-foreground mb-2 md:mb-3">
                   {conversation.title}
                 </h3>
-                <p className="text-xl font-medium text-muted-foreground">
+                <p className="text-base md:text-xl font-medium text-muted-foreground">
                   With {getParticipantNames()}
                 </p>
               </div>
 
-              <div className="flex items-center gap-4">
+              <div className="flex items-center gap-2 md:gap-4 w-full md:w-auto">
                 <button
                   onClick={() => navigate(`/history/${id}/transcript`)}
-                  className="flex items-center gap-2 px-6 py-2.5 bg-blue-700 rounded-[20px] text-white text-sm font-semibold hover:bg-blue-600 transition-all"
+                  className="flex items-center justify-center gap-2 px-4 py-2 md:px-6 md:py-2.5 bg-blue-700 rounded-2xl md:rounded-[20px] text-white text-xs md:text-sm font-semibold hover:bg-blue-600 transition-all flex-1 md:flex-initial"
                 >
-                  <FileText className="w-4 h-4" />
-                  View transcript
+                  <FileText className="w-3 h-3 md:w-4 md:h-4" />
+                  <span className="whitespace-nowrap">View transcript</span>
                 </button>
 
                 <button
                   onClick={handleDelete}
-                  className="p-3 hover:bg-card/50 rounded-lg transition-all"
+                  className="p-2 md:p-3 hover:bg-card/50 rounded-lg transition-all flex-shrink-0"
                 >
-                  <Trash2 className="w-5 h-5 text-primary" />
+                  <Trash2 className="w-4 h-4 md:w-5 md:h-5 text-primary" />
                 </button>
               </div>
             </div>
 
             {/* Divider */}
-            <div className="h-px bg-gradient-to-r from-transparent via-white/10 to-transparent mb-8" />
+            <div className="h-px bg-gradient-to-r from-transparent via-white/10 to-transparent mb-6 md:mb-8" />
 
             {/* Summary */}
             <div className="max-w-4xl">
-              <p className="text-2xl font-normal text-muted-foreground leading-relaxed">
+              <p className="text-lg md:text-2xl font-normal text-muted-foreground leading-relaxed">
                 {conversation.summary.extended}
               </p>
             </div>
