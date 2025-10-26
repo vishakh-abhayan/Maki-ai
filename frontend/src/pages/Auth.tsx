@@ -2,6 +2,93 @@ import { useState } from "react";
 import { useSignIn, useSignUp } from "@clerk/clerk-react";
 import { useNavigate } from "react-router-dom";
 
+// Password Strength Indicator Component
+const PasswordStrengthIndicator = ({ password }: { password: string }) => {
+  const calculateStrength = (pass: string) => {
+    let strength = 0;
+    const feedback: string[] = [];
+
+    if (pass.length === 0)
+      return { strength: 0, feedback: [], level: "", color: "" };
+
+    // Length check
+    if (pass.length >= 8) {
+      strength += 25;
+    } else {
+      feedback.push("8+ characters");
+    }
+
+    // Uppercase check
+    if (/[A-Z]/.test(pass)) {
+      strength += 25;
+    } else {
+      feedback.push("uppercase");
+    }
+
+    // Lowercase check
+    if (/[a-z]/.test(pass)) {
+      strength += 25;
+    } else {
+      feedback.push("lowercase");
+    }
+
+    // Number or special character check
+    if (/[0-9]/.test(pass) || /[^A-Za-z0-9]/.test(pass)) {
+      strength += 25;
+    } else {
+      feedback.push("number/symbol");
+    }
+
+    // Determine level and color
+    let level = "";
+    let color = "";
+    if (strength <= 25) {
+      level = "Weak";
+      color = "#ef4444"; // red
+    } else if (strength <= 50) {
+      level = "Fair";
+      color = "#f97316"; // orange
+    } else if (strength <= 75) {
+      level = "Good";
+      color = "#eab308"; // yellow
+    } else {
+      level = "Strong";
+      color = "#22c55e"; // green
+    }
+
+    return { strength, feedback, level, color };
+  };
+
+  const { strength, feedback, level, color } = calculateStrength(password);
+
+  if (password.length === 0) return null;
+
+  return (
+    <div className="mt-2 space-y-2">
+      {/* Progress bar */}
+      <div className="w-full h-1.5 bg-white/10 rounded-full overflow-hidden backdrop-blur-md">
+        <div
+          className="h-full transition-all duration-300 ease-out"
+          style={{
+            width: `${strength}%`,
+            backgroundColor: color,
+          }}
+        />
+      </div>
+
+      {/* Strength level and feedback */}
+      <div className="flex items-center justify-between text-xs">
+        <span className="font-medium tracking-wide" style={{ color }}>
+          {level}
+        </span>
+        {feedback.length > 0 && (
+          <span className="text-white/50">Need: {feedback.join(", ")}</span>
+        )}
+      </div>
+    </div>
+  );
+};
+
 const AuthPage = () => {
   const [mode, setMode] = useState<"sign-up" | "sign-in" | "forgot-password">(
     "sign-up"
@@ -16,6 +103,7 @@ const AuthPage = () => {
   const [code, setCode] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
+  const [showPassword, setShowPassword] = useState(false); // NEW: Toggle password visibility
 
   const { signIn, setActive: setActiveSignIn } = useSignIn();
   const { signUp, setActive: setActiveSignUp } = useSignUp();
@@ -126,7 +214,6 @@ const AuthPage = () => {
     }
   };
 
-  // NEW: Forgot Password - Send Reset Code
   const handleForgotPassword = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!signIn) return;
@@ -150,7 +237,6 @@ const AuthPage = () => {
     }
   };
 
-  // NEW: Verify Reset Code and Set New Password
   const handleResetPassword = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!signIn) return;
@@ -189,6 +275,7 @@ const AuthPage = () => {
     setError("");
     setSuccessMessage("");
     setPendingVerification(false);
+    setShowPassword(false);
   };
 
   return (
@@ -307,15 +394,62 @@ const AuthPage = () => {
                       className="w-full h-16 px-4 bg-white/10 backdrop-blur-md border border-white/20 rounded-xl text-white text-2xl text-center tracking-widest placeholder:text-white/30 focus:bg-white/15 focus:border-white/30 focus:outline-none transition-all disabled:opacity-50"
                     />
 
-                    <input
-                      type="password"
-                      value={newPassword}
-                      onChange={(e) => setNewPassword(e.target.value)}
-                      placeholder="Enter new password"
-                      required
-                      disabled={isLoading}
-                      className="w-full h-12 px-4 bg-white/10 backdrop-blur-md border border-white/20 rounded-xl text-white placeholder:text-white/40 focus:bg-white/15 focus:border-white/30 focus:outline-none transition-all disabled:opacity-50"
-                    />
+                    {/* NEW: Password input with strength indicator for reset */}
+                    <div>
+                      <div className="relative">
+                        <input
+                          type={showPassword ? "text" : "password"}
+                          value={newPassword}
+                          onChange={(e) => setNewPassword(e.target.value)}
+                          placeholder="Enter new password"
+                          required
+                          disabled={isLoading}
+                          className="w-full h-12 px-4 pr-12 bg-white/10 backdrop-blur-md border border-white/20 rounded-xl text-white placeholder:text-white/40 focus:bg-white/15 focus:border-white/30 focus:outline-none transition-all disabled:opacity-50"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowPassword(!showPassword)}
+                          className="absolute right-4 top-1/2 -translate-y-1/2 text-white/60 hover:text-white transition-colors"
+                        >
+                          {showPassword ? (
+                            <svg
+                              className="w-5 h-5"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"
+                              />
+                            </svg>
+                          ) : (
+                            <svg
+                              className="w-5 h-5"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                              />
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                              />
+                            </svg>
+                          )}
+                        </button>
+                      </div>
+                      <PasswordStrengthIndicator password={newPassword} />
+                    </div>
 
                     <button
                       type="submit"
@@ -429,16 +563,66 @@ const AuthPage = () => {
                   className="w-full h-12 px-4 bg-white/10 backdrop-blur-md border border-white/20 rounded-xl text-white placeholder:text-white/40 focus:bg-white/15 focus:border-white/30 focus:outline-none transition-all disabled:opacity-50"
                 />
 
-                {/* Password Input */}
-                <input
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="Enter your password"
-                  required
-                  disabled={isLoading}
-                  className="w-full h-12 px-4 bg-white/10 backdrop-blur-md border border-white/20 rounded-xl text-white placeholder:text-white/40 focus:bg-white/15 focus:border-white/30 focus:outline-none transition-all disabled:opacity-50"
-                />
+                {/* Password Input with Strength Indicator */}
+                <div>
+                  <div className="relative">
+                    <input
+                      type={showPassword ? "text" : "password"}
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      placeholder="Enter your password"
+                      required
+                      disabled={isLoading}
+                      className="w-full h-12 px-4 pr-12 bg-white/10 backdrop-blur-md border border-white/20 rounded-xl text-white placeholder:text-white/40 focus:bg-white/15 focus:border-white/30 focus:outline-none transition-all disabled:opacity-50"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-4 top-1/2 -translate-y-1/2 text-white/60 hover:text-white transition-colors"
+                    >
+                      {showPassword ? (
+                        <svg
+                          className="w-5 h-5"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"
+                          />
+                        </svg>
+                      ) : (
+                        <svg
+                          className="w-5 h-5"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                          />
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                          />
+                        </svg>
+                      )}
+                    </button>
+                  </div>
+
+                  {/* Show strength indicator only for sign-up */}
+                  {mode === "sign-up" && (
+                    <PasswordStrengthIndicator password={password} />
+                  )}
+                </div>
 
                 {/* Forgot Password Link - Only shown in sign-in mode */}
                 {mode === "sign-in" && (
