@@ -54,18 +54,6 @@ const PersonalIntelligence = () => {
     navigate(`/person/${personId}`);
   };
 
-  const handleCallPerson = async (personId: string, personName: string) => {
-    try {
-      await apiService.initiateContact(personId, "call");
-      toast({
-        title: "Call Initiated",
-        description: `Calling ${personName}...`,
-      });
-    } catch (error) {
-      console.error("Failed to initiate call:", error);
-    }
-  };
-
   const handleSearch = async () => {
     if (!searchQuery.trim()) return;
 

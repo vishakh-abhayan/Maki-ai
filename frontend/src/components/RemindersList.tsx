@@ -194,7 +194,7 @@ const RemindersList = () => {
                         From: {formatReminderSource(reminder.from)}
                       </p>
                       <p className="text-[10px] md:text-xs text-muted-foreground">
-                        Due: {reminder.dueDateText || "No due date"}
+                        Due: {reminder.dueDate || "No due date"}
                       </p>
                     </div>
                   </div>

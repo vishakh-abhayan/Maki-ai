@@ -43,20 +43,6 @@ const PersonDetail = () => {
     }
   };
 
-  const handleCall = async () => {
-    if (!person) return;
-
-    try {
-      await apiService.initiateContact(person.id, "call");
-      toast({
-        title: "Call Initiated",
-        description: `Calling ${person.name}...`,
-      });
-    } catch (error) {
-      console.error("Failed to initiate call:", error);
-    }
-  };
-
   if (loading) {
     return (
       <div className="min-h-screen flex lg:pl-[170px] pb-16 lg:pb-0">

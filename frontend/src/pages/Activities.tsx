@@ -5,7 +5,7 @@ import { createAPIService, Task, Reminder } from "@/services/api";
 import { useAuth } from "@clerk/clerk-react";
 import { useDataRefresh } from "@/contexts/DataRefreshContext";
 import { Calendar as CalendarIcon, MessageSquare, Clock } from "lucide-react";
-import { parseISO, isAfter, isToday } from "date-fns";
+import { parseISO, isAfter, isToday, format } from "date-fns";
 
 const Activities = () => {
   const { getToken } = useAuth();
@@ -53,6 +53,18 @@ const Activities = () => {
       console.error("Failed to fetch data:", error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const formatDate = (dateString: string | null | undefined) => {
+    if (!dateString) return "No due date";
+
+    try {
+      const date = parseISO(dateString);
+      // Returns format like "Oct 28, 2025 at 8:30 AM"
+      return format(date, "MMM dd, yyyy 'at' h:mm a");
+    } catch {
+      return "No due date";
     }
   };
 
@@ -240,7 +252,7 @@ const Activities = () => {
                               </span>
                             )}
                             <p className="text-sm text-muted-foreground/60">
-                              Due: {task.dueDateText || "No due date"}
+                              Due: {formatDate(task.dueDate)}
                             </p>
                           </div>
                         </div>
@@ -274,42 +286,47 @@ const Activities = () => {
                 </div>
               ) : (
                 <div className="space-y-4">
-                  {reminders.map((reminder) => (
-                    <div
-                      key={reminder._id}
-                      className={`flex items-start gap-3 p-4 rounded-lg border ${getReminderBorderColor(
-                        reminder.category
-                      )} bg-card/10`}
-                    >
-                      <div
-                        className={`w-8 h-8 rounded-lg ${getReminderIconColor(
-                          reminder.category
-                        )} flex items-center justify-center flex-shrink-0`}
-                      >
-                        {reminder.category === "meeting" ? (
-                          <CalendarIcon className="w-4 h-4 text-white" />
-                        ) : reminder.category === "call" ? (
-                          <MessageSquare className="w-4 h-4 text-white" />
-                        ) : (
-                          <Clock className="w-4 h-4 text-white" />
-                        )}
-                      </div>
+                  {reminders.map(
+                    (reminder) => (
+                      console.log(reminder),
+                      (
+                        <div
+                          key={reminder._id}
+                          className={`flex items-start gap-3 p-4 rounded-lg border ${getReminderBorderColor(
+                            reminder.category
+                          )} bg-card/10`}
+                        >
+                          <div
+                            className={`w-8 h-8 rounded-lg ${getReminderIconColor(
+                              reminder.category
+                            )} flex items-center justify-center flex-shrink-0`}
+                          >
+                            {reminder.category === "meeting" ? (
+                              <CalendarIcon className="w-4 h-4 text-white" />
+                            ) : reminder.category === "call" ? (
+                              <MessageSquare className="w-4 h-4 text-white" />
+                            ) : (
+                              <Clock className="w-4 h-4 text-white" />
+                            )}
+                          </div>
 
-                      <div className="flex-1 min-w-0">
-                        <h4 className="text-base font-normal text-foreground mb-1">
-                          {reminder.title}
-                        </h4>
-                        {reminder.from && (
-                          <p className="text-xs text-muted-foreground/60 mb-1">
-                            From: {reminder.from}
-                          </p>
-                        )}
-                        <p className="text-sm text-muted-foreground/60">
-                          {reminder.dueDateText || "No date"}
-                        </p>
-                      </div>
-                    </div>
-                  ))}
+                          <div className="flex-1 min-w-0">
+                            <h4 className="text-base font-normal text-foreground mb-1">
+                              {reminder.title}
+                            </h4>
+                            {reminder.from && (
+                              <p className="text-xs text-muted-foreground/60 mb-1">
+                                From: {reminder.from}
+                              </p>
+                            )}
+                            <p className="text-sm text-muted-foreground/60">
+                              {formatDate(reminder.dueDate)}
+                            </p>
+                          </div>
+                        </div>
+                      )
+                    )
+                  )}
                 </div>
               )}
             </div>

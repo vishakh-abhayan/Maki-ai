@@ -1,4 +1,4 @@
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
 
 export interface Task {
   _id: string;
@@ -35,14 +35,51 @@ export interface Reminder {
 }
 
 export interface TranscriptResponse {
+  success: boolean;
+  message: string;
   transcript: string;
-  insights: {
+  // ✅ ADD: metadata property
+  metadata?: {
+    detectedLanguage: string;
+    wasTranslated: boolean;
+    numSpeakers: number;
+    filename: string;
+  };
+  // ✅ ADD: conversation property
+  conversation?: {
+    id: string;
+    title: string;
+    summary: {
+      short: string;
+      extended: string;
+    };
+    participants: Array<{
+      personId?: string;
+      speakerLabel: string;
+      name: string;
+      isUser: boolean;
+    }>;
+  };
+  // ✅ ADD: extracted data
+  extracted?: {
+    tasks: number;
+    reminders: number;
+    people: Array<{
+      id: string;
+      name: string;
+      initials: string;
+      relationship: any;
+    }>;
+    followups: number;
+  };
+  // Legacy fields (kept for backward compatibility)
+  insights?: {
     [speaker: string]: {
       action_items: string[];
       key_information: string[];
     };
   };
-  reminders: Array<{
+  reminders?: Array<{
     title: string;
     from: string;
     due_date_text: string | null;
@@ -120,27 +157,27 @@ export interface ConversationSummary {
 // Update the FollowUp interface
 export interface FollowUp {
   _id: string;
-  personId: string;  // ✅ Changed from object to string (just the ID)
-  person: string;    // ✅ Added: Person's name
-  initials: string;  // ✅ Added: Person's initials
-  avatar?: string;   // ✅ Added: Person's avatar
+  personId: string; // ✅ Changed from object to string (just the ID)
+  person: string; // ✅ Added: Person's name
+  initials: string; // ✅ Added: Person's initials
+  avatar?: string; // ✅ Added: Person's avatar
   relationship: string; // ✅ Added: Person's relationship type
-  type: 'pending' | 'suggested';
-  priority: 'high' | 'medium' | 'low';
+  type: "pending" | "suggested";
+  priority: "high" | "medium" | "low";
   context: string;
   reason?: string;
-  conversationTitle?: string;  // ✅ Added: Title of related conversation
-  conversationDate?: string;   // ✅ Added: Date of related conversation
+  conversationTitle?: string; // ✅ Added: Title of related conversation
+  conversationDate?: string; // ✅ Added: Date of related conversation
   suggestedDate?: string;
   completed: boolean;
   createdAt: string;
 }
 
-// Update the SuggestedFollowUp interface  
+// Update the SuggestedFollowUp interface
 export interface SuggestedFollowUp {
   personId: string;
   person: string;
-  name: string;  // ✅ Added for compatibility
+  name: string; // ✅ Added for compatibility
   initials: string;
   avatar?: string;
   relationship: string;
@@ -153,8 +190,8 @@ export interface SuggestedFollowUp {
 // Update IntelligenceDashboard interface
 export interface IntelligenceDashboard {
   pendingFollowUps: FollowUp[];
-  suggestedFollowUps: SuggestedFollowUp[];  // ✅ Changed from any[]
-  latestInteractions: LatestInteraction[];   // ✅ Changed from any[]
+  suggestedFollowUps: SuggestedFollowUp[]; // ✅ Changed from any[]
+  latestInteractions: LatestInteraction[]; // ✅ Changed from any[]
   networkOverview: {
     totalPeople: number;
     closeContacts: number;
@@ -172,7 +209,6 @@ export interface LatestInteraction {
   lastConversationDate: string;
   lastConversationSummary?: string;
 }
-
 
 export interface Conversation {
   _id: string;
@@ -209,28 +245,29 @@ class APIService {
   private async getHeaders(): Promise<HeadersInit> {
     const token = await this.getToken();
     return {
-      'Content-Type': 'application/json',
-      ...(token && { 'Authorization': `Bearer ${token}` }),
+      "Content-Type": "application/json",
+      ...(token && { Authorization: `Bearer ${token}` }),
     };
   }
 
-  async uploadAudio(audioFile: File, numSpeakers: number): Promise<TranscriptResponse> {
+  async uploadAudio(audioFile: File): Promise<TranscriptResponse> {
     const token = await this.getToken();
     const formData = new FormData();
-    formData.append('file', audioFile);
-    formData.append('num_speakers', numSpeakers.toString());
+    formData.append("file", audioFile);
 
     const response = await fetch(`${this.baseURL}/transcribe`, {
-      method: 'POST',
+      method: "POST",
       headers: {
-        ...(token && { 'Authorization': `Bearer ${token}` }),
+        ...(token && { Authorization: `Bearer ${token}` }),
       },
       body: formData,
     });
 
     if (!response.ok) {
       const errorText = await response.text();
-      throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
+      throw new Error(
+        `HTTP error! status: ${response.status}, message: ${errorText}`
+      );
     }
 
     return await response.json();
@@ -238,7 +275,7 @@ class APIService {
 
   async getTasks(): Promise<Task[]> {
     const response = await fetch(`${this.baseURL}/tasks`, {
-      method: 'GET',
+      method: "GET",
       headers: await this.getHeaders(),
     });
 
@@ -251,7 +288,7 @@ class APIService {
 
   async getReminders(): Promise<Reminder[]> {
     const response = await fetch(`${this.baseURL}/reminders`, {
-      method: 'GET',
+      method: "GET",
       headers: await this.getHeaders(),
     });
 
@@ -264,7 +301,7 @@ class APIService {
 
   async updateTaskStatus(taskId: string, completed: boolean): Promise<void> {
     const response = await fetch(`${this.baseURL}/tasks/${taskId}`, {
-      method: 'PATCH',
+      method: "PATCH",
       headers: await this.getHeaders(),
       body: JSON.stringify({ completed }),
     });
@@ -274,9 +311,12 @@ class APIService {
     }
   }
 
-  async updateReminderStatus(reminderId: string, completed: boolean): Promise<void> {
+  async updateReminderStatus(
+    reminderId: string,
+    completed: boolean
+  ): Promise<void> {
     const response = await fetch(`${this.baseURL}/reminders/${reminderId}`, {
-      method: 'PATCH',
+      method: "PATCH",
       headers: await this.getHeaders(),
       body: JSON.stringify({ completed }),
     });
@@ -289,7 +329,7 @@ class APIService {
   // Get Intelligence Dashboard Data
   async getIntelligenceDashboard(): Promise<IntelligenceDashboard> {
     const response = await fetch(`${this.baseURL}/intelligence/dashboard`, {
-      method: 'GET',
+      method: "GET",
       headers: await this.getHeaders(),
     });
 
@@ -308,15 +348,16 @@ class APIService {
     limit?: number;
   }): Promise<Person[]> {
     const queryParams = new URLSearchParams();
-    if (params?.search) queryParams.append('search', params.search);
-    if (params?.relationship) queryParams.append('relationship', params.relationship);
-    if (params?.sortBy) queryParams.append('sortBy', params.sortBy);
-    if (params?.limit) queryParams.append('limit', params.limit.toString());
+    if (params?.search) queryParams.append("search", params.search);
+    if (params?.relationship)
+      queryParams.append("relationship", params.relationship);
+    if (params?.sortBy) queryParams.append("sortBy", params.sortBy);
+    if (params?.limit) queryParams.append("limit", params.limit.toString());
 
     const response = await fetch(
       `${this.baseURL}/people?${queryParams.toString()}`,
       {
-        method: 'GET',
+        method: "GET",
         headers: await this.getHeaders(),
       }
     );
@@ -330,12 +371,11 @@ class APIService {
 
   // Get Single Person Details
   async getPersonDetails(personId: string): Promise<Person> {
-
-    if (!personId || personId === 'undefined') {
-      throw new Error('Invalid person ID');
+    if (!personId || personId === "undefined") {
+      throw new Error("Invalid person ID");
     }
     const response = await fetch(`${this.baseURL}/people/${personId}`, {
-      method: 'GET',
+      method: "GET",
       headers: await this.getHeaders(),
     });
 
@@ -347,17 +387,19 @@ class APIService {
   }
 
   // Get Follow-ups
-  async getFollowUps(type?: 'all' | 'pending' | 'suggested'): Promise<FollowUp[]> {
+  async getFollowUps(
+    type?: "all" | "pending" | "suggested"
+  ): Promise<FollowUp[]> {
     let endpoint = `${this.baseURL}/followups`;
-    
-    if (type === 'pending') {
+
+    if (type === "pending") {
       endpoint = `${this.baseURL}/followups/pending`;
-    } else if (type === 'suggested') {
+    } else if (type === "suggested") {
       endpoint = `${this.baseURL}/followups/suggested`;
     }
 
     const response = await fetch(endpoint, {
-      method: 'GET',
+      method: "GET",
       headers: await this.getHeaders(),
     });
 
@@ -374,7 +416,7 @@ class APIService {
     data: { completed?: boolean; priority?: string; context?: string }
   ): Promise<void> {
     const response = await fetch(`${this.baseURL}/followups/${followUpId}`, {
-      method: 'PATCH',
+      method: "PATCH",
       headers: await this.getHeaders(),
       body: JSON.stringify(data),
     });
@@ -387,10 +429,10 @@ class APIService {
   // Initiate Contact (Call/Message)
   async initiateContact(
     personId: string,
-    contactType: 'call' | 'message' | 'email'
+    contactType: "call" | "message" | "email"
   ): Promise<void> {
     const response = await fetch(`${this.baseURL}/people/${personId}/contact`, {
-      method: 'POST',
+      method: "POST",
       headers: await this.getHeaders(),
       body: JSON.stringify({ contactType }),
     });
@@ -409,16 +451,16 @@ class APIService {
     dateRange?: string;
   }): Promise<PaginatedResponse<Conversation>> {
     const queryParams = new URLSearchParams();
-    if (params?.page) queryParams.append('page', params.page.toString());
-    if (params?.limit) queryParams.append('limit', params.limit.toString());
-    if (params?.search) queryParams.append('search', params.search);
-    if (params?.personId) queryParams.append('personId', params.personId);
-    if (params?.dateRange) queryParams.append('dateRange', params.dateRange);
+    if (params?.page) queryParams.append("page", params.page.toString());
+    if (params?.limit) queryParams.append("limit", params.limit.toString());
+    if (params?.search) queryParams.append("search", params.search);
+    if (params?.personId) queryParams.append("personId", params.personId);
+    if (params?.dateRange) queryParams.append("dateRange", params.dateRange);
 
     const response = await fetch(
       `${this.baseURL}/history?${queryParams.toString()}`,
       {
-        method: 'GET',
+        method: "GET",
         headers: await this.getHeaders(),
       }
     );
@@ -433,7 +475,7 @@ class APIService {
   // Get Single Conversation Details
   async getConversationDetails(conversationId: string): Promise<any> {
     const response = await fetch(`${this.baseURL}/history/${conversationId}`, {
-      method: 'GET',
+      method: "GET",
       headers: await this.getHeaders(),
     });
 
@@ -449,7 +491,7 @@ class APIService {
     const response = await fetch(
       `${this.baseURL}/people?search=${encodeURIComponent(query)}`,
       {
-        method: 'GET',
+        method: "GET",
         headers: await this.getHeaders(),
       }
     );

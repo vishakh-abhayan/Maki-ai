@@ -5,12 +5,11 @@ import { useAuth } from "@clerk/clerk-react";
 import { createAPIService, TranscriptResponse } from "@/services/api";
 import { useDataRefresh } from "@/contexts/DataRefreshContext";
 
-const NUM_SPEAKERS = 2;
-
 const VoiceAssistant = () => {
   const [isRecording, setIsRecording] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
-  const [transcriptData, setTranscriptData] = useState<TranscriptResponse | null>(null);
+  const [transcriptData, setTranscriptData] =
+    useState<TranscriptResponse | null>(null);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
   const { toast } = useToast();
@@ -29,19 +28,19 @@ const VoiceAssistant = () => {
 
   const startRecording = async () => {
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ 
+      const stream = await navigator.mediaDevices.getUserMedia({
         audio: {
           echoCancellation: true,
           noiseSuppression: true,
           sampleRate: 44100,
-        } 
+        },
       });
 
       audioChunksRef.current = [];
 
-      let mimeType = 'audio/webm';
-      if (!MediaRecorder.isTypeSupported('audio/webm')) {
-        mimeType = 'audio/mp4';
+      let mimeType = "audio/webm";
+      if (!MediaRecorder.isTypeSupported("audio/webm")) {
+        mimeType = "audio/mp4";
       }
 
       const mediaRecorder = new MediaRecorder(stream, {
@@ -58,8 +57,8 @@ const VoiceAssistant = () => {
 
       mediaRecorder.onstop = async () => {
         const audioBlob = new Blob(audioChunksRef.current, { type: mimeType });
-        stream.getTracks().forEach(track => track.stop());
-        
+        stream.getTracks().forEach((track) => track.stop());
+
         if (audioBlob.size > 0) {
           await sendAudioToBackend(audioBlob, mimeType);
         } else {
@@ -100,40 +99,55 @@ const VoiceAssistant = () => {
   const sendAudioToBackend = async (audioBlob: Blob, mimeType: string) => {
     try {
       const timestamp = new Date().getTime();
-      const extension = mimeType.includes('webm') ? 'webm' : 'mp4';
-      
+      const extension = mimeType.includes("webm") ? "webm" : "mp4";
+
       const audioFile = new File(
-        [audioBlob], 
-        `recording_${timestamp}.${extension}`, 
+        [audioBlob],
+        `recording_${timestamp}.${extension}`,
         { type: mimeType }
       );
 
-      console.log('Sending audio file:', {
+      console.log("Sending audio file:", {
         name: audioFile.name,
         size: audioFile.size,
         type: audioFile.type,
-        speakers: NUM_SPEAKERS
       });
 
-      const data = await apiService.uploadAudio(audioFile, NUM_SPEAKERS);
-      
-      console.log('Transcription response:', data);
+      // ✅ No longer passing numSpeakers - backend auto-detects
+      const data = await apiService.uploadAudio(audioFile);
+
+      console.log("Transcription response:", data);
       setTranscriptData(data);
-      
+
+      // ✅ Create smart notification message
+      let description = "Your audio has been processed successfully.";
+
+      if (data.metadata) {
+        const { numSpeakers, detectedLanguage, wasTranslated } = data.metadata;
+
+        description = `${numSpeakers} speaker${
+          numSpeakers > 1 ? "s" : ""
+        } detected`;
+
+        if (wasTranslated) {
+          description += ` (translated from ${detectedLanguage} to English)`;
+        } else if (detectedLanguage && detectedLanguage !== "en") {
+          description += ` (${detectedLanguage})`;
+        }
+      }
+
       toast({
-        title: "Transcription complete!",
-        description: "Your audio has been processed successfully.",
+        title: "Transcription complete! ",
       });
 
       setTimeout(() => {
         triggerRefresh();
       }, 500);
-
     } catch (error) {
-      console.error("Error sending audio to backend:", error);
+      console.error("Error sending audio to backend:");
       toast({
         title: "Transcription failed",
-        description: error instanceof Error ? error.message : "There was an error processing your audio.",
+        description: "There was an error processing your audio.",
         variant: "destructive",
       });
     } finally {
@@ -154,20 +168,28 @@ const VoiceAssistant = () => {
       <div className="relative mb-8">
         {isRecording && (
           <>
-            <div className="absolute inset-0 rounded-full bg-blue-500/20 animate-ping" style={{ animationDuration: '2s' }} />
-            <div className="absolute inset-0 rounded-full bg-blue-500/10 animate-ping" style={{ animationDuration: '3s' }} />
+            <div
+              className="absolute inset-0 rounded-full bg-blue-500/20 animate-ping"
+              style={{ animationDuration: "2s" }}
+            />
+            <div
+              className="absolute inset-0 rounded-full bg-blue-500/10 animate-ping"
+              style={{ animationDuration: "3s" }}
+            />
           </>
         )}
-        
+
         <div className="glass-container p-1 rounded-full">
-          <button 
+          <button
             onClick={handleMicClick}
             disabled={isProcessing}
             className={`relative w-32 h-32 md:w-44 md:h-44 rounded-full flex items-center justify-center transition-all shadow-xl ${
-              isRecording 
-                ? 'bg-red-500/20 hover:bg-red-500/30 border-red-500' 
-                : 'glass-card hover:bg-card/80'
-            } ${isProcessing ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
+              isRecording
+                ? "bg-red-500/20 hover:bg-red-500/30 border-red-500"
+                : "glass-card hover:bg-card/80"
+            } ${
+              isProcessing ? "opacity-50 cursor-not-allowed" : "cursor-pointer"
+            }`}
           >
             {isProcessing ? (
               <Loader2 className="w-12 h-12 md:w-16 md:h-16 text-foreground animate-spin" />
@@ -179,17 +201,14 @@ const VoiceAssistant = () => {
           </button>
         </div>
       </div>
-      
-      <p className="mt-4 md:mt-6 text-base md:text-lg text-foreground font-medium">
-        {isProcessing 
-          ? " " 
-          : isRecording 
-            ? "Stop listening" 
-            : "Let Maki listen"
-        }
-      </p>
 
-      
+      <p className="mt-4 md:mt-6 text-base md:text-lg text-foreground font-medium">
+        {isProcessing
+          ? "Processing..."
+          : isRecording
+          ? "Stop listening"
+          : "Let Maki listen"}
+      </p>
     </div>
   );
 };
