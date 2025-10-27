@@ -9,7 +9,7 @@ import {
 import { createAPIService, Reminder } from "@/services/api";
 import { useDataRefresh } from "@/contexts/DataRefreshContext";
 import { useAuth } from "@clerk/clerk-react";
-import { isToday, parseISO, isPast, isFuture, isAfter } from "date-fns";
+import { isToday, parseISO, isPast, isFuture, isAfter, format } from "date-fns";
 import { useNavigate } from "react-router";
 
 const RemindersList = () => {
@@ -63,6 +63,18 @@ const RemindersList = () => {
       console.error(err);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const formatDate = (dateString: string | null | undefined) => {
+    if (!dateString) return "No due date";
+
+    try {
+      const date = parseISO(dateString);
+      // Returns format like "Oct 28, 2025 at 8:30 AM"
+      return format(date, "MMM dd, yyyy 'at' h:mm a");
+    } catch {
+      return "No due date";
     }
   };
 
@@ -194,7 +206,7 @@ const RemindersList = () => {
                         From: {formatReminderSource(reminder.from)}
                       </p>
                       <p className="text-[10px] md:text-xs text-muted-foreground">
-                        Due: {reminder.dueDate || "No due date"}
+                        Due: {formatDate(reminder.dueDate)}
                       </p>
                     </div>
                   </div>

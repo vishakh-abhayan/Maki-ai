@@ -95,29 +95,15 @@ const TasksList = () => {
     }
   };
 
-  const formatDueDate = (
-    dueDate: string | null,
-    dueDateText: string
-  ): string => {
-    if (!dueDate) {
-      return dueDateText || "No due date";
-    }
+  const formatDate = (dateString: string | null | undefined) => {
+    if (!dateString) return "No due date";
 
     try {
-      const date = parseISO(dueDate);
-
-      // ✅ Show actual status, not just what was said
-      if (isToday(date)) {
-        return "Today";
-      } else if (isYesterday(date)) {
-        return "Yesterday (overdue)";
-      } else if (isPast(date)) {
-        return `${format(date, "MMM d")} (overdue)`;
-      } else {
-        return format(date, "MMM d, yyyy");
-      }
+      const date = parseISO(dateString);
+      // Returns format like "Oct 28, 2025 at 8:30 AM"
+      return format(date, "MMM dd, yyyy 'at' h:mm a");
     } catch {
-      return dueDateText || "No due date";
+      return "No due date";
     }
   };
 
@@ -273,7 +259,7 @@ const TasksList = () => {
                           </span>
                         )}
                       <p className="text-xs text-muted-foreground/60">
-                        {formatDueDate(task.dueDate, task.dueDateText)}
+                        {formatDate(task.dueDate)}
                       </p>
                     </div>
                   </div>
