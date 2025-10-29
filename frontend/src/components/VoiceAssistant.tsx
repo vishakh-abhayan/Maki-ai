@@ -12,11 +12,14 @@ const VoiceAssistant = () => {
     useState<TranscriptResponse | null>(null);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
+  const recordingStartTimeRef = useRef<number>(0);
   const { toast } = useToast();
   const { getToken } = useAuth();
   const { triggerRefresh } = useDataRefresh();
 
   const apiService = createAPIService(getToken);
+
+  const MIN_RECORDING_DURATION = 2000; // 2 seconds in milliseconds
 
   useEffect(() => {
     return () => {
@@ -37,6 +40,7 @@ const VoiceAssistant = () => {
       });
 
       audioChunksRef.current = [];
+      recordingStartTimeRef.current = Date.now();
 
       let mimeType = "audio/webm";
       if (!MediaRecorder.isTypeSupported("audio/webm")) {
@@ -56,8 +60,21 @@ const VoiceAssistant = () => {
       };
 
       mediaRecorder.onstop = async () => {
-        const audioBlob = new Blob(audioChunksRef.current, { type: mimeType });
+        const recordingDuration = Date.now() - recordingStartTimeRef.current;
         stream.getTracks().forEach((track) => track.stop());
+
+        // Check if recording duration is too short
+        if (recordingDuration < MIN_RECORDING_DURATION) {
+          toast({
+            title: "Recording too short",
+            description: "Please speak for at least 2 seconds",
+          });
+          setIsProcessing(false);
+          audioChunksRef.current = [];
+          return;
+        }
+
+        const audioBlob = new Blob(audioChunksRef.current, { type: mimeType });
 
         if (audioBlob.size > 0) {
           await sendAudioToBackend(audioBlob, mimeType);
@@ -113,13 +130,11 @@ const VoiceAssistant = () => {
         type: audioFile.type,
       });
 
-      // ✅ No longer passing numSpeakers - backend auto-detects
       const data = await apiService.uploadAudio(audioFile);
 
       console.log("Transcription response:", data);
       setTranscriptData(data);
 
-      // ✅ Create smart notification message
       let description = "Your audio has been processed successfully.";
 
       if (data.metadata) {
@@ -137,14 +152,15 @@ const VoiceAssistant = () => {
       }
 
       toast({
-        title: "Transcription complete! ",
+        title: "Transcription complete!",
+        description: description,
       });
 
       setTimeout(() => {
         triggerRefresh();
       }, 500);
     } catch (error) {
-      console.error("Error sending audio to backend:");
+      console.error("Error sending audio to backend:", error);
       toast({
         title: "Transcription failed",
         description: "There was an error processing your audio.",
@@ -152,6 +168,7 @@ const VoiceAssistant = () => {
       });
     } finally {
       setIsProcessing(false);
+      audioChunksRef.current = [];
     }
   };
 
