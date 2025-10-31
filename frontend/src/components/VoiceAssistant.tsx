@@ -13,18 +13,24 @@ const VoiceAssistant = () => {
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
   const recordingStartTimeRef = useRef<number>(0);
+  const recordingTimeoutRef = useRef<NodeJS.Timeout | null>(null); // <-- NEW
   const { toast } = useToast();
   const { getToken } = useAuth();
   const { triggerRefresh } = useDataRefresh();
 
   const apiService = createAPIService(getToken);
 
-  const MIN_RECORDING_DURATION = 2000; // 2 seconds in milliseconds
+  const MIN_RECORDING_DURATION = 2000; // 2 seconds
+  const MAX_RECORDING_DURATION = 30 * 60 * 1000; // 30 minutes
 
   useEffect(() => {
     return () => {
+      // Cleanup on unmount
       if (mediaRecorderRef.current && isRecording) {
         mediaRecorderRef.current.stop();
+      }
+      if (recordingTimeoutRef.current) {
+        clearTimeout(recordingTimeoutRef.current);
       }
     };
   }, [isRecording]);
@@ -47,10 +53,7 @@ const VoiceAssistant = () => {
         mimeType = "audio/mp4";
       }
 
-      const mediaRecorder = new MediaRecorder(stream, {
-        mimeType: mimeType,
-      });
-
+      const mediaRecorder = new MediaRecorder(stream, { mimeType });
       mediaRecorderRef.current = mediaRecorder;
 
       mediaRecorder.ondataavailable = (event) => {
@@ -62,6 +65,10 @@ const VoiceAssistant = () => {
       mediaRecorder.onstop = async () => {
         const recordingDuration = Date.now() - recordingStartTimeRef.current;
         stream.getTracks().forEach((track) => track.stop());
+
+        if (recordingTimeoutRef.current) {
+          clearTimeout(recordingTimeoutRef.current);
+        }
 
         // Check if recording duration is too short
         if (recordingDuration < MIN_RECORDING_DURATION) {
@@ -91,6 +98,20 @@ const VoiceAssistant = () => {
       mediaRecorder.start();
       setIsRecording(true);
 
+      // ⏱️ Automatically stop recording after 30 minutes
+      recordingTimeoutRef.current = setTimeout(() => {
+        if (mediaRecorderRef.current && isRecording) {
+          mediaRecorderRef.current.stop();
+          setIsRecording(false);
+          setIsProcessing(true);
+
+          toast({
+            title: "Recording stopped automatically",
+            description: "Maximum recording duration (30 minutes) reached.",
+          });
+        }
+      }, MAX_RECORDING_DURATION);
+
       toast({
         title: "Recording started",
         description: "Maki is listening...",
@@ -110,6 +131,10 @@ const VoiceAssistant = () => {
       mediaRecorderRef.current.stop();
       setIsRecording(false);
       setIsProcessing(true);
+
+      if (recordingTimeoutRef.current) {
+        clearTimeout(recordingTimeoutRef.current);
+      }
     }
   };
 
@@ -131,29 +156,11 @@ const VoiceAssistant = () => {
       });
 
       const data = await apiService.uploadAudio(audioFile);
-
       console.log("Transcription response:", data);
       setTranscriptData(data);
 
-      let description = "Your audio has been processed successfully.";
-
-      if (data.metadata) {
-        const { numSpeakers, detectedLanguage, wasTranslated } = data.metadata;
-
-        description = `${numSpeakers} speaker${
-          numSpeakers > 1 ? "s" : ""
-        } detected`;
-
-        if (wasTranslated) {
-          description += ` (translated from ${detectedLanguage} to English)`;
-        } else if (detectedLanguage && detectedLanguage !== "en") {
-          description += ` (${detectedLanguage})`;
-        }
-      }
-
       toast({
         title: "Transcription complete!",
-        description: description,
       });
 
       setTimeout(() => {
