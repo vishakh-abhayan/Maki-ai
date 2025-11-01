@@ -22,21 +22,22 @@ import { useDataRefresh } from "@/contexts/DataRefreshContext";
 import Header from "../components/Header";
 
 interface ConversationHistory {
-  _id: string;
+  id: string;
   title: string;
   participants: Array<{
-    _id: string;
+    id?: string;
     name: string;
     isUser: boolean;
+    initials?: string;
   }>;
-  summary: {
-    short: string;
-    extended: string;
-  };
-  conversationDate: string;
+  summary: string;
+  date: string;
+  dateFormatted: string;
+  timeAgo: string;
   duration: number;
   tags: string[];
-  transcriptId: string;
+  hasActionItems: boolean;
+  actionItemCount: number;
 }
 
 const History = () => {
@@ -45,12 +46,12 @@ const History = () => {
   const navigate = useNavigate();
   const { refreshTrigger } = useDataRefresh();
 
-  const [searchQuery, setSearchQuery] = useState("");
+  const [searchQuery, setSearchQuery] = useState<string>("");
   const [conversations, setConversations] = useState<ConversationHistory[]>([]);
   const [filteredConversations, setFilteredConversations] = useState<
     ConversationHistory[]
   >([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -67,12 +68,7 @@ const History = () => {
           conv.participants.some((p) =>
             p.name.toLowerCase().includes(searchQuery.toLowerCase())
           ) ||
-          conv.summary.short
-            .toLowerCase()
-            .includes(searchQuery.toLowerCase()) ||
-          conv.summary.extended
-            .toLowerCase()
-            .includes(searchQuery.toLowerCase())
+          conv.summary.toLowerCase().includes(searchQuery.toLowerCase())
       );
       setFilteredConversations(filtered);
     }
@@ -85,7 +81,7 @@ const History = () => {
       const token = await getToken();
 
       const response = await fetch(
-        `${import.meta.env.VITE_API_URL}/conversations`,
+        `${import.meta.env.VITE_API_URL}/api/v1/conversations`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -97,9 +93,14 @@ const History = () => {
         throw new Error("Failed to fetch conversations");
       }
 
-      const data = await response.json();
-      setConversations(data.conversations || []);
-      setFilteredConversations(data.conversations || []);
+      const result = await response.json();
+      console.log("Conversations API Response:", result);
+
+      // Extract data from backend response structure
+      const data = result.success && result.data ? result.data : result;
+
+      setConversations(data || []);
+      setFilteredConversations(data || []);
     } catch (err) {
       console.error("Error fetching conversations:", err);
       setError(
@@ -120,7 +121,7 @@ const History = () => {
     conversationId: string,
     e: React.MouseEvent
   ) => {
-    e.stopPropagation(); // Prevent navigation when clicking delete
+    e.stopPropagation();
 
     if (!window.confirm("Are you sure you want to delete this conversation?")) {
       return;
@@ -129,7 +130,9 @@ const History = () => {
     try {
       const token = await getToken();
       const response = await fetch(
-        `${import.meta.env.VITE_API_URL}/conversations/${conversationId}`,
+        `${
+          import.meta.env.VITE_API_URL
+        }/api/v1/conversations/${conversationId}`,
         {
           method: "DELETE",
           headers: {
@@ -142,10 +145,9 @@ const History = () => {
         throw new Error("Failed to delete conversation");
       }
 
-      // Remove from local state
-      setConversations((prev) => prev.filter((c) => c._id !== conversationId));
+      setConversations((prev) => prev.filter((c) => c.id !== conversationId));
       setFilteredConversations((prev) =>
-        prev.filter((c) => c._id !== conversationId)
+        prev.filter((c) => c.id !== conversationId)
       );
     } catch (err) {
       console.error("Error deleting conversation:", err);
@@ -156,47 +158,22 @@ const History = () => {
   const getParticipantNames = (
     participants: Array<{ name: string; isUser: boolean }>
   ) => {
-    return participants
-      .filter((p) => !p.isUser)
-      .map((p) => p.name)
-      .join(", ");
-  };
-
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    const now = new Date();
-    const diffInMs = now.getTime() - date.getTime();
-    const diffInHours = diffInMs / (1000 * 60 * 60);
-    const diffInDays = diffInMs / (1000 * 60 * 60 * 24);
-
-    if (diffInHours < 24) {
-      return `Today, ${date.toLocaleTimeString("en-US", {
-        hour: "numeric",
-        minute: "2-digit",
-        hour12: true,
-      })}`;
-    } else if (diffInDays < 2) {
-      return `Yesterday, ${date.toLocaleTimeString("en-US", {
-        hour: "numeric",
-        minute: "2-digit",
-        hour12: true,
-      })}`;
-    } else {
-      return date.toLocaleDateString("en-US", {
-        month: "short",
-        day: "numeric",
-        year: "numeric",
-      });
-    }
+    const others = participants.filter((p) => !p.isUser);
+    return others.length > 0
+      ? others.map((p) => p.name).join(", ")
+      : "No other participants";
   };
 
   const formatDuration = (minutes: number) => {
+    if (minutes < 1) {
+      return `${Math.round(minutes * 60)}s`;
+    }
     if (minutes < 60) {
-      return `${minutes}mins`;
+      return `${Math.round(minutes)}min`;
     }
     const hours = Math.floor(minutes / 60);
-    const mins = minutes % 60;
-    return mins > 0 ? `${hours}h ${mins}mins` : `${hours}h`;
+    const mins = Math.round(minutes % 60);
+    return mins > 0 ? `${hours}h ${mins}min` : `${hours}h`;
   };
 
   return (
@@ -206,7 +183,6 @@ const History = () => {
       <main className="flex-1 p-4 md:p-6 lg:p-8 w-full max-w-[1400px] mx-auto">
         <Header logoImage="/favicon.ico" showDivider={true} />
 
-        {/* Page Title - Separate */}
         <div className="mb-6 lg:mb-12 mt-4 lg:mt-16">
           <h2 className="text-2xl lg:text-4xl font-semibold text-foreground ml-5 lg:ml-0">
             History
@@ -318,7 +294,7 @@ const History = () => {
             ) : (
               <div className="space-y-6">
                 {filteredConversations.map((conversation) => {
-                  const convDate = new Date(conversation.conversationDate);
+                  const convDate = new Date(conversation.date);
                   const month = convDate
                     .toLocaleString("en-US", { month: "short" })
                     .toUpperCase();
@@ -326,8 +302,8 @@ const History = () => {
 
                   return (
                     <div
-                      key={conversation._id}
-                      onClick={() => handleViewDetails(conversation._id)}
+                      key={conversation.id}
+                      onClick={() => handleViewDetails(conversation.id)}
                       className="p-4 md:p-6 rounded-lg border border-white/25 hover:border-white/50 transition-all bg-card/5 cursor-pointer"
                     >
                       <div className="flex items-start gap-3 md:gap-4">
@@ -344,7 +320,7 @@ const History = () => {
                         {/* Content Section */}
                         <div className="flex-1 min-w-0">
                           <div className="flex items-start justify-between gap-2 md:gap-4 mb-2 md:mb-3">
-                            <div>
+                            <div className="flex-1 min-w-0">
                               <h3 className="text-lg md:text-xl font-semibold text-foreground mb-0.5 md:mb-1">
                                 {conversation.title}
                               </h3>
@@ -356,7 +332,7 @@ const History = () => {
 
                             <div className="flex flex-col items-end gap-0.5 md:gap-1 flex-shrink-0">
                               <p className="text-xs md:text-sm text-muted-foreground/60 whitespace-nowrap">
-                                {formatDate(conversation.conversationDate)}
+                                {conversation.dateFormatted}
                               </p>
                               <p className="text-xs md:text-sm text-muted-foreground/60">
                                 {formatDuration(conversation.duration)}
@@ -364,9 +340,8 @@ const History = () => {
                             </div>
                           </div>
 
-                          <p className="text-sm md:text-lg text-muted-foreground mb-3 md:mb-4">
-                            {conversation.summary.short ||
-                              conversation.summary.extended}
+                          <p className="text-sm md:text-lg text-muted-foreground mb-3 md:mb-4 line-clamp-2">
+                            {conversation.summary}
                           </p>
 
                           {/* Bottom Row with Icons and Button */}
@@ -376,18 +351,20 @@ const History = () => {
                                 onClick={(e) => {
                                   e.stopPropagation();
                                   navigate(
-                                    `/history/${conversation._id}/transcript`
+                                    `/history/${conversation.id}/transcript`
                                   );
                                 }}
                                 className="p-1.5 md:p-2 hover:bg-card/50 rounded-lg transition-all"
+                                aria-label="View transcript"
                               >
                                 <MessageCircle className="w-4 h-4 md:w-5 md:h-5 text-primary" />
                               </button>
                               <button
                                 onClick={(e) =>
-                                  handleDeleteConversation(conversation._id, e)
+                                  handleDeleteConversation(conversation.id, e)
                                 }
                                 className="p-1.5 md:p-2 hover:bg-card/50 rounded-lg transition-all"
+                                aria-label="Delete conversation"
                               >
                                 <Trash2 className="w-4 h-4 md:w-5 md:h-5 text-primary" />
                               </button>
@@ -396,7 +373,7 @@ const History = () => {
                             <button
                               onClick={(e) => {
                                 e.stopPropagation();
-                                handleViewDetails(conversation._id);
+                                handleViewDetails(conversation.id);
                               }}
                               className="px-3 py-1.5 md:px-6 md:py-2.5 bg-blue-700 rounded-2xl md:rounded-[20px] text-white text-xs font-semibold hover:bg-blue-600 transition-all"
                             >

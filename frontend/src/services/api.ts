@@ -9,7 +9,7 @@ export interface Task {
   from: string | null;
   dueDate: string | null;
   dueDateText: string;
-  priority: "high" | "medium" | "normal" | "low"; // ✅ Added "medium" and "normal"
+  priority: "high" | "medium" | "normal" | "low";
   category: string;
   extractedFrom: string;
   completed: boolean;
@@ -26,7 +26,7 @@ export interface Reminder {
   from: string | null;
   dueDate: string | null;
   dueDateText: string;
-  priority: "high" | "medium" | "normal" | "low"; // ✅ Added "medium" and "normal"
+  priority: "high" | "medium" | "normal" | "low";
   category: "meeting" | "call" | "event" | "deadline" | "personal";
   extractedFrom: string;
   completed: boolean;
@@ -38,14 +38,14 @@ export interface TranscriptResponse {
   success: boolean;
   message: string;
   transcript: string;
-  // ✅ ADD: metadata property
+
   metadata?: {
     detectedLanguage: string;
     wasTranslated: boolean;
     numSpeakers: number;
     filename: string;
   };
-  // ✅ ADD: conversation property
+
   conversation?: {
     id: string;
     title: string;
@@ -60,7 +60,7 @@ export interface TranscriptResponse {
       isUser: boolean;
     }>;
   };
-  // ✅ ADD: extracted data
+
   extracted?: {
     tasks: number;
     reminders: number;
@@ -157,17 +157,17 @@ export interface ConversationSummary {
 // Update the FollowUp interface
 export interface FollowUp {
   _id: string;
-  personId: string; // ✅ Changed from object to string (just the ID)
-  person: string; // ✅ Added: Person's name
-  initials: string; // ✅ Added: Person's initials
-  avatar?: string; // ✅ Added: Person's avatar
-  relationship: string; // ✅ Added: Person's relationship type
+  personId: string;
+  person: string;
+  initials: string;
+  avatar?: string;
+  relationship: string;
   type: "pending" | "suggested";
   priority: "high" | "medium" | "low";
   context: string;
   reason?: string;
-  conversationTitle?: string; // ✅ Added: Title of related conversation
-  conversationDate?: string; // ✅ Added: Date of related conversation
+  conversationTitle?: string;
+  conversationDate?: string;
   suggestedDate?: string;
   completed: boolean;
   createdAt: string;
@@ -177,7 +177,7 @@ export interface FollowUp {
 export interface SuggestedFollowUp {
   personId: string;
   person: string;
-  name: string; // ✅ Added for compatibility
+  name: string;
   initials: string;
   avatar?: string;
   relationship: string;
@@ -190,8 +190,8 @@ export interface SuggestedFollowUp {
 // Update IntelligenceDashboard interface
 export interface IntelligenceDashboard {
   pendingFollowUps: FollowUp[];
-  suggestedFollowUps: SuggestedFollowUp[]; // ✅ Changed from any[]
-  latestInteractions: LatestInteraction[]; // ✅ Changed from any[]
+  suggestedFollowUps: SuggestedFollowUp[];
+  latestInteractions: LatestInteraction[];
   networkOverview: {
     totalPeople: number;
     closeContacts: number;
@@ -250,12 +250,25 @@ class APIService {
     };
   }
 
+  private extractData<T>(response: any): T {
+    // Backend returns { success: true, data: {...} }
+    if (
+      response &&
+      response.success !== undefined &&
+      response.data !== undefined
+    ) {
+      return response.data;
+    }
+    // If it's already the data we want, return as-is
+    return response;
+  }
+
   async uploadAudio(audioFile: File): Promise<TranscriptResponse> {
     const token = await this.getToken();
     const formData = new FormData();
     formData.append("file", audioFile);
 
-    const response = await fetch(`${this.baseURL}/transcribe`, {
+    const response = await fetch(`${this.baseURL}/api/v1/transcribe`, {
       method: "POST",
       headers: {
         ...(token && { Authorization: `Bearer ${token}` }),
@@ -270,41 +283,53 @@ class APIService {
       );
     }
 
-    return await response.json();
+    const data = await response.json();
+    return this.extractData(data);
   }
 
   async getTasks(): Promise<Task[]> {
-    const response = await fetch(`${this.baseURL}/tasks`, {
-      method: "GET",
-      headers: await this.getHeaders(),
-    });
+    const response = await fetch(
+      `${this.baseURL}/api/v1/tasks?completed=false`,
+      {
+        method: "GET",
+        headers: await this.getHeaders(),
+      }
+    );
 
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
 
-    return await response.json();
+    const data = await response.json();
+    return this.extractData(data);
   }
 
   async getReminders(): Promise<Reminder[]> {
-    const response = await fetch(`${this.baseURL}/reminders`, {
-      method: "GET",
-      headers: await this.getHeaders(),
-    });
+    const response = await fetch(
+      `${this.baseURL}/api/v1/reminders?completed=false`,
+      {
+        method: "GET",
+        headers: await this.getHeaders(),
+      }
+    );
 
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
 
-    return await response.json();
+    const data = await response.json();
+    return this.extractData(data);
   }
 
   async updateTaskStatus(taskId: string, completed: boolean): Promise<void> {
-    const response = await fetch(`${this.baseURL}/tasks/${taskId}`, {
-      method: "PATCH",
-      headers: await this.getHeaders(),
-      body: JSON.stringify({ completed }),
-    });
+    const response = await fetch(
+      `${this.baseURL}/api/v1/tasks/${taskId}/toggle`,
+      {
+        method: "PATCH",
+        headers: await this.getHeaders(),
+        body: JSON.stringify({ completed }),
+      }
+    );
 
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
@@ -315,32 +340,37 @@ class APIService {
     reminderId: string,
     completed: boolean
   ): Promise<void> {
-    const response = await fetch(`${this.baseURL}/reminders/${reminderId}`, {
-      method: "PATCH",
-      headers: await this.getHeaders(),
-      body: JSON.stringify({ completed }),
-    });
+    const response = await fetch(
+      `${this.baseURL}/api/v1/reminders/${reminderId}/toggle`,
+      {
+        method: "PATCH",
+        headers: await this.getHeaders(),
+        body: JSON.stringify({ completed }),
+      }
+    );
 
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
   }
 
-  // Get Intelligence Dashboard Data
   async getIntelligenceDashboard(): Promise<IntelligenceDashboard> {
-    const response = await fetch(`${this.baseURL}/intelligence/dashboard`, {
-      method: "GET",
-      headers: await this.getHeaders(),
-    });
+    const response = await fetch(
+      `${this.baseURL}/api/v1/intelligence/dashboard`,
+      {
+        method: "GET",
+        headers: await this.getHeaders(),
+      }
+    );
 
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
 
-    return await response.json();
+    const data = await response.json();
+    return this.extractData(data);
   }
 
-  // Get All People
   async getPeople(params?: {
     search?: string;
     relationship?: string;
@@ -355,7 +385,7 @@ class APIService {
     if (params?.limit) queryParams.append("limit", params.limit.toString());
 
     const response = await fetch(
-      `${this.baseURL}/people?${queryParams.toString()}`,
+      `${this.baseURL}/api/v1/people?${queryParams.toString()}`,
       {
         method: "GET",
         headers: await this.getHeaders(),
@@ -366,15 +396,15 @@ class APIService {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
 
-    return await response.json();
+    const data = await response.json();
+    return this.extractData(data);
   }
 
-  // Get Single Person Details
   async getPersonDetails(personId: string): Promise<Person> {
     if (!personId || personId === "undefined") {
       throw new Error("Invalid person ID");
     }
-    const response = await fetch(`${this.baseURL}/people/${personId}`, {
+    const response = await fetch(`${this.baseURL}/api/v1/people/${personId}`, {
       method: "GET",
       headers: await this.getHeaders(),
     });
@@ -383,19 +413,17 @@ class APIService {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
 
-    return await response.json();
+    const data = await response.json();
+    return this.extractData(data);
   }
 
-  // Get Follow-ups
   async getFollowUps(
     type?: "all" | "pending" | "suggested"
   ): Promise<FollowUp[]> {
-    let endpoint = `${this.baseURL}/followups`;
+    let endpoint = `${this.baseURL}/api/v1/followups`;
 
     if (type === "pending") {
-      endpoint = `${this.baseURL}/followups/pending`;
-    } else if (type === "suggested") {
-      endpoint = `${this.baseURL}/followups/suggested`;
+      endpoint += "?status=pending";
     }
 
     const response = await fetch(endpoint, {
@@ -407,42 +435,46 @@ class APIService {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
 
-    return await response.json();
+    const data = await response.json();
+    return this.extractData(data);
   }
 
-  // Update Follow-up
   async updateFollowUp(
     followUpId: string,
     data: { completed?: boolean; priority?: string; context?: string }
   ): Promise<void> {
-    const response = await fetch(`${this.baseURL}/followups/${followUpId}`, {
-      method: "PATCH",
-      headers: await this.getHeaders(),
-      body: JSON.stringify(data),
-    });
+    const response = await fetch(
+      `${this.baseURL}/api/v1/followups/${followUpId}`,
+      {
+        method: "PATCH",
+        headers: await this.getHeaders(),
+        body: JSON.stringify(data),
+      }
+    );
 
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
   }
 
-  // Initiate Contact (Call/Message)
   async initiateContact(
     personId: string,
     contactType: "call" | "message" | "email"
   ): Promise<void> {
-    const response = await fetch(`${this.baseURL}/people/${personId}/contact`, {
-      method: "POST",
-      headers: await this.getHeaders(),
-      body: JSON.stringify({ contactType }),
-    });
+    const response = await fetch(
+      `${this.baseURL}/api/v1/people/${personId}/contact`,
+      {
+        method: "POST",
+        headers: await this.getHeaders(),
+        body: JSON.stringify({ contactType }),
+      }
+    );
 
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
   }
 
-  // Get History/Conversations
   async getConversations(params?: {
     page?: number;
     limit?: number;
@@ -458,7 +490,7 @@ class APIService {
     if (params?.dateRange) queryParams.append("dateRange", params.dateRange);
 
     const response = await fetch(
-      `${this.baseURL}/history?${queryParams.toString()}`,
+      `${this.baseURL}/api/v1/conversations?${queryParams.toString()}`,
       {
         method: "GET",
         headers: await this.getHeaders(),
@@ -469,27 +501,39 @@ class APIService {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
 
-    return await response.json();
+    const data = await response.json();
+    // Backend returns paginated response with data and pagination
+    return {
+      conversations: this.extractData(data) || [],
+      pagination: data.pagination || {
+        currentPage: 1,
+        totalPages: 1,
+        totalItems: 0,
+        itemsPerPage: 20,
+      },
+    };
   }
 
-  // Get Single Conversation Details
   async getConversationDetails(conversationId: string): Promise<any> {
-    const response = await fetch(`${this.baseURL}/history/${conversationId}`, {
-      method: "GET",
-      headers: await this.getHeaders(),
-    });
+    const response = await fetch(
+      `${this.baseURL}/api/v1/conversations/${conversationId}`,
+      {
+        method: "GET",
+        headers: await this.getHeaders(),
+      }
+    );
 
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
 
-    return await response.json();
+    const data = await response.json();
+    return this.extractData(data);
   }
 
-  // Search People
   async searchPeople(query: string): Promise<Person[]> {
     const response = await fetch(
-      `${this.baseURL}/people?search=${encodeURIComponent(query)}`,
+      `${this.baseURL}/api/v1/people?search=${encodeURIComponent(query)}`,
       {
         method: "GET",
         headers: await this.getHeaders(),
@@ -500,7 +544,8 @@ class APIService {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
 
-    return await response.json();
+    const data = await response.json();
+    return this.extractData(data);
   }
 }
 

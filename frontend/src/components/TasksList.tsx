@@ -32,9 +32,8 @@ const TasksList = () => {
       setLoading(true);
       const data = await apiService.getTasks();
 
-      // ✅ Filter for TODAY's tasks ONLY (not overdue from yesterday) AND not completed
       const todayTasks = data.filter((item) => {
-        if (item.completed) return false; // ✅ Filter out completed tasks
+        if (item.completed) return false;
 
         if (!item.dueDate) {
           // If no date, only include if text explicitly says "today"
@@ -44,7 +43,7 @@ const TasksList = () => {
 
         try {
           const taskDate = parseISO(item.dueDate);
-          // ✅ ONLY show tasks that are actually TODAY (not past)
+
           return isToday(taskDate);
         } catch {
           return false;
@@ -73,15 +72,12 @@ const TasksList = () => {
 
   const handleToggleTask = async (taskId: string, currentStatus: boolean) => {
     try {
-      // ✅ STEP 1: Mark as completing (shows tick + strikethrough)
       setCompletingTaskId(taskId);
 
       // Update on backend
       await apiService.updateTaskStatus(taskId, !currentStatus);
 
-      // ✅ STEP 2: Wait 1 second to show the animation
       setTimeout(() => {
-        // ✅ STEP 3: Remove from UI
         setTasks((prevTasks) =>
           prevTasks.filter((task) => task._id !== taskId)
         );
@@ -90,7 +86,6 @@ const TasksList = () => {
     } catch (err) {
       console.error("Failed to update task:", err);
       setCompletingTaskId(null);
-      // ✅ Revert on error by refetching
       fetchTasks();
     }
   };
