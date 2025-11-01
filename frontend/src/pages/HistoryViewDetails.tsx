@@ -12,21 +12,17 @@ import Header from "@/components/Header";
 import { useAuth } from "@clerk/clerk-react";
 
 interface ConversationDetails {
-  _id: string;
+  id: string;
   title: string;
-  summary: {
-    short: string;
-    extended: string;
-  };
+  summary: string | { short: string; extended: string };
   participants: Array<{
-    _id: string;
+    id?: string;
     name: string;
     isUser: boolean;
   }>;
-  conversationDate: string;
+  date: string;
   duration: number;
   tags: string[];
-  transcriptId: string;
 }
 
 const HistoryViewDetails = () => {
@@ -48,7 +44,7 @@ const HistoryViewDetails = () => {
       const token = await getToken();
 
       const response = await fetch(
-        `${import.meta.env.VITE_API_URL}/conversations/${id}`,
+        `${import.meta.env.VITE_API_URL}/api/v1/conversations/${id}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -58,7 +54,10 @@ const HistoryViewDetails = () => {
 
       if (!response.ok) throw new Error("Failed to fetch conversation");
 
-      const data = await response.json();
+      const result = await response.json();
+      console.log("Conversation Details Response:", result);
+
+      const data = result.success && result.data ? result.data : result;
       setConversation(data);
     } catch (err) {
       console.error("Error fetching conversation:", err);
@@ -74,7 +73,7 @@ const HistoryViewDetails = () => {
     try {
       const token = await getToken();
       const response = await fetch(
-        `${import.meta.env.VITE_API_URL}/conversations/${id}`,
+        `${import.meta.env.VITE_API_URL}/api/v1/conversations/${id}`,
         {
           method: "DELETE",
           headers: { Authorization: `Bearer ${token}` },
@@ -90,10 +89,20 @@ const HistoryViewDetails = () => {
 
   const getParticipantNames = () => {
     if (!conversation) return "";
-    return conversation.participants
-      .filter((p) => !p.isUser)
-      .map((p) => p.name)
-      .join(", ");
+    return (
+      conversation.participants
+        .filter((p) => !p.isUser)
+        .map((p) => p.name)
+        .join(", ") || "No other participants"
+    );
+  };
+
+  const getSummary = () => {
+    if (!conversation) return "";
+    if (typeof conversation.summary === "string") {
+      return conversation.summary;
+    }
+    return conversation.summary?.extended || conversation.summary?.short || "";
   };
 
   if (loading) {
@@ -129,10 +138,8 @@ const HistoryViewDetails = () => {
       <Sidebar />
 
       <main className="flex-1 p-4 md:p-6 lg:p-8 w-full max-w-[1400px] mx-auto">
-        {/* Header Component */}
         <Header logoImage="/favicon.ico" showDivider={true} />
 
-        {/* Page Title - Separate with Back Button */}
         <div className="mb-6 lg:mb-12 mt-4 lg:mt-16">
           <div className="flex items-center gap-4 ml-5 lg:ml-0">
             <button
@@ -152,10 +159,8 @@ const HistoryViewDetails = () => {
           </div>
         </div>
 
-        {/* Main Content Card */}
         <div className="glass-container p-2">
           <div className="glass-card p-8">
-            {/* Title and Actions */}
             <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mb-6 md:mb-8">
               <div className="flex-1 w-full md:w-auto">
                 <h3 className="text-2xl md:text-3xl font-semibold text-foreground mb-2 md:mb-3">
@@ -184,17 +189,14 @@ const HistoryViewDetails = () => {
               </div>
             </div>
 
-            {/* Divider */}
             <div className="h-px bg-gradient-to-r from-transparent via-white/10 to-transparent mb-6 md:mb-8" />
 
-            {/* Summary */}
             <div className="max-w-4xl">
               <p className="text-lg md:text-2xl font-normal text-muted-foreground leading-relaxed">
-                {conversation.summary.extended}
+                {getSummary()}
               </p>
             </div>
 
-            {/* Tags */}
             {conversation.tags && conversation.tags.length > 0 && (
               <div className="flex flex-wrap gap-2 mt-8">
                 {conversation.tags.map((tag, idx) => (
@@ -208,15 +210,16 @@ const HistoryViewDetails = () => {
               </div>
             )}
 
-            {/* Metadata */}
             <div className="flex items-center gap-6 mt-8 pt-8 border-t border-white/5">
               <div className="text-sm text-white/40">
                 <span className="font-medium">Duration:</span>{" "}
-                {conversation.duration} min
+                {conversation.duration < 1
+                  ? `${Math.round(conversation.duration * 60)}s`
+                  : `${Math.round(conversation.duration)} min`}
               </div>
               <div className="text-sm text-muted-foreground">
                 <span className="font-medium">Date:</span>{" "}
-                {new Date(conversation.conversationDate).toLocaleDateString()}
+                {new Date(conversation.date).toLocaleDateString()}
               </div>
             </div>
           </div>

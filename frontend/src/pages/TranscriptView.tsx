@@ -18,34 +18,55 @@ const TranscriptView = () => {
   const [messages, setMessages] = useState<TranscriptMessage[]>([]);
   const [conversationTitle, setConversationTitle] = useState("");
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    fetchTranscript();
+    if (id) {
+      fetchTranscript();
+    }
   }, [id]);
 
   const fetchTranscript = async () => {
     try {
       const token = await getToken();
 
-      // Fetch conversation
+      console.log("Fetching conversation:", id);
       const convRes = await fetch(
-        `${import.meta.env.VITE_API_URL}/conversations/${id}`,
+        `${import.meta.env.VITE_API_URL}/api/v1/conversations/${id}`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      const conv = await convRes.json();
-      setConversationTitle(conv.title);
 
-      // FIX: Convert transcriptId to string to avoid [object Object]
-      const transcriptId =
-        typeof conv.transcriptId === "object"
-          ? conv.transcriptId._id || conv.transcriptId.toString()
-          : conv.transcriptId;
+      if (!convRes.ok) {
+        throw new Error(`Failed to fetch conversation: ${convRes.status}`);
+      }
 
-      console.log("Fetching transcript with ID:", transcriptId); // Debug log
+      const convResult = await convRes.json();
+      console.log("Conversation API Response:", convResult);
 
-      // Fetch transcript
+      const conv =
+        convResult.success && convResult.data ? convResult.data : convResult;
+      console.log("Extracted conversation:", conv);
+
+      setConversationTitle(conv.title || "Untitled Conversation");
+
+      let transcriptId = conv.transcriptId;
+
+      if (!transcriptId) {
+        throw new Error("No transcript ID found");
+      }
+
+      // If transcriptId is an object, extract the _id or id
+      if (typeof transcriptId === "object" && transcriptId !== null) {
+        transcriptId = transcriptId._id || transcriptId.id;
+      }
+
+      // Convert to string
+      transcriptId = transcriptId.toString();
+
+      console.log("Fetching transcript with ID:", transcriptId);
+
       const transRes = await fetch(
-        `${import.meta.env.VITE_API_URL}/transcribe/${transcriptId}`,
+        `${import.meta.env.VITE_API_URL}/api/v1/transcribe/${transcriptId}`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
@@ -53,17 +74,31 @@ const TranscriptView = () => {
         throw new Error(`Failed to fetch transcript: ${transRes.status}`);
       }
 
-      const transcriptData = await transRes.json();
-      console.log("Transcript data:", transcriptData); // Debug log
+      const transResult = await transRes.json();
+      console.log("Transcript API Response:", transResult);
 
-      // Parse transcript
-      const parsed = parseTranscript(
-        transcriptData.transcript,
-        conv.participants
-      );
-      setMessages(parsed);
+      const transcriptData =
+        transResult.success && transResult.data
+          ? transResult.data
+          : transResult;
+
+      console.log("Extracted transcript data:", transcriptData);
+
+      if (transcriptData.transcript) {
+        const parsed = parseTranscript(
+          transcriptData.transcript,
+          conv.participants || []
+        );
+        setMessages(parsed);
+      } else {
+        console.warn("No transcript text found");
+        setMessages([]);
+      }
     } catch (err) {
       console.error("Error fetching transcript:", err);
+      setError(
+        err instanceof Error ? err.message : "Failed to load transcript"
+      );
     } finally {
       setLoading(false);
     }
@@ -77,6 +112,9 @@ const TranscriptView = () => {
       console.error("No transcript text provided");
       return [];
     }
+
+    console.log("Parsing transcript text, length:", text.length);
+    console.log("Participants:", participants);
 
     const segments = text.split(/\n(?=\[\d{2}:\d{2}:\d{2})/);
     const messages: TranscriptMessage[] = [];
@@ -108,7 +146,7 @@ const TranscriptView = () => {
       }
     }
 
-    console.log("Parsed messages:", messages); // Debug log
+    console.log("Parsed messages count:", messages.length);
     return messages;
   };
 
@@ -119,7 +157,37 @@ const TranscriptView = () => {
         <main className="flex-1 p-4 md:p-6 lg:p-8 w-full">
           <Header logoImage="/favicon.ico" showDivider={true} />
           <div className="flex items-center justify-center h-[600px]">
-            <p className="text-white text-xl">Loading transcript...</p>
+            <div className="text-center">
+              <div className="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mb-4 mx-auto"></div>
+              <p className="text-muted-foreground text-xl">
+                Loading transcript...
+              </p>
+            </div>
+          </div>
+        </main>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen flex lg:pl-[170px] pb-16 lg:pb-0">
+        <Sidebar />
+        <main className="flex-1 p-4 md:p-6 lg:p-8 w-full">
+          <Header logoImage="/favicon.ico" showDivider={true} />
+          <div className="flex items-center justify-center h-[600px]">
+            <div className="text-center">
+              <p className="text-red-400 text-xl mb-4">
+                Failed to load transcript
+              </p>
+              <p className="text-sm text-muted-foreground mb-4">{error}</p>
+              <button
+                onClick={() => navigate(`/history/${id}`)}
+                className="px-6 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg text-white transition-colors"
+              >
+                Back to Details
+              </button>
+            </div>
           </div>
         </main>
       </div>
@@ -131,10 +199,8 @@ const TranscriptView = () => {
       <Sidebar />
 
       <main className="flex-1 p-4 md:p-6 lg:p-8 w-full max-w-[1400px] mx-auto">
-        {/* Header Component */}
         <Header logoImage="/favicon.ico" showDivider={true} />
 
-        {/* Page Title - Separate with Back Button */}
         <div className="mb-6 lg:mb-12 mt-4 lg:mt-16">
           <div className="flex items-center gap-4 ml-5 lg:ml-0">
             <button
@@ -154,7 +220,6 @@ const TranscriptView = () => {
           </div>
         </div>
 
-        {/* Transcript Card */}
         <div className="glass-container p-2">
           <div className="glass-card p-8">
             <div className="mb-8">
@@ -166,7 +231,6 @@ const TranscriptView = () => {
 
             <div className="h-px bg-gradient-to-r from-transparent via-white/10 to-transparent mb-8" />
 
-            {/* Messages */}
             <div className="space-y-6 max-h-[650px] overflow-y-auto pr-4">
               {messages.length === 0 ? (
                 <div className="text-center py-12">
@@ -177,18 +241,6 @@ const TranscriptView = () => {
               ) : (
                 messages.map((msg, idx) => (
                   <div key={idx} className="flex gap-4">
-                    {/* Avatar */}
-                    <div
-                      className={`flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center ${
-                        msg.isUser
-                          ? "bg-[#00ffe975]/20 text-[#00ffe975]"
-                          : "bg-[#0082df]/20 text-[#0082df]"
-                      }`}
-                    >
-                      <User className="w-5 h-5" />
-                    </div>
-
-                    {/* Message Content */}
                     <div className="flex-1 min-w-0">
                       <div className="flex items-baseline gap-2 mb-1">
                         <span
