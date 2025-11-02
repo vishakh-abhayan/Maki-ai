@@ -35,59 +35,44 @@ export interface Reminder {
 }
 
 export interface TranscriptResponse {
-  success: boolean;
-  message: string;
   transcript: string;
-
-  metadata?: {
+  metadata: {
     detectedLanguage: string;
     wasTranslated: boolean;
     numSpeakers: number;
     filename: string;
   };
-
-  conversation?: {
+  conversation: {
     id: string;
     title: string;
-    summary: {
-      short: string;
-      extended: string;
-    };
-    participants: Array<{
-      personId?: string;
-      speakerLabel: string;
-      name: string;
-      isUser: boolean;
-    }>;
+    summary: string;
+    participants: string[];
   };
-
-  extracted?: {
+  extracted: {
     tasks: number;
     reminders: number;
-    people: Array<{
-      id: string;
-      name: string;
-      initials: string;
-      relationship: any;
-    }>;
+    people: number;
     followups: number;
   };
-  // Legacy fields (kept for backward compatibility)
-  insights?: {
-    [speaker: string]: {
-      action_items: string[];
-      key_information: string[];
-    };
-  };
-  reminders?: Array<{
-    title: string;
-    from: string;
-    due_date_text: string | null;
-    priority: string;
-    category: string;
-    extracted_from: string;
-  }>;
-  detected_speakers?: number;
+}
+
+// ✅ This is what uploadAudio returns (just the jobId)
+export interface UploadAudioResponse {
+  jobId: string;
+  message: string;
+}
+
+// ✅ This is what getJobStatus returns
+export interface JobStatus {
+  jobId: string;
+  state: "waiting" | "active" | "completed" | "failed";
+  progress: number;
+  result?: TranscriptResponse; // When completed, contains the full TranscriptResponse
+  failedReason?: string;
+  processedOn?: number;
+  finishedOn?: number;
+  attemptsMade?: number;
+  timestamp?: number;
 }
 
 export interface Person {
@@ -154,7 +139,6 @@ export interface ConversationSummary {
   hasActionItems: boolean;
 }
 
-// Update the FollowUp interface
 export interface FollowUp {
   _id: string;
   personId: string;
@@ -173,7 +157,6 @@ export interface FollowUp {
   createdAt: string;
 }
 
-// Update the SuggestedFollowUp interface
 export interface SuggestedFollowUp {
   personId: string;
   person: string;
@@ -187,7 +170,6 @@ export interface SuggestedFollowUp {
   reason?: string;
 }
 
-// Update IntelligenceDashboard interface
 export interface IntelligenceDashboard {
   pendingFollowUps: FollowUp[];
   suggestedFollowUps: SuggestedFollowUp[];
@@ -198,7 +180,6 @@ export interface IntelligenceDashboard {
   };
 }
 
-// Update LatestInteraction interface
 export interface LatestInteraction {
   personId: string;
   name: string;
@@ -251,7 +232,6 @@ class APIService {
   }
 
   private extractData<T>(response: any): T {
-    // Backend returns { success: true, data: {...} }
     if (
       response &&
       response.success !== undefined &&
@@ -259,11 +239,11 @@ class APIService {
     ) {
       return response.data;
     }
-    // If it's already the data we want, return as-is
     return response;
   }
 
-  async uploadAudio(audioFile: File): Promise<TranscriptResponse> {
+  // ✅ CHANGED: Returns UploadAudioResponse (with jobId)
+  async uploadAudio(audioFile: File): Promise<UploadAudioResponse> {
     const token = await this.getToken();
     const formData = new FormData();
     formData.append("file", audioFile);
@@ -281,6 +261,26 @@ class APIService {
       throw new Error(
         `HTTP error! status: ${response.status}, message: ${errorText}`
       );
+    }
+
+    const data = await response.json();
+    return this.extractData(data);
+  }
+
+  async getJobStatus(jobId: string): Promise<JobStatus> {
+    const token = await this.getToken();
+    const response = await fetch(
+      `${this.baseURL}/api/v1/transcribe/job/${jobId}`,
+      {
+        method: "GET",
+        headers: {
+          ...(token && { Authorization: `Bearer ${token}` }),
+        },
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
     }
 
     const data = await response.json();
@@ -502,7 +502,6 @@ class APIService {
     }
 
     const data = await response.json();
-    // Backend returns paginated response with data and pagination
     return {
       conversations: this.extractData(data) || [],
       pagination: data.pagination || {
