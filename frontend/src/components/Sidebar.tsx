@@ -3,16 +3,18 @@ import { Home, Users, History, CalendarCheck } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { SignedIn, UserButton } from '@clerk/clerk-react';
 import { dark } from '@clerk/themes';
+import { useHistoryNotification } from "@/contexts/HistoryNotificationContext";
 
 const Sidebar = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { hasNewConversations, unreadCount } = useHistoryNotification();
 
   const navItems = [
     { icon: Home, path: "/", active: location.pathname === "/" },
     { icon: CalendarCheck, path: "/activities", active: location.pathname === "/activities" },
     { icon: Users, path: "/personal-intelligence", active: location.pathname === "/personal-intelligence" },
-    { icon: History, path: "/history", active: location.pathname === "/history" },
+    { icon: History, path: "/history", active: location.pathname === "/history", hasNotification: hasNewConversations, notificationCount: unreadCount },
   ];
 
   // Enhanced UserButton appearance
@@ -59,13 +61,18 @@ const Sidebar = () => {
             <button
               key={index}
               onClick={() => navigate(item.path)}
-              className={`w-14 h-14 rounded-full flex items-center justify-center transition-all mx-auto ${
+              className={`relative w-14 h-14 rounded-full flex items-center justify-center transition-all mx-auto ${
                 item.active
                   ? "bg-primary text-primary-foreground shadow-lg shadow-primary/30"
                   : "hover:bg-card/60 hover:text-foreground"
               }`}
             >
               <item.icon strokeWidth={1.5} className="w-7 h-7" />
+              {item.hasNotification && (
+                <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 rounded-full flex items-center justify-center text-white text-[10px] font-bold shadow-lg border-2 border-card">
+                  {item.notificationCount && item.notificationCount > 9 ? '9+' : item.notificationCount || ''}
+                </span>
+              )}
             </button>
           ))}
           
@@ -89,13 +96,18 @@ const Sidebar = () => {
             <button
               key={index}
               onClick={() => navigate(item.path)}
-              className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-all ${
+              className={`relative w-12 h-12 rounded-2xl flex items-center justify-center transition-all ${
                 item.active
                   ? "bg-primary text-primary-foreground shadow-lg shadow-primary/30"
                   : ""
               }`}
             >
               <item.icon strokeWidth={1.5} className="w-4 h-4" />
+              {item.hasNotification && (
+                <span className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 rounded-full flex items-center justify-center text-white text-[8px] font-bold shadow-lg border-2 border-card">
+                  {item.notificationCount && item.notificationCount > 9 ? '9+' : item.notificationCount || ''}
+                </span>
+              )}
             </button>
           ))}
           
