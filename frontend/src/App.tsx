@@ -11,6 +11,8 @@ import AuthPage from "./pages/Auth";
 import NotFound from "./pages/NotFound";
 import AnimatedBackground from "./components/AnimatedBackground";
 import { DataRefreshProvider } from "./contexts/DataRefreshContext";
+import { HistoryNotificationProvider } from "./contexts/HistoryNotificationContext";
+import HistoryNotificationChecker from "./components/HistoryNotificationChecker";
 import PersonalIntelligence from "./pages/PersonalIntelligence";
 import PersonDetail from "./pages/PersonDetail";
 import HistoryViewDetails from "./pages/HistoryViewDetails";
@@ -33,7 +35,9 @@ const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <DataRefreshProvider>
-        <AnimatedBackground />
+        <HistoryNotificationProvider>
+          <HistoryNotificationChecker />
+          <AnimatedBackground />
         <Toaster />
         <Sonner />
         <Routes>
@@ -106,6 +110,7 @@ const App = () => (
 
           <Route path="*" element={<NotFound />} />
         </Routes>
+        </HistoryNotificationProvider>
       </DataRefreshProvider>
     </TooltipProvider>
   </QueryClientProvider>

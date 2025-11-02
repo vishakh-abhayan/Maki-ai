@@ -19,6 +19,7 @@ import Sidebar from "@/components/Sidebar";
 import { useAuth } from "@clerk/clerk-react";
 import { useNavigate } from "react-router-dom";
 import { useDataRefresh } from "@/contexts/DataRefreshContext";
+import { useHistoryNotification } from "@/contexts/HistoryNotificationContext";
 import Header from "../components/Header";
 
 interface ConversationHistory {
@@ -45,6 +46,7 @@ const History = () => {
   const { getToken } = useAuth();
   const navigate = useNavigate();
   const { refreshTrigger } = useDataRefresh();
+  const { markAsRead } = useHistoryNotification();
 
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [conversations, setConversations] = useState<ConversationHistory[]>([]);
@@ -53,6 +55,11 @@ const History = () => {
   >([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+
+  // Mark conversations as read when user visits the history page
+  useEffect(() => {
+    markAsRead();
+  }, [markAsRead]);
 
   useEffect(() => {
     fetchConversations();
@@ -101,6 +108,9 @@ const History = () => {
 
       setConversations(data || []);
       setFilteredConversations(data || []);
+
+      // When on History page, we've already marked as read, so no need to check for new conversations
+      // The badge will be reset by markAsRead() which runs on mount
     } catch (err) {
       console.error("Error fetching conversations:", err);
       setError(
