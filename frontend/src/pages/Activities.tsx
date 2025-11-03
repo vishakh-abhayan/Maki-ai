@@ -55,14 +55,14 @@ const Activities = () => {
   };
 
   const formatDate = (dateString: string | null | undefined) => {
-    if (!dateString) return " ";
+    if (!dateString) return "No due date";
 
     try {
       const date = parseISO(dateString);
       // Returns format like "Oct 28, 2025 at 8:30 AM"
       return format(date, "MMM dd, yyyy 'at' h:mm a");
     } catch {
-      return " ";
+      return "No due date";
     }
   };
 
@@ -247,7 +247,7 @@ const Activities = () => {
                               </span>
                             )}
                             <p className="text-sm text-muted-foreground/60">
-                              {formatDate(task.dueDate)}
+                              Due: {formatDate(task.dueDate)}
                             </p>
                           </div>
                         </div>
