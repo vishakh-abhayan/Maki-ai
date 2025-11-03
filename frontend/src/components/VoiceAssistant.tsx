@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { Mic, MicOff, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@clerk/clerk-react";
-import { createAPIService, TranscriptResponse } from "@/services/api"; // Keep TranscriptResponse for state
+import { createAPIService, TranscriptResponse } from "@/services/api";
 import { useDataRefresh } from "@/contexts/DataRefreshContext";
 
 const VoiceAssistant = () => {
@@ -13,7 +13,7 @@ const VoiceAssistant = () => {
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
   const recordingStartTimeRef = useRef<number>(0);
-  const recordingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const recordingTimeoutRef = useRef<NodeJS.Timeout | null>(null); // <-- NEW
   const { toast } = useToast();
   const { getToken } = useAuth();
   const { triggerRefresh } = useDataRefresh();
@@ -25,6 +25,7 @@ const VoiceAssistant = () => {
 
   useEffect(() => {
     return () => {
+      // Cleanup on unmount
       if (mediaRecorderRef.current && isRecording) {
         mediaRecorderRef.current.stop();
       }
@@ -69,6 +70,7 @@ const VoiceAssistant = () => {
           clearTimeout(recordingTimeoutRef.current);
         }
 
+        // Check if recording duration is too short
         if (recordingDuration < MIN_RECORDING_DURATION) {
           toast({
             title: "Recording too short",
@@ -96,6 +98,7 @@ const VoiceAssistant = () => {
       mediaRecorder.start();
       setIsRecording(true);
 
+      // ⏱️ Automatically stop recording after 30 minutes
       recordingTimeoutRef.current = setTimeout(() => {
         if (mediaRecorderRef.current && isRecording) {
           mediaRecorderRef.current.stop();
@@ -152,76 +155,22 @@ const VoiceAssistant = () => {
         type: audioFile.type,
       });
 
-      // ✅ Upload audio and get jobId
-      const uploadResponse = await apiService.uploadAudio(audioFile);
-      const jobId = uploadResponse.jobId;
-
-      console.log("Job queued with ID:", jobId);
+      const data = await apiService.uploadAudio(audioFile);
+      console.log("Transcription response:", data);
+      setTranscriptData(data);
 
       toast({
-        title: "Processing audio...",
-        description: "Maki is transcribing and analyzing your conversation",
+        title: "Transcription complete!",
       });
 
-      // ✅ Poll for job completion
-      const pollInterval = 2000; // Check every 2 seconds
-      const maxAttempts = 60; // Maximum 2 minutes (60 * 2 seconds)
-      let attempts = 0;
-
-      const checkJobStatus = async (): Promise<void> => {
-        try {
-          attempts++;
-
-          const status = await apiService.getJobStatus(jobId);
-          console.log(`Job status [${attempts}/${maxAttempts}]:`, status.state);
-
-          if (status.state === "completed") {
-            console.log("Transcription completed:", status.result);
-
-            // ✅ Set the result which is a TranscriptResponse
-            if (status.result) {
-              setTranscriptData(status.result);
-            }
-
-            toast({
-              title: "Transcription complete!",
-              description: "Your conversation has been analyzed",
-            });
-
-            // Wait a bit for cache invalidation to complete, then refresh
-            setTimeout(() => {
-              triggerRefresh();
-            }, 1000);
-
-            return;
-          }
-
-          if (status.state === "failed") {
-            throw new Error(status.failedReason || "Transcription failed");
-          }
-
-          // Job still processing, check again
-          if (attempts < maxAttempts) {
-            setTimeout(checkJobStatus, pollInterval);
-          } else {
-            throw new Error("Transcription timeout - please try again");
-          }
-        } catch (pollError) {
-          console.error("Error polling job status:", pollError);
-          throw pollError;
-        }
-      };
-
-      // Start polling
-      await checkJobStatus();
+      setTimeout(() => {
+        triggerRefresh();
+      }, 500);
     } catch (error) {
       console.error("Error sending audio to backend:", error);
       toast({
         title: "Transcription failed",
-        description:
-          error instanceof Error
-            ? error.message
-            : "There was an error processing your audio.",
+        description: "There was an error processing your audio.",
         variant: "destructive",
       });
     } finally {
