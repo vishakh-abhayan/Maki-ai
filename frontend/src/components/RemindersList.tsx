@@ -33,6 +33,7 @@ const RemindersList = () => {
 
       const now = new Date();
 
+      // ✅ Filter for UPCOMING reminders (future or today but not past time)
       const upcomingReminders = data.filter((item) => {
         // If no due date, show it anyway
         if (!item.dueDate) return true;
@@ -40,6 +41,7 @@ const RemindersList = () => {
         try {
           const reminderDate = parseISO(item.dueDate);
 
+          // ✅ Show reminders that are in the future OR today and not yet passed
           return isAfter(reminderDate, now) || isToday(reminderDate);
         } catch {
           return true; // Include if date parsing fails

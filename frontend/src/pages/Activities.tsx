@@ -31,8 +31,10 @@ const Activities = () => {
 
       const now = new Date();
 
+      // ✅ Filter out completed tasks
       const activeTasks = tasksData.filter((task) => !task.completed);
 
+      // ✅ Filter reminders based on due date/time
       const upcomingReminders = remindersData.filter((reminder) => {
         if (!reminder.dueDate) return true; // Keep reminders without dates
 
@@ -68,12 +70,15 @@ const Activities = () => {
 
   const handleToggleTask = async (taskId: string, currentStatus: boolean) => {
     try {
+      // ✅ STEP 1: Mark as completing (shows tick + strikethrough)
       setCompletingTaskId(taskId);
 
       // Update on backend
       await apiService.updateTaskStatus(taskId, !currentStatus);
 
+      // ✅ STEP 2: Wait 1 second to show the animation
       setTimeout(() => {
+        // ✅ STEP 3: Remove from UI
         setTasks((prevTasks) =>
           prevTasks.filter((task) => task._id !== taskId)
         );
@@ -82,7 +87,7 @@ const Activities = () => {
     } catch (error) {
       console.error("Failed to update task:", error);
       setCompletingTaskId(null);
-
+      // ✅ Revert on error by refetching
       fetchData();
     }
   };
