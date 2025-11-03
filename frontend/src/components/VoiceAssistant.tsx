@@ -218,9 +218,9 @@ const VoiceAssistant = () => {
             {isProcessing ? (
               <Loader2 className="w-12 h-12 md:w-16 md:h-16 text-foreground animate-spin" />
             ) : isRecording ? (
-              <Mic className="w-12 h-12 md:w-16 md:h-16 text-foreground text-red-500" />
+              <MicOff className="w-12 h-12 md:w-16 md:h-16 text-red-500" />
             ) : (
-              <MicOff className="w-12 h-12 md:w-16 md:h-16 " />
+              <Mic className="w-12 h-12 md:w-16 md:h-16 text-foreground" />
             )}
           </button>
         </div>
