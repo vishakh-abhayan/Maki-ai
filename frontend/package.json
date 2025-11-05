@@ -9,7 +9,7 @@
     "build:dev": "vite build --mode development",
     "lint": "eslint .",
     "preview": "vite preview",
-    "deploy": "npm run build && wrangler pages deploy dist --branch=main --commit-dirty=true",
+    "deploy": "npm run build && wrangler pages deploy dist --production --commit-dirty=true",
     "deploy:preview": "npm run build && wrangler pages deploy dist",
     "deploy:dev": "npm run build:dev && wrangler pages deploy dist"
   },
